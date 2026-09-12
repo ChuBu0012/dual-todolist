@@ -29,6 +29,25 @@ export function TodoList() {
   const pinnedCards = useMemo(() => cards.filter(c => c.isPinned), [cards]);
   const otherCards = useMemo(() => cards.filter(c => !c.isPinned), [cards]);
 
+  const sharedDates = useMemo(() => {
+    const dates = new Set<string>();
+    const byDateAndUser: Record<string, Set<string>> = {};
+    
+    cards.forEach(c => {
+      const t = c.title.trim();
+      if (!t) return;
+      if (!byDateAndUser[t]) byDateAndUser[t] = new Set();
+      
+      if (c.assignee === 'most' || c.assignee === 'both') byDateAndUser[t].add('most');
+      if (c.assignee === 'fern' || c.assignee === 'both') byDateAndUser[t].add('fern');
+      
+      if (byDateAndUser[t].has('most') && byDateAndUser[t].has('fern')) {
+        dates.add(t);
+      }
+    });
+    return dates;
+  }, [cards]);
+
   const sensorOptions = useMemo(() => ({
     activationConstraint: { distance: 5 },
   }), []);
@@ -144,6 +163,7 @@ export function TodoList() {
                   key={card.id}
                   card={card}
                   onClick={() => handleCardClick(card)}
+                  isSharedDate={sharedDates.has(card.title.trim())}
                 />
               ))}
             </div>
@@ -173,6 +193,7 @@ export function TodoList() {
                   key={card.id}
                   card={card}
                   onClick={() => handleCardClick(card)}
+                  isSharedDate={sharedDates.has(card.title.trim())}
                 />
               ))}
             </div>

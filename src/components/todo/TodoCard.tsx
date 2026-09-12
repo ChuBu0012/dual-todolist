@@ -10,9 +10,10 @@ import { formatThaiDate } from '../../utils/dateFormat';
 interface Props {
   card: CardItem;
   onClick: () => void;
+  isSharedDate?: boolean;
 }
 
-export function TodoCard({ card, onClick }: Props) {
+export function TodoCard({ card, onClick, isSharedDate }: Props) {
   const toggleChecklistItem = useTodoStore(s => s.toggleChecklistItem);
   const updateCard = useTodoStore(s => s.updateCard);
   const pendingNotifications = useTodoStore(s => s.pendingNotifications);
@@ -32,15 +33,6 @@ export function TodoCard({ card, onClick }: Props) {
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
-    border: '3px solid var(--border-color)',
-    padding: '16px',
-    backgroundColor: 'var(--card-bg)',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '12px',
-    position: 'relative' as const,
-    boxSizing: 'border-box' as const,
-    opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 10 : 1,
   };
 
@@ -70,7 +62,7 @@ export function TodoCard({ card, onClick }: Props) {
     <div
       ref={setNodeRef}
       style={style}
-      className="animate-fade-in"
+      className={`animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all ${isDragging ? 'opacity-50' : 'opacity-100'} ${isSharedDate ? 'shadow-[6px_6px_0_0_var(--border-color)] -translate-y-1 -translate-x-1' : ''}`}
       onClick={() => {
         if (!isDragging) {
           onClick();

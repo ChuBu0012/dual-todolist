@@ -49,7 +49,7 @@ export function splitDiscordMessage(text: string, maxLength: number = 1850): str
 export const discordService = {
   async sendTaskCompleted(cardTitle: string, itemText: string, completedBy: string) {
     const by = completedBy === 'most' ? 'Most' : 'Fern';
-    const content = `✅ **${by}** completed: "${itemText}" in [${cardTitle || 'Untitled Card'}]`;
+    const content = `DONE: ${by.toUpperCase()} - ${itemText} / ${cardTitle || 'UNTITLED'}`; 
     await this.sendMessage({ content });
   },
 
@@ -137,24 +137,24 @@ export const discordService = {
     const fernLogs = logs.filter((l) => l.completedBy === 'fern');
 
     const lines: string[] = [
-      `⚡ **Dual Todo · สรุปงานที่เสร็จ (รอบ 30 นาที)**`,
-      `📅 วันที่: ${dateStr}`,
-      `✨ เสร็จทั้งหมด: ${logs.length} รายการ`,
+      `BATCH UPDATE`,
+      `DATE: ${dateStr}`,
+      `TOTAL DONE: ${logs.length}`,
       '',
     ];
 
     if (mostLogs.length > 0) {
-      lines.push(`**Most completed (${mostLogs.length}):**`);
+      lines.push(`MOST COMPLETED:`);
       mostLogs.forEach((l) => {
-        lines.push(`• [${l.cardTitle}] ${l.itemText}`);
+        lines.push(`- ${l.itemText} / ${l.cardTitle}`);
       });
       lines.push('');
     }
 
     if (fernLogs.length > 0) {
-      lines.push(`**Fern completed (${fernLogs.length}):**`);
+      lines.push(`FERN COMPLETED:`);
       fernLogs.forEach((l) => {
-        lines.push(`• [${l.cardTitle}] ${l.itemText}`);
+        lines.push(`- ${l.itemText} / ${l.cardTitle}`);
       });
       lines.push('');
     }
@@ -170,12 +170,10 @@ export const discordService = {
     const todayThai = formatThaiDate(new Date());
 
     const content = [
-      `🌙 **22:00 Check-in · มี Todo อะไรอยากจดไว้ไหมนะ?** (${todayThai})`,
+      `SYSTEM CHECK: 22:00`,
+      `DATE: ${todayThai}`,
       '',
-      `สวัสดีตอนค่ำ Most & Fern ✨`,
-      `วันนี้เหนื่อยกันไหม? ก่อนนอนหรือเตรียมพักผ่อน มีสิ่งที่ทำค้างไว้ หรือคิดไอเดียสำหรับพรุ่งนี้ได้ไหมนะ? 📝`,
-      '',
-      `💬 *เปิด Dual Todo เข้ามาจดไว้ได้เลย จะได้ไม่ต้องคอยกังวล แล้วนอนหลับฝันดีนะ zzz* 💤`,
+      `LOG YOUR PENDING TASKS.`
     ].join('\n');
 
     await this.sendMessage({ content });
@@ -188,12 +186,10 @@ export const discordService = {
     const todayThai = formatThaiDate(new Date());
 
     const content = [
-      `🌟 **22:30 แล้วค้าบ! · แวะมาเตือนความจำนะ ( ˘ ³˘)♥** (${todayThai})`,
+      `SYSTEM CHECK: 22:30`,
+      `DATE: ${todayThai}`,
       '',
-      `ฮัลโหลลลล Most & Fern คนเก่ง ✨`,
-      `วันนี้เหนื่อยกันมั้ยเอ่ย? ก่อนจะทิ้งตัวลงนอน มีอะไรค้างคาในใจ หรือปิ๊งไอเดียอะไรสำหรับพรุ่งนี้มั้ยนะ? 📝`,
-      '',
-      `💬 *แวะมาจดใน Dual Todo ไว้ได้เลยน้า พรุ่งนี้จะได้ตื่นมาทำต่อแบบชิลๆ... ฝันดีผีจับหัวนะค้าบบบ จุ๊บๆ* 💤💕`,
+      `FINAL REVIEW BEFORE TOMORROW.`
     ].join('\n');
 
     await this.sendMessage({ content });
@@ -230,31 +226,31 @@ export const discordService = {
       params.totalItems > 0 ? Math.round((params.completedCount / params.totalItems) * 100) : 0;
 
     const headerLines: string[] = [
-      `📋 **Dual Todo Summary · ${summaryDateStr}** (${thaiDateStr})`,
-      `Total items: ${params.totalItems}`,
-      `Completed: ${params.completedCount}`,
-      `Pending: ${params.pendingCount}`,
-      `Completion rate: ${completionRate}%`,
+      `DAILY SUMMARY: ${summaryDateStr}`,
+      `TOTAL: ${params.totalItems}`,
+      `COMPLETED: ${params.completedCount}`,
+      `PENDING: ${params.pendingCount}`,
+      `RATE: ${completionRate}%`,
       '',
-      `Most completed: ${params.mostCompletedCount}`,
-      `Fern completed: ${params.fernCompletedCount}`,
+      `MOST DONE: ${params.mostCompletedCount}`,
+      `FERN DONE: ${params.fernCompletedCount}`,
       '',
     ];
 
     if (params.pendingByCard.length === 0) {
-      headerLines.push('🎉 **ไม่มีรายการค้าง เก่งมากทั้งคู่เลย!**');
+      headerLines.push('STATUS: NO PENDING TASKS');
       await this.sendMessage({ content: headerLines.join('\n') });
       return;
     }
 
-    headerLines.push('📌 **รายการค้าง จัดกลุ่มตามการ์ด:**');
+    headerLines.push('PENDING TASKS:');
 
     const pendingLines: string[] = [];
     params.pendingByCard.forEach((card) => {
-      pendingLines.push(`• **${card.cardTitle}**`);
+      pendingLines.push(`${card.cardTitle.toUpperCase()}`);
       card.items.forEach((item) => {
         const assigneeTag = item.assignee === 'both' ? 'Both' : item.assignee === 'most' ? 'Most' : 'Fern';
-        pendingLines.push(`  - ${item.text} (${assigneeTag})`);
+        pendingLines.push(`- ${item.text} | ${assigneeTag.toUpperCase()}`);
       });
     });
 
