@@ -32,9 +32,9 @@ export function TodoCard({ card, onClick }: Props) {
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
-    border: '3px solid #000',
+    border: '3px solid var(--border-color)',
     padding: '16px',
-    backgroundColor: '#fff',
+    backgroundColor: 'var(--card-bg)',
     display: 'flex',
     flexDirection: 'column' as const,
     gap: '12px',
@@ -70,6 +70,7 @@ export function TodoCard({ card, onClick }: Props) {
     <div
       ref={setNodeRef}
       style={style}
+      className="animate-fade-in"
       onClick={() => {
         if (!isDragging) {
           onClick();
@@ -120,9 +121,23 @@ export function TodoCard({ card, onClick }: Props) {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
           <AssigneeBadge assignee={card.assignee} size="small" />
           {card.isPinned && (
-            <span style={{ display: 'inline-flex', alignItems: 'center' }} title="Pinned">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                useTodoStore.getState().updateCard(card.id, { isPinned: false });
+              }}
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer',
+                padding: 0
+              }} 
+              title="Unpin task"
+            >
               <PinIcon isPinned size={16} />
-            </span>
+            </button>
           )}
         </div>
       </div>
@@ -154,7 +169,7 @@ export function TodoCard({ card, onClick }: Props) {
                       pointerEvents: 'none',
                       zIndex: 0,
                       background: 'rgba(0,0,0,0.05)',
-                      borderBottom: '2px solid #000'
+                      borderBottom: '2px solid var(--border-color)'
                     }}
                   >
                     <div 
@@ -214,8 +229,8 @@ export function TodoCard({ card, onClick }: Props) {
                     lineHeight: 1.3,
                     flex: 1,
                     border: 'none',
-                    borderBottom: '2px solid #000',
-                    background: '#fff',
+                    borderBottom: '2px solid var(--border-color)',
+                    background: 'var(--card-bg)',
                     outline: 'none',
                     padding: '2px 4px',
                     boxSizing: 'border-box',

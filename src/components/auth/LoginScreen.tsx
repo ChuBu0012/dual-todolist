@@ -24,7 +24,7 @@ export function LoginScreen() {
     <div
       style={{
         minHeight: '100dvh',
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--card-bg)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

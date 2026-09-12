@@ -32,10 +32,8 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
 
   const handleAssigneeCycle = () => {
     if (isReadOnly) return;
-    let next: TodoAssignee = 'most';
-    if (localCard.assignee === 'most') next = 'fern';
-    else if (localCard.assignee === 'fern') next = 'both';
-    updateField({ assignee: next });
+    const next = localCard.assignee === currentUser ? 'both' : currentUser;
+    updateField({ assignee: next as TodoAssignee });
   };
 
   const handleAddItem = () => {
@@ -121,15 +119,21 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
       {/* Backdrop */}
       <div
         onClick={handleClose}
+        className="animate-fade-in"
         style={{
           position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.6)',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'var(--overlay-bg)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
           zIndex: 40,
         }}
       />
 
-      {/* Panel: Responsive viewport clamp with screen margins */}
+      {/* Modal Container */}
       <div
         style={{
           position: 'fixed',
@@ -138,16 +142,23 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
           transform: 'translate(-50%, -50%)',
           width: 'calc(100% - 32px)',
           maxWidth: '480px',
-          backgroundColor: '#fff',
-          border: '3px solid #000',
-          padding: '16px',
-          boxSizing: 'border-box',
           zIndex: 50,
-          maxHeight: '88dvh',
-          display: 'flex',
-          flexDirection: 'column',
+          pointerEvents: 'none',
         }}
       >
+        <div
+          className="animate-fade-up"
+          style={{
+            pointerEvents: 'auto',
+            backgroundColor: 'var(--card-bg)',
+            border: '3px solid var(--border-color)',
+            padding: '16px',
+            boxSizing: 'border-box',
+            maxHeight: '88dvh',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
         {/* Header Options: 40px touch targets */}
         <div
           style={{
@@ -155,7 +166,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
             justifyContent: 'space-between',
             alignItems: 'center',
             marginBottom: '16px',
-            borderBottom: '2px solid #000',
+            borderBottom: '2px solid var(--border-color)',
             paddingBottom: '12px',
           }}
         >
@@ -179,10 +190,10 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                   fontFamily: 'Space Mono, monospace',
                   fontSize: '0.75rem',
                   fontWeight: 700,
-                  color: '#b91c1c',
-                  backgroundColor: '#fee2e2',
+                  color: 'var(--error-text)',
+                  backgroundColor: 'var(--error-bg)',
                   padding: '4px 8px',
-                  border: '1px solid #b91c1c',
+                  border: '1px solid var(--error-border)',
                   marginLeft: card ? 0 : '8px'
                 }}
               >
@@ -200,9 +211,9 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               style={{
                 width: '40px',
                 height: '40px',
-                background: localCard.isPinned ? '#000' : '#fff',
-                color: localCard.isPinned ? '#fff' : '#000',
-                border: '2px solid #000',
+                background: localCard.isPinned ? 'var(--border-color)' : 'var(--card-bg)',
+                color: localCard.isPinned ? 'var(--card-bg)' : 'var(--border-color)',
+                border: '2px solid var(--border-color)',
                 cursor: isReadOnly ? 'not-allowed' : 'pointer',
                 opacity: isReadOnly ? 0.5 : 1,
                 display: 'flex',
@@ -222,8 +233,8 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               style={{
                 height: '40px',
                 padding: '0 10px',
-                background: '#fff',
-                border: '2px solid #000',
+                background: 'var(--card-bg)',
+                border: '2px solid var(--border-color)',
                 cursor: isReadOnly ? 'not-allowed' : 'pointer',
                 opacity: isReadOnly ? 0.5 : 1,
                 display: 'flex',
@@ -252,8 +263,8 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               style={{
                 width: '40px',
                 height: '40px',
-                background: '#fff',
-                border: '2px solid #000',
+                background: 'var(--card-bg)',
+                border: '2px solid var(--border-color)',
                 cursor: 'pointer',
                 fontFamily: 'Space Mono, monospace',
                 fontWeight: 700,
@@ -285,7 +296,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               fontSize: '1.25rem',
               fontFamily: 'Archivo Black, sans-serif',
               border: 'none',
-              borderBottom: '2px solid #000',
+              borderBottom: '2px solid var(--border-color)',
               padding: '8px 0',
               marginBottom: '24px',
               width: '100%',
@@ -308,7 +319,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                       pointerEvents: 'none',
                       zIndex: 0,
                       background: 'rgba(0,0,0,0.05)',
-                      borderBottom: '2px solid #000'
+                      borderBottom: '2px solid var(--border-color)'
                     }}
                   >
                     <div 
@@ -383,9 +394,9 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
           <div
             style={{
               padding: '8px 12px',
-              backgroundColor: '#fee2e2',
-              border: '2px solid #ef4444',
-              color: '#b91c1c',
+              backgroundColor: 'var(--error-bg)',
+              border: '2px solid var(--error-border)',
+              color: 'var(--error-text)',
               fontSize: '0.85rem',
               fontFamily: 'Space Mono, monospace',
               marginBottom: '12px',
@@ -395,6 +406,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
             Failed to sync changes. Retrying...
           </div>
         )}
+        </div>
       </div>
     </>
   );

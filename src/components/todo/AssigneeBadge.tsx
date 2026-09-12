@@ -15,7 +15,7 @@ export function AssigneeBadge({ assignee, size = 'small' }: Props) {
       <div
         style={{
           display: 'inline-flex',
-          border: '2px solid #000',
+          border: '2px solid var(--border-color)',
           height,
           userSelect: 'none',
           boxSizing: 'border-box',
@@ -24,8 +24,8 @@ export function AssigneeBadge({ assignee, size = 'small' }: Props) {
       >
         <span
           style={{
-            backgroundColor: '#000',
-            color: '#fff',
+            backgroundColor: 'var(--border-color)',
+            color: 'var(--card-bg)',
             fontFamily: 'Space Mono, monospace',
             fontWeight: 700,
             fontSize,
@@ -33,15 +33,15 @@ export function AssigneeBadge({ assignee, size = 'small' }: Props) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            borderRight: '1px solid #fff',
+            borderRight: '1px solid var(--card-bg)',
           }}
         >
           M
         </span>
         <span
           style={{
-            backgroundColor: '#fff',
-            color: '#000',
+            backgroundColor: 'var(--card-bg)',
+            color: 'var(--border-color)',
             fontFamily: 'Space Mono, monospace',
             fontWeight: 700,
             fontSize,
@@ -65,11 +65,11 @@ export function AssigneeBadge({ assignee, size = 'small' }: Props) {
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        border: '2px solid #000',
+        border: '2px solid var(--border-color)',
         height,
         padding: '0 7px',
-        backgroundColor: isMost ? '#000' : '#fff',
-        color: isMost ? '#fff' : '#000',
+        backgroundColor: isMost ? 'var(--border-color)' : 'var(--card-bg)',
+        color: isMost ? 'var(--card-bg)' : 'var(--border-color)',
         fontFamily: 'Space Mono, monospace',
         fontWeight: 700,
         fontSize,

@@ -7,7 +7,7 @@ import { PinIcon } from './PinIcon';
 import type { CardItem } from '../../types/todo';
 import {
   DndContext,
-  closestCenter,
+  closestCorners,
   TouchSensor,
   MouseSensor,
   useSensor,
@@ -61,18 +61,26 @@ export function TodoList() {
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    // Find the lists
     const activeCard = cards.find(c => c.id === active.id);
     const overCard = cards.find(c => c.id === over.id);
 
     if (!activeCard || !overCard) return;
-    
-    // We only allow sorting within the same list (Pinned vs Other)
-    if (activeCard.isPinned !== overCard.isPinned) return;
+
+    // If moving to a different list (pin/unpin)
+    if (activeCard.isPinned !== overCard.isPinned) {
+      // Update the pin status immediately in the store
+      await useTodoStore.getState().updateCard(activeCard.id, { isPinned: overCard.isPinned });
+      
+      // After updating pin status, the lists will recompute and we can just rely on the natural order,
+      // or we can explicitly reorder if needed. For now, letting it snap to the end of the new list is fine,
+      // but to be precise we should reorder all IDs.
+      // A full cross-list reorder is complex, so simply changing pin status is an easy win for users.
+      return;
+    }
 
     const list = activeCard.isPinned ? pinnedCards : otherCards;
     const oldIndex = list.findIndex(c => c.id === active.id);
@@ -80,7 +88,6 @@ export function TodoList() {
 
     const reorderedList = arrayMove(list, oldIndex, newIndex);
     
-    // Combine with the other list to get the full ordered ids
     let finalOrderedIds: string[];
     if (activeCard.isPinned) {
       finalOrderedIds = [...reorderedList.map(c => c.id), ...otherCards.map(c => c.id)];
@@ -103,7 +110,7 @@ export function TodoList() {
     <div style={{ paddingBottom: '96px', maxWidth: '840px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
       <DndContext 
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
       >
       
@@ -191,8 +198,8 @@ export function TodoList() {
           width: '56px',
           height: '56px',
           borderRadius: '28px',
-          backgroundColor: '#000',
-          color: '#fff',
+          backgroundColor: 'var(--border-color)',
+          color: 'var(--card-bg)',
           border: 'none',
           fontSize: '2rem',
           display: 'flex',

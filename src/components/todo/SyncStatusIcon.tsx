@@ -14,7 +14,7 @@ export function SyncStatusIcon({ state }: Props) {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#000',
+          color: 'var(--fg-color)',
         }}
         aria-label="Saving"
       >
@@ -44,7 +44,7 @@ export function SyncStatusIcon({ state }: Props) {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#000',
+          color: 'var(--fg-color)',
         }}
         aria-label="Saved"
       >
@@ -73,7 +73,7 @@ export function SyncStatusIcon({ state }: Props) {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#ef4444',
+          color: 'var(--error-text)',
         }}
         aria-label="Sync error"
       >
@@ -96,6 +96,32 @@ export function SyncStatusIcon({ state }: Props) {
     );
   }
 
-  return null;
+  return (
+    <span
+      key="idle-icon"
+      title="Saved"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--fg-color)',
+        opacity: 0.5,
+      }}
+      aria-label="Saved"
+    >
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="square"
+        style={{ display: 'block' }}
+      >
+        <path d="M20 6L9 17l-5-5" />
+      </svg>
+    </span>
+  );
 }
 

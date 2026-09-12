@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
 import { TodoList } from '../todo/TodoList';
@@ -11,6 +11,20 @@ export function MainLayout() {
   const initialize = useTodoStore((s) => s.initialize);
   const syncState = useTodoStore((s) => s.syncState);
 
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
   useEffect(() => {
     const unsubscribe = initialize();
     return () => unsubscribe();
@@ -20,7 +34,7 @@ export function MainLayout() {
     <div
       style={{
         minHeight: '100dvh',
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--card-bg)',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -28,14 +42,14 @@ export function MainLayout() {
       {/* Top Navbar */}
       <header
         style={{
-          borderBottom: '3px solid #000',
+          borderBottom: '3px solid var(--border-color)',
           padding: '12px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           position: 'sticky',
           top: 0,
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--card-bg)',
           zIndex: 45,
         }}
       >
@@ -53,6 +67,23 @@ export function MainLayout() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Dark Mode Toggle */}
+          <button
+            onClick={() => setIsDark(prev => !prev)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            title="Toggle Dark Mode"
+          >
+            {isDark ? '☀️' : '🌙'}
+          </button>
+
           {/* User badge */}
           <SyncStatusIcon state={syncState} />
           <div
@@ -61,10 +92,10 @@ export function MainLayout() {
               fontSize: '0.75rem',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              border: '2px solid #000',
+              border: '2px solid var(--border-color)',
               padding: '4px 10px',
-              backgroundColor: currentUser === 'most' ? '#000' : '#fff',
-              color: currentUser === 'most' ? '#fff' : '#000',
+              backgroundColor: currentUser === 'most' ? 'var(--border-color)' : 'var(--card-bg)',
+              color: currentUser === 'most' ? 'var(--card-bg)' : 'var(--border-color)',
             }}
           >
             {userProfile?.name ?? currentUser}
@@ -90,7 +121,7 @@ export function MainLayout() {
           flex: 1,
           padding: '16px',
           overflowY: 'auto',
-          backgroundColor: '#f9f9f9',
+          backgroundColor: 'var(--bg-color)',
         }}
       >
         <TodoList />
