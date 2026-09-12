@@ -12,11 +12,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     console.log('[CRON] Running 22:30 Daily Summary...');
     
-    // 1. Send the cute intro message
-    await discordService.sendNightlyReminder();
-
-    // 2. Fetch all cards and compute summary
+        // 2. Fetch all cards and compute summary
     const cards = await firestoreService.getAllCards();
+    
+    // Check if there's any work today
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    const activeCards = cards.filter(card => {
+      // Include if created today, updated today, or has pending items and was updated recently
+      const createdStr = card.createdAt ? new Date(card.createdAt).toISOString().split('T')[0] : '';
+      const updatedStr = card.updatedAt ? new Date(card.updatedAt).toISOString().split('T')[0] : '';
+      
+      // If it's a completely old card (not updated today) AND all items are done, skip it.
+      // Actually, user said: "หากไม่มีงาน หรืออยู่คนละวันจะไม่ส่งซ้ำแล้วนะ"
+      // Let's strictly only include cards updated TODAY or created TODAY.
+      return createdStr === todayStr || updatedStr === todayStr;
+    });
+
+    if (activeCards.length === 0) {
+       console.log('[CRON] No active tasks for today. Skipping daily summary.');
+       return res.status(200).json({ success: true, message: 'No tasks today, skipped.' });
+    }
+    
+    // 1. Send the intro message only if there are active tasks today
+    await discordService.sendNightlyReminder();
     
     let totalItems = 0;
     let completedCount = 0;
@@ -26,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     const pendingByCard: Array<{ cardTitle: string; items: Array<{ text: string; assignee: string }> }> = [];
 
-    cards.forEach(card => {
+    activeCards.forEach(card => {
       if (!card.items || card.items.length === 0) return;
       
       const pendingItems: Array<{ text: string; assignee: string }> = [];

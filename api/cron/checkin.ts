@@ -10,6 +10,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     console.log('[CRON] Running 22:00 Daily Reminder...');
+    
+    // Check if there are active cards today
+    const { firestoreService } = await import('../../src/services/firestoreService');
+    const cards = await firestoreService.getAllCards();
+    
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    const activeCards = cards.filter(card => {
+      const createdStr = card.createdAt ? new Date(card.createdAt).toISOString().split('T')[0] : '';
+      const updatedStr = card.updatedAt ? new Date(card.updatedAt).toISOString().split('T')[0] : '';
+      return createdStr === todayStr || updatedStr === todayStr;
+    });
+
+    if (activeCards.length === 0) {
+      console.log('[CRON] No active tasks for today. Skipping 22:00 reminder.');
+      return res.status(200).json({ success: true, message: 'No tasks today, skipped.' });
+    }
+
     await discordService.sendCheckinReminder();
     console.log('[CRON] Successfully sent 22:00 reminder');
 
