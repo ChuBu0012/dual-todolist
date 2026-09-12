@@ -220,7 +220,7 @@ export const discordService = {
   }) {
     const date = params.date || new Date();
     const summaryDateStr = formatSummaryDate(date); // e.g. "12 Sep 2026"
-    const thaiDateStr = formatThaiDate(date); // e.g. "12/09/69"
+
 
     const completionRate =
       params.totalItems > 0 ? Math.round((params.completedCount / params.totalItems) * 100) : 0;
