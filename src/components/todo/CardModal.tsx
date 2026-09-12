@@ -6,8 +6,8 @@ import { AssigneeBadge } from './AssigneeBadge';
 import { useDebouncedCardSync } from '../../hooks/useDebouncedCardSync';
 import { PinIcon } from './PinIcon';
 import { formatThaiDate } from '../../utils/dateFormat';
-
-import { DndContext, closestCorners, TouchSensor, MouseSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, closestCorners, TouchSensor, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { SortableChecklistItem } from './SortableChecklistItem';
 interface Props {
@@ -326,63 +326,6 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
           />
 
           {/* Checklist Items */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-            {(localCard.items || []).map((item) => {
-              const isPending = pendingNotifications.includes(item.id);
-              return (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative', overflow: 'hidden' }}>
-                {isPending && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 0, left: 0, right: 0, bottom: 0,
-                      pointerEvents: 'none',
-                      zIndex: 0,
-                      background: 'rgba(0,0,0,0.05)',
-                      borderBottom: '2px solid var(--border-color)'
-                    }}
-                  >
-                    <div 
-                      className="animate-undo-shrink"
-                      style={{ height: '100%', background: 'rgba(0,0,0,0.1)' }}
-                    />
-                  </div>
-                )}
-                <span style={{ color: '#ccc', cursor: 'grab', zIndex: 1, opacity: isReadOnly ? 0.5 : 1 }}>::</span>
-                <input
-                  type="checkbox"
-                  className="rb-checkbox"
-                  checked={item.isDone}
-                  onChange={() => handleToggleItemDone(item.id)}
-                  disabled={isReadOnly}
-                  style={{ width: '20px', height: '20px', flexShrink: 0, zIndex: 1, cursor: isReadOnly ? 'not-allowed' : 'pointer' }}
-                />
-                <input
-                  type="text"
-                  value={item.text}
-                  onChange={(e) => handleItemChange(item.id, e.target.value)}
-                  placeholder="ITEM..."
-                  readOnly={isReadOnly}
-                  style={{
-                    flex: 1,
-                    border: 'none',
-                    borderBottom: '1px dashed #ccc',
-                    fontFamily: 'Work Sans, sans-serif',
-                    fontSize: '1rem',
-                    outline: 'none',
-                    background: 'transparent',
-                    textDecoration: item.isDone ? 'line-through' : 'none',
-                    opacity: item.isDone || isReadOnly ? 0.5 : 1,
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveItem(item.id)}
-                  disabled={isReadOnly}
-                  style={{ background: 'none', border: 'none', cursor: isReadOnly ? 'not-allowed' : 'pointer', color: '#999', fontSize: '1.25rem', padding: '4px', opacity: isReadOnly ? 0.5 : 1 }}
-                >
-                  ×
-                </button>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
@@ -405,9 +348,6 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                   />
                 ))}
               </div>
-            );
-          })}
-          </div>
             </SortableContext>
           </DndContext>
 
