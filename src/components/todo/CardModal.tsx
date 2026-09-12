@@ -10,13 +10,14 @@ import { formatThaiDate } from '../../utils/dateFormat';
 interface Props {
   card?: CardItem | null;
   onClose: () => void;
+  isReadOnly?: boolean;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 const discordTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
-export function CardModal({ card, onClose }: Props) {
+export function CardModal({ card, onClose, isReadOnly }: Props) {
   const currentUser = useAuthStore((s) => s.currentUser);
   const pendingNotifications = useTodoStore(s => s.pendingNotifications);
   const { localCard, updateField, syncState, flush } = useDebouncedCardSync(card || null);
@@ -30,6 +31,7 @@ export function CardModal({ card, onClose }: Props) {
   }, [card]);
 
   const handleAssigneeCycle = () => {
+    if (isReadOnly) return;
     let next: TodoAssignee = 'most';
     if (localCard.assignee === 'most') next = 'fern';
     else if (localCard.assignee === 'fern') next = 'both';
@@ -37,21 +39,25 @@ export function CardModal({ card, onClose }: Props) {
   };
 
   const handleAddItem = () => {
+    if (isReadOnly) return;
     const newItems = [...(localCard.items || []), { id: generateId(), text: '', isDone: false }];
     updateField({ items: newItems });
   };
 
   const handleItemChange = (id: string, text: string) => {
+    if (isReadOnly) return;
     const newItems = (localCard.items || []).map((it) => (it.id === id ? { ...it, text } : it));
     updateField({ items: newItems });
   };
 
   const handleRemoveItem = (id: string) => {
+    if (isReadOnly) return;
     const newItems = (localCard.items || []).filter((it) => it.id !== id);
     updateField({ items: newItems });
   };
 
   const handleToggleItemDone = (id: string) => {
+    if (isReadOnly) return;
     let toggledItemText = '';
     let isNowDone = false;
     let cardTitle = localCard.title || 'Untitled';
@@ -105,8 +111,8 @@ export function CardModal({ card, onClose }: Props) {
     }
   };
 
-  const handleClose = async () => {
-    await flush();
+  const handleClose = () => {
+    flush();
     onClose();
   };
 
@@ -167,6 +173,22 @@ export function CardModal({ card, onClose }: Props) {
                 NEW TASK
               </span>
             )}
+            {isReadOnly && (
+              <span
+                style={{
+                  fontFamily: 'Space Mono, monospace',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: '#b91c1c',
+                  backgroundColor: '#fee2e2',
+                  padding: '4px 8px',
+                  border: '1px solid #b91c1c',
+                  marginLeft: card ? 0 : '8px'
+                }}
+              >
+                LOCKED BY {localCard.lockedBy?.toUpperCase()}
+              </span>
+            )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -174,13 +196,15 @@ export function CardModal({ card, onClose }: Props) {
             <button
               type="button"
               onClick={() => updateField({ isPinned: !localCard.isPinned })}
+              disabled={isReadOnly}
               style={{
                 width: '40px',
                 height: '40px',
                 background: localCard.isPinned ? '#000' : '#fff',
                 color: localCard.isPinned ? '#fff' : '#000',
                 border: '2px solid #000',
-                cursor: 'pointer',
+                cursor: isReadOnly ? 'not-allowed' : 'pointer',
+                opacity: isReadOnly ? 0.5 : 1,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -194,12 +218,14 @@ export function CardModal({ card, onClose }: Props) {
             <button
               type="button"
               onClick={handleAssigneeCycle}
+              disabled={isReadOnly}
               style={{
                 height: '40px',
                 padding: '0 10px',
                 background: '#fff',
                 border: '2px solid #000',
-                cursor: 'pointer',
+                cursor: isReadOnly ? 'not-allowed' : 'pointer',
+                opacity: isReadOnly ? 0.5 : 1,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
@@ -254,6 +280,7 @@ export function CardModal({ card, onClose }: Props) {
             value={localCard.title || ''}
             onChange={(e) => updateField({ title: e.target.value })}
             maxLength={100}
+            readOnly={isReadOnly}
             style={{
               fontSize: '1.25rem',
               fontFamily: 'Archivo Black, sans-serif',
@@ -263,6 +290,7 @@ export function CardModal({ card, onClose }: Props) {
               marginBottom: '24px',
               width: '100%',
               boxSizing: 'border-box',
+              opacity: isReadOnly ? 0.7 : 1,
             }}
           />
 
@@ -289,19 +317,21 @@ export function CardModal({ card, onClose }: Props) {
                     />
                   </div>
                 )}
-                <span style={{ color: '#ccc', cursor: 'grab', zIndex: 1 }}>::</span>
+                <span style={{ color: '#ccc', cursor: 'grab', zIndex: 1, opacity: isReadOnly ? 0.5 : 1 }}>::</span>
                 <input
                   type="checkbox"
                   className="rb-checkbox"
                   checked={item.isDone}
                   onChange={() => handleToggleItemDone(item.id)}
-                  style={{ width: '20px', height: '20px', flexShrink: 0, zIndex: 1 }}
+                  disabled={isReadOnly}
+                  style={{ width: '20px', height: '20px', flexShrink: 0, zIndex: 1, cursor: isReadOnly ? 'not-allowed' : 'pointer' }}
                 />
                 <input
                   type="text"
                   value={item.text}
                   onChange={(e) => handleItemChange(item.id, e.target.value)}
                   placeholder="ITEM..."
+                  readOnly={isReadOnly}
                   style={{
                     flex: 1,
                     border: 'none',
@@ -311,13 +341,14 @@ export function CardModal({ card, onClose }: Props) {
                     outline: 'none',
                     background: 'transparent',
                     textDecoration: item.isDone ? 'line-through' : 'none',
-                    opacity: item.isDone ? 0.5 : 1,
+                    opacity: item.isDone || isReadOnly ? 0.5 : 1,
                   }}
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveItem(item.id)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999', fontSize: '1.25rem', padding: '4px' }}
+                  disabled={isReadOnly}
+                  style={{ background: 'none', border: 'none', cursor: isReadOnly ? 'not-allowed' : 'pointer', color: '#999', fontSize: '1.25rem', padding: '4px', opacity: isReadOnly ? 0.5 : 1 }}
                 >
                   ×
                 </button>
@@ -329,13 +360,14 @@ export function CardModal({ card, onClose }: Props) {
           <button
             type="button"
             onClick={handleAddItem}
+            disabled={isReadOnly}
             style={{
               background: 'none',
               border: 'none',
-              cursor: 'pointer',
+              cursor: isReadOnly ? 'not-allowed' : 'pointer',
               fontFamily: 'Work Sans, sans-serif',
               fontSize: '1rem',
-              display: 'flex',
+              display: isReadOnly ? 'none' : 'flex',
               alignItems: 'center',
               gap: '8px',
               padding: '8px 0',

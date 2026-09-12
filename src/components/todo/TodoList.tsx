@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTodoStore } from '../../store/todoStore';
+import { useAuthStore } from '../../store/authStore';
 import { TodoCard } from './TodoCard';
 import { CardModal } from './CardModal';
 import { PinIcon } from './PinIcon';
@@ -20,7 +21,8 @@ export function TodoList() {
   const isLoading = useTodoStore((s) => s.isLoading);
   const reorderCards = useTodoStore((s) => s.reorderCards);
   
-  const [selectedCard, setSelectedCard] = useState<CardItem | null | undefined>(undefined);
+  const [selectedCard, setSelectedCard] = useState<{ card: CardItem | null, isReadOnly?: boolean } | undefined>(undefined);
+  const currentUser = useAuthStore((s) => s.currentUser);
 
   const pinnedCards = useMemo(() => cards.filter(c => c.isPinned), [cards]);
   const otherCards = useMemo(() => cards.filter(c => !c.isPinned), [cards]);
@@ -37,6 +39,27 @@ export function TodoList() {
       },
     })
   );
+
+  const handleCardClick = async (card: CardItem) => {
+    // Check if locked by another user (and lock is less than 15 mins old)
+    const lockAge = card.lockedAt ? Date.now() - new Date(card.lockedAt).getTime() : 0;
+    const isLockedByOther = card.lockedBy && card.lockedBy !== currentUser && lockAge < 15 * 60000;
+
+    if (isLockedByOther) {
+      setSelectedCard({ card, isReadOnly: true });
+    } else {
+      // Acquire lock
+      try {
+        await useTodoStore.getState().updateCard(card.id, { 
+          lockedBy: currentUser, 
+          lockedAt: new Date().toISOString() 
+        });
+      } catch (e) {
+        console.error('Failed to acquire lock', e);
+      }
+      setSelectedCard({ card, isReadOnly: false });
+    }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -114,7 +137,7 @@ export function TodoList() {
                 <TodoCard
                   key={card.id}
                   card={card}
-                  onClick={() => setSelectedCard(card)}
+                  onClick={() => handleCardClick(card)}
                 />
               ))}
             </div>
@@ -124,18 +147,12 @@ export function TodoList() {
 
       {/* OTHERS SECTION */}
       {otherCards.length > 0 && (
-        <div style={{ marginBottom: '28px' }}>
-          <h2
-            style={{
-              fontFamily: 'Archivo Black, sans-serif',
-              fontSize: '0.95rem',
-              marginBottom: '12px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em',
-            }}
-          >
-            Tasks
-          </h2>
+        <div>
+          {pinnedCards.length > 0 && (
+            <h2 style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: '1rem', margin: '0 0 12px 0', padding: '0 4px', textTransform: 'uppercase' }}>
+              Other Tasks
+            </h2>
+          )}
           <SortableContext items={otherCards.map(c => c.id)} strategy={rectSortingStrategy}>
             <div
               style={{
@@ -149,7 +166,7 @@ export function TodoList() {
                 <TodoCard
                   key={card.id}
                   card={card}
-                  onClick={() => setSelectedCard(card)}
+                  onClick={() => handleCardClick(card)}
                 />
               ))}
             </div>
@@ -166,7 +183,7 @@ export function TodoList() {
 
       {/* Floating Action Button */}
       <button
-        onClick={() => setSelectedCard(null)} // null means create new
+        onClick={() => setSelectedCard({ card: null, isReadOnly: false })} // null means create new
         style={{
           position: 'fixed',
           bottom: '24px',
@@ -193,8 +210,22 @@ export function TodoList() {
       {/* Card Modal */}
       {selectedCard !== undefined && (
         <CardModal
-          card={selectedCard}
-          onClose={() => setSelectedCard(undefined)}
+          card={selectedCard?.card}
+          isReadOnly={selectedCard?.isReadOnly}
+          onClose={async () => {
+            // Release lock if we had one
+            if (selectedCard?.card?.id && !selectedCard.isReadOnly) {
+              try {
+                await useTodoStore.getState().updateCard(selectedCard.card.id, { 
+                  lockedBy: null, 
+                  lockedAt: null 
+                });
+              } catch (e) {
+                console.error('Failed to release lock', e);
+              }
+            }
+            setSelectedCard(undefined);
+          }}
         />
       )}
     </DndContext>

@@ -23,6 +23,10 @@ export interface CardItem {
   // Timestamps
   createdAt: string;
   updatedAt: string;
+
+  // Concurrency Lock
+  lockedBy?: string | null;
+  lockedAt?: string | null;
 }
 
 /**
