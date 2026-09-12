@@ -47,6 +47,12 @@ export function splitDiscordMessage(text: string, maxLength: number = 1850): str
 }
 
 export const discordService = {
+  async sendTaskCompleted(cardTitle: string, itemText: string, completedBy: string) {
+    const by = completedBy === 'most' ? 'Most' : 'Fern';
+    const content = `✅ **${by}** completed: "${itemText}" in [${cardTitle || 'Untitled Card'}]`;
+    await this.sendMessage({ content });
+  },
+
   getWebhookUrl(): string | undefined {
     try {
       if (typeof import.meta !== 'undefined' && import.meta.env) {
@@ -80,7 +86,7 @@ export const discordService = {
         await this.postDirect(webhookUrl, {
           content: chunk,
           username: BOT_USERNAME,
-          avatar_url: BOT_AVATAR,
+          // avatar_url: BOT_AVATAR,
         });
       }
       return;

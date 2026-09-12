@@ -7,18 +7,16 @@ import {
   onSnapshot,
   query,
   orderBy,
-  where,
   getDoc,
   getDocs,
   writeBatch,
 } from 'firebase/firestore';
 import db from '../config/firebase';
-import type { CardItem, DailySummary, TodoAssignee, ChecklistItem, CompletedTaskLog } from '../types/todo';
+import type { CardItem, DailySummary, TodoAssignee, ChecklistItem } from '../types/todo';
 import { formatThaiDate } from '../utils/dateFormat';
 
 const TODOS_COLLECTION = 'todos';
 const SUMMARIES_COLLECTION = 'dailySummaries';
-const COMPLETED_TASKS_COLLECTION = 'completedTasks';
 
 export interface CreateCardInput {
   title: string;
@@ -187,66 +185,7 @@ export const firestoreService = {
     return snap.data() as DailySummary;
   },
 
-  /**
-   * Record a completed task log in Firestore collection 'completedTasks'
-   * Used for 30-minute interval Discord batch updates
-   */
-  async recordCompletedTask(task: Omit<CompletedTaskLog, 'id' | 'notified' | 'dateStr'>): Promise<string> {
-    const docId = `${task.cardId}_${task.itemId}`;
-    const docRef = doc(db, COMPLETED_TASKS_COLLECTION, docId);
-    const dateStr = formatThaiDate(new Date(task.completedAt));
 
-    const logData: Omit<CompletedTaskLog, 'id'> = {
-      ...task,
-      dateStr,
-      notified: false,
-    };
-
-    console.log('[DEBUG-7f3a] Recording completed task log:', docId, logData);
-    await setDoc(docRef, logData);
-    return docId;
-  },
-
-  /**
-   * Remove a completed task log if user unchecks an item before it is notified
-   */
-  async removeCompletedTask(cardId: string, itemId: string): Promise<void> {
-    const docId = `${cardId}_${itemId}`;
-    const docRef = doc(db, COMPLETED_TASKS_COLLECTION, docId);
-    console.log('[DEBUG-7f3a] Removing completed task log:', docId);
-    await deleteDoc(docRef);
-  },
-
-  /**
-   * Fetch unnotified completed tasks for the 30-minute cron
-   */
-  async getUnnotifiedCompletedTasks(): Promise<CompletedTaskLog[]> {
-    const colRef = collection(db, COMPLETED_TASKS_COLLECTION);
-    const q = query(colRef, where('notified', '==', false));
-    const snap = await getDocs(q);
-    const results: CompletedTaskLog[] = [];
-    snap.forEach((d) => {
-      results.push({
-        id: d.id,
-        ...(d.data() as Omit<CompletedTaskLog, 'id'>),
-      });
-    });
-    return results;
-  },
-
-  /**
-   * Mark completed tasks as notified after sending to Discord
-   */
-  async markCompletedTasksAsNotified(ids: string[]): Promise<void> {
-    if (ids.length === 0) return;
-    const batch = writeBatch(db);
-    const now = new Date().toISOString();
-    ids.forEach((id) => {
-      const docRef = doc(db, COMPLETED_TASKS_COLLECTION, id);
-      batch.update(docRef, { notified: true, notifiedAt: now });
-    });
-    await batch.commit();
-  },
 
   /**
    * Fetch all active cards (used for daily summary calculation)

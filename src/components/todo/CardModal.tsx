@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react';
 import type { CardItem, TodoAssignee } from '../../types/todo';
 import { useAuthStore } from '../../store/authStore';
+import { useTodoStore } from '../../store/todoStore';
 import { AssigneeBadge } from './AssigneeBadge';
 import { useDebouncedCardSync } from '../../hooks/useDebouncedCardSync';
 import { PinIcon } from './PinIcon';
@@ -15,6 +16,7 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export function CardModal({ card, onClose }: Props) {
   const currentUser = useAuthStore((s) => s.currentUser);
+  const pendingNotifications = useTodoStore(s => s.pendingNotifications);
   const { localCard, updateField, syncState, flush } = useDebouncedCardSync(card || null);
 
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -48,19 +50,58 @@ export function CardModal({ card, onClose }: Props) {
   };
 
   const handleToggleItemDone = (id: string) => {
+    let toggledItemText = '';
+    let isNowDone = false;
+    let cardTitle = localCard.title || 'Untitled';
+    
     const newItems = (localCard.items || []).map((it) => {
       if (it.id === id) {
-        const isDone = !it.isDone;
+        isNowDone = !it.isDone;
+        toggledItemText = it.text;
         return {
           ...it,
-          isDone,
-          completedBy: isDone ? currentUser : null,
-          completedAt: isDone ? new Date().toISOString() : null,
+          isDone: isNowDone,
+          completedBy: isNowDone ? currentUser : null,
+          completedAt: isNowDone ? new Date().toISOString() : null,
         };
       }
       return it;
     });
     updateField({ items: newItems });
+
+    // Handle Discord Notification Delay
+    if (isNowDone) {
+      useTodoStore.setState(s => ({
+        pendingNotifications: [...s.pendingNotifications, id]
+      }));
+      // Using global timer map from window to avoid duplication
+      if ((window as any)._discordTimers && (window as any)._discordTimers[id]) {
+        clearTimeout((window as any)._discordTimers[id]);
+      }
+      if (!(window as any)._discordTimers) (window as any)._discordTimers = {};
+      
+      (window as any)._discordTimers[id] = setTimeout(async () => {
+        try {
+          const { discordService } = await import('../../services/discordService');
+          await discordService.sendTaskCompleted(cardTitle, toggledItemText, currentUser || 'both');
+        } catch (e) {
+          console.error(e);
+        } finally {
+          useTodoStore.setState(s => ({
+            pendingNotifications: s.pendingNotifications.filter(pid => pid !== id)
+          }));
+          delete (window as any)._discordTimers[id];
+        }
+      }, 5000);
+    } else {
+      useTodoStore.setState(s => ({
+        pendingNotifications: s.pendingNotifications.filter(pid => pid !== id)
+      }));
+      if ((window as any)._discordTimers && (window as any)._discordTimers[id]) {
+        clearTimeout((window as any)._discordTimers[id]);
+        delete (window as any)._discordTimers[id];
+      }
+    }
   };
 
   const handleClose = async () => {
@@ -226,15 +267,34 @@ export function CardModal({ card, onClose }: Props) {
 
           {/* Checklist Items */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-            {(localCard.items || []).map((item) => (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ color: '#ccc', cursor: 'grab' }}>::</span>
+            {(localCard.items || []).map((item) => {
+              const isPending = pendingNotifications.includes(item.id);
+              return (
+              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative', overflow: 'hidden' }}>
+                {isPending && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0, left: 0, right: 0, bottom: 0,
+                      pointerEvents: 'none',
+                      zIndex: 0,
+                      background: 'rgba(0,0,0,0.05)',
+                      borderBottom: '2px solid #000'
+                    }}
+                  >
+                    <div 
+                      className="animate-undo-shrink"
+                      style={{ height: '100%', background: 'rgba(0,0,0,0.1)' }}
+                    />
+                  </div>
+                )}
+                <span style={{ color: '#ccc', cursor: 'grab', zIndex: 1 }}>::</span>
                 <input
                   type="checkbox"
                   className="rb-checkbox"
                   checked={item.isDone}
                   onChange={() => handleToggleItemDone(item.id)}
-                  style={{ width: '20px', height: '20px', flexShrink: 0 }}
+                  style={{ width: '20px', height: '20px', flexShrink: 0, zIndex: 1 }}
                 />
                 <input
                   type="text"
@@ -261,7 +321,8 @@ export function CardModal({ card, onClose }: Props) {
                   ×
                 </button>
               </div>
-            ))}
+            );
+          })}
           </div>
 
           <button

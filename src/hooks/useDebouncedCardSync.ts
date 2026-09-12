@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTodoStore } from '../store/todoStore';
+import { useAuthStore } from '../store/authStore';
 import type { CardItem } from '../types/todo';
 import type { CreateCardInput, UpdateCardInput } from '../services/firestoreService';
 import { formatThaiDate } from '../utils/dateFormat';
@@ -7,8 +8,11 @@ import { formatThaiDate } from '../utils/dateFormat';
 export type SyncState = 'IDLE' | 'SAVING' | 'SAVED' | 'ERROR';
 
 export function useDebouncedCardSync(initialCard: CardItem | null) {
+  const currentUser = useAuthStore((s) => s.currentUser);
+  const defaultAssignee = currentUser || 'both';
+
   const [localCard, setLocalCard] = useState<Partial<CardItem>>(
-    initialCard || { title: '', items: [], assignee: 'both', isPinned: false }
+    initialCard || { title: '', items: [], assignee: defaultAssignee, isPinned: false }
   );
   const [syncState, setSyncState] = useState<SyncState>(initialCard ? 'SAVED' : 'IDLE');
   const createCard = useTodoStore((s) => s.createCard);
@@ -64,6 +68,7 @@ export function useDebouncedCardSync(initialCard: CardItem | null) {
         const newId = await createCard({
           ...(cardData as CreateCardInput),
           title: effectiveTitle,
+          assignee: cardData.assignee || defaultAssignee,
         });
         createdIdRef.current = newId;
       } else {

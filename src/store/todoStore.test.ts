@@ -62,7 +62,7 @@ describe('TodoStore (Cards)', () => {
   });
 
   describe('toggleChecklistItem', () => {
-    it('should mark item complete and record completed task in firestore', async () => {
+    it('should mark item complete locally and update firestore', async () => {
       useTodoStore.setState({
         cards: [
           {
@@ -96,19 +96,9 @@ describe('TodoStore (Cards)', () => {
           }),
         ],
       });
-
-      // Check firestore completed task log
-      expect(firestoreService.recordCompletedTask).toHaveBeenCalledWith(
-        expect.objectContaining({
-          cardId: 'card-1',
-          itemId: 'item-1',
-          itemText: 'Task 1',
-          completedBy: 'most',
-        })
-      );
     });
 
-    it('should remove completed task log if unchecking an item', async () => {
+    it('should uncheck an item locally and update firestore', async () => {
       useTodoStore.setState({
         cards: [
           {
@@ -117,7 +107,7 @@ describe('TodoStore (Cards)', () => {
             assignee: 'most',
             isPinned: false,
             order: 0,
-            items: [{ id: 'item-1', text: 'Task 1', isDone: true, completedBy: 'most' }],
+            items: [{ id: 'item-1', text: 'Task 1', isDone: true, completedBy: 'most', completedAt: 'time' }],
             createdAt: '2023-01-01T00:00:00.000Z',
             updatedAt: '2023-01-01T00:00:00.000Z',
           },
@@ -126,8 +116,12 @@ describe('TodoStore (Cards)', () => {
 
       const { toggleChecklistItem } = useTodoStore.getState();
       await toggleChecklistItem('card-1', 'item-1', false);
-
-      expect(firestoreService.removeCompletedTask).toHaveBeenCalledWith('card-1', 'item-1');
+      
+      const updatedCard = useTodoStore.getState().cards[0];
+      expect(updatedCard.items[0].isDone).toBe(false);
+      expect(updatedCard.items[0].completedBy).toBe(null);
+      
+      expect(firestoreService.updateCard).toHaveBeenCalled();
     });
   });
 

@@ -15,6 +15,7 @@ interface Props {
 export function TodoCard({ card, onClick }: Props) {
   const toggleChecklistItem = useTodoStore(s => s.toggleChecklistItem);
   const updateCard = useTodoStore(s => s.updateCard);
+  const pendingNotifications = useTodoStore(s => s.pendingNotifications);
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
@@ -107,45 +108,67 @@ export function TodoCard({ card, onClick }: Props) {
       {/* Checklist Items */}
       {card.items && card.items.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          {card.items.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                minHeight: '32px',
-                padding: '2px 0',
-                opacity: item.isDone ? 0.45 : 1,
-              }}
-            >
-              {/* Checkbox: click strictly toggles done state */}
+          {card.items.map((item) => {
+            const isPending = pendingNotifications.includes(item.id);
+            return (
               <div
-                onClick={(e) => handleToggle(e, item)}
+                key={item.id}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  flexShrink: 0,
+                  gap: '8px',
+                  minHeight: '32px',
+                  padding: '2px 0',
+                  opacity: item.isDone && !isPending ? 0.45 : 1,
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
-                title={item.isDone ? 'Mark uncompleted' : 'Mark completed'}
               >
-                <input
-                  type="checkbox"
-                  className="rb-checkbox"
-                  checked={item.isDone}
-                  readOnly
+                {isPending && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0, left: 0, right: 0, bottom: 0,
+                      pointerEvents: 'none',
+                      zIndex: 0,
+                      background: 'rgba(0,0,0,0.05)',
+                      borderBottom: '2px solid #000'
+                    }}
+                  >
+                    <div 
+                      className="animate-undo-shrink"
+                      style={{ height: '100%', background: 'rgba(0,0,0,0.1)' }}
+                    />
+                  </div>
+                )}
+                {/* Checkbox: click strictly toggles done state */}
+                <div
+                  onClick={(e) => handleToggle(e, item)}
                   style={{
-                    width: '20px',
-                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     cursor: 'pointer',
-                    pointerEvents: 'none',
+                    padding: '4px',
                     flexShrink: 0,
+                    zIndex: 1,
                   }}
-                />
-              </div>
+                  title={item.isDone ? 'Mark uncompleted' : 'Mark completed'}
+                >
+                  <input
+                    type="checkbox"
+                    className="rb-checkbox"
+                    checked={item.isDone}
+                    readOnly
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      cursor: 'pointer',
+                      pointerEvents: 'none',
+                      flexShrink: 0,
+                    }}
+                  />
+                </div>
 
               {/* Text: click turns into input, blur saves */}
               {editingItemId === item.id ? (
@@ -199,7 +222,8 @@ export function TodoCard({ card, onClick }: Props) {
                 </span>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

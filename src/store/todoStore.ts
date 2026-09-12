@@ -1,17 +1,20 @@
 import { create } from 'zustand';
 import { firestoreService, type CreateCardInput, type UpdateCardInput } from '../services/firestoreService';
+import { discordService } from '../services/discordService';
 import type { CardItem } from '../types/todo';
 import { useAuthStore } from './authStore';
 
 export type SyncState = 'IDLE' | 'SAVING' | 'SAVED' | 'ERROR';
 
 let savedTimer: ReturnType<typeof setTimeout> | null = null;
+const pendingDiscordTimeouts = new Map<string, NodeJS.Timeout>();
 
 interface TodoState {
   cards: CardItem[];
   isLoading: boolean;
   syncState: SyncState;
   error: string | null;
+  pendingNotifications: string[];
 
   // Actions
   initialize: () => () => void;
@@ -30,6 +33,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   isLoading: true,
   syncState: 'IDLE',
   error: null,
+  pendingNotifications: [],
 
   setSyncState: (syncState: SyncState) => {
     if (savedTimer) {
@@ -175,31 +179,49 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     };
 
     // Optimistic UI
+    const currentPending = new Set(get().pendingNotifications);
+    if (isDone && !itemToUpdate.isDone) {
+      currentPending.add(itemId);
+    } else {
+      currentPending.delete(itemId);
+    }
+
     set({
-      cards: cards.map(c => c.id === cardId ? { ...c, items: updatedItems } : c)
+      cards: cards.map(c => c.id === cardId ? { ...c, items: updatedItems } : c),
+      pendingNotifications: Array.from(currentPending),
     });
     get().setSyncState('SAVING');
+
+    // Handle Discord Notification Delay
+    if (isDone && !itemToUpdate.isDone) {
+      if (pendingDiscordTimeouts.has(itemId)) {
+        clearTimeout(pendingDiscordTimeouts.get(itemId));
+      }
+      
+      const timer = setTimeout(async () => {
+        try {
+          await discordService.sendTaskCompleted(card.title, itemToUpdate.text, currentUser);
+        } catch (e) {
+          console.error('Failed to send discord message', e);
+        } finally {
+          const nowPending = new Set(useTodoStore.getState().pendingNotifications);
+          nowPending.delete(itemId);
+          useTodoStore.setState({ pendingNotifications: Array.from(nowPending) });
+          pendingDiscordTimeouts.delete(itemId);
+        }
+      }, 5000); // 5 seconds delay
+      
+      pendingDiscordTimeouts.set(itemId, timer);
+    } else if (!isDone && itemToUpdate.isDone) {
+      if (pendingDiscordTimeouts.has(itemId)) {
+        clearTimeout(pendingDiscordTimeouts.get(itemId));
+        pendingDiscordTimeouts.delete(itemId);
+      }
+    }
 
     try {
       await firestoreService.updateCard(cardId, { items: updatedItems });
       get().setSyncState('SAVED');
-
-      if (isDone && !itemToUpdate.isDone) {
-        await firestoreService.recordCompletedTask({
-          cardId,
-          cardTitle: card.title,
-          itemId,
-          itemText: itemToUpdate.text,
-          completedBy: currentUser as 'most' | 'fern',
-          completedAt: new Date().toISOString(),
-        });
-      } else if (!isDone && itemToUpdate.isDone) {
-        try {
-          await firestoreService.removeCompletedTask(cardId, itemId);
-        } catch (e) {
-          console.error(e);
-        }
-      }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to toggle item';
       console.error('[DEBUG-7f3a] todoStore.toggleChecklistItem error:', message, error);
