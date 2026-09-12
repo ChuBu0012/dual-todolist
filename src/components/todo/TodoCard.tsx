@@ -58,11 +58,28 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
     }
   };
 
+  const isToday = card.title === formatThaiDate();
+  
+  // Base classes
+  let cardClasses = `animate-fade-in border-[3px] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all ${isDragging ? 'opacity-50' : 'opacity-100'}`;
+  
+  // Date-based active styling (Green for today, normal for others)
+  const borderColor = isToday ? 'border-green-500' : 'border-[var(--border-color)]';
+  cardClasses += ` ${borderColor}`;
+
+  // Shared Date styling (3D shadow + dashed border)
+  if (isSharedDate) {
+    cardClasses += ` border-dashed -translate-y-1 -translate-x-1`;
+    cardClasses += isToday 
+      ? ` shadow-[6px_6px_0_0_#22c55e]` 
+      : ` shadow-[6px_6px_0_0_var(--border-color)]`;
+  }
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all ${isDragging ? 'opacity-50' : 'opacity-100'} ${isSharedDate ? 'shadow-[6px_6px_0_0_var(--border-color)] -translate-y-1 -translate-x-1' : ''}`}
+      className={cardClasses}
       onClick={() => {
         if (!isDragging) {
           onClick();
