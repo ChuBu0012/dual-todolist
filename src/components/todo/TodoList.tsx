@@ -12,9 +12,24 @@ import {
   MouseSensor,
   useSensor,
   useSensors,
+  MeasuringStrategy,
 } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+
+const measuringConfig = {
+  draggable: {
+    measure: (node: HTMLElement) => node.getBoundingClientRect(),
+  },
+  droppable: {
+    measure: (node: HTMLElement) => node.getBoundingClientRect(),
+    strategy: MeasuringStrategy.Always,
+    frequency: 'optimized' as any,
+  },
+  dragOverlay: {
+    measure: (node: HTMLElement) => node.getBoundingClientRect(),
+  },
+};
 
 export function TodoList() {
   const cards = useTodoStore((s) => s.cards);
@@ -27,17 +42,13 @@ export function TodoList() {
   const pinnedCards = useMemo(() => cards.filter(c => c.isPinned), [cards]);
   const otherCards = useMemo(() => cards.filter(c => !c.isPinned), [cards]);
 
+  const sensorOptions = useMemo(() => ({
+    activationConstraint: { distance: 5 },
+  }), []);
+
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    })
+    useSensor(MouseSensor, sensorOptions),
+    useSensor(TouchSensor, sensorOptions)
   );
 
   const handleCardClick = async (card: CardItem) => {
@@ -112,6 +123,7 @@ export function TodoList() {
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
+        measuring={measuringConfig}
       >
       
       {/* PINNED SECTION */}
