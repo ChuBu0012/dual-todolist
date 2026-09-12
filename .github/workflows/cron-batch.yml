@@ -1,0 +1,14 @@
+name: 30-Min Batch Completions Cron
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Batch Completions API
+        run: |
+          curl -s -X GET "https://dual-todo.vercel.app/api/cron/batch-completions" || true

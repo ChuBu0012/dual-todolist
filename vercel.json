@@ -2,10 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "/api/cron/batch-completions",
-      "schedule": "*/30 * * * *"
-    },
-    {
       "path": "/api/cron/daily-summary",
       "schedule": "0 15 * * *"
     }
