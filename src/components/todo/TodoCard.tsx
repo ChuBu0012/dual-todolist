@@ -31,7 +31,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   } = useSortable({ id: card.id });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 10 : 1,
   };
@@ -61,7 +61,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   const isToday = card.title === formatThaiDate();
   
   // Base classes
-  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all ${isDragging ? 'opacity-50' : 'opacity-100'}`;
+  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border ${isDragging ? 'opacity-50' : 'opacity-100'}`;
 
   // Shared Date styling (3D shadow + dashed border)
   if (isSharedDate) {

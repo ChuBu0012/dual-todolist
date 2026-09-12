@@ -23,7 +23,7 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
   } = useSortable({ id: item.id });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 10 : 1,

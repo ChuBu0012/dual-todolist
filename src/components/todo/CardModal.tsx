@@ -10,6 +10,15 @@ import { DndContext, closestCorners, TouchSensor, MouseSensor, useSensor, useSen
 import type { DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { SortableChecklistItem } from './SortableChecklistItem';
+import type { Modifier } from '@dnd-kit/core';
+
+const restrictToVerticalAxis: Modifier = ({ transform }) => {
+  return {
+    ...transform,
+    x: 0,
+  };
+};
+
 interface Props {
   card?: CardItem | null;
   onClose: () => void;
@@ -330,6 +339,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
             sensors={sensors}
             collisionDetection={closestCorners}
             onDragEnd={handleDragEnd}
+            modifiers={[restrictToVerticalAxis]}
           >
             <SortableContext
               items={(localCard.items || []).map(i => i.id)}
