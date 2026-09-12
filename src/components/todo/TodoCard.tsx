@@ -30,12 +30,11 @@ export function TodoCard({ card, onClick }: Props) {
   } = useSortable({ id: card.id });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition,
     border: '3px solid #000',
     padding: '16px',
     backgroundColor: '#fff',
-    cursor: isDragging ? 'grabbing' : 'pointer',
     display: 'flex',
     flexDirection: 'column' as const,
     gap: '12px',
@@ -43,7 +42,6 @@ export function TodoCard({ card, onClick }: Props) {
     boxSizing: 'border-box' as const,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 10 : 1,
-    touchAction: 'none', // Prevent default touch actions like scrolling when dragging
   };
 
   const handleToggle = (e: React.MouseEvent, item: ChecklistItem) => {
@@ -72,10 +70,7 @@ export function TodoCard({ card, onClick }: Props) {
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
       onClick={() => {
-        // Prevent click if we were dragging
         if (!isDragging) {
           onClick();
         }
@@ -83,6 +78,32 @@ export function TodoCard({ card, onClick }: Props) {
     >
       {/* Header: Title and Assignee/Pin icons */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+          {/* Drag Handle */}
+          <div
+            {...attributes}
+            {...listeners}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              cursor: isDragging ? 'grabbing' : 'grab',
+              padding: '4px',
+              margin: '-4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#999',
+              touchAction: 'none'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="5" r="1" />
+              <circle cx="9" cy="12" r="1" />
+              <circle cx="9" cy="19" r="1" />
+              <circle cx="15" cy="5" r="1" />
+              <circle cx="15" cy="12" r="1" />
+              <circle cx="15" cy="19" r="1" />
+            </svg>
+          </div>
         <h3
           style={{
             fontFamily: 'Archivo Black, sans-serif',
@@ -94,6 +115,7 @@ export function TodoCard({ card, onClick }: Props) {
         >
           {card.title || formatThaiDate(card.createdAt ? new Date(card.createdAt) : new Date())}
         </h3>
+        </div>
         
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
           <AssigneeBadge assignee={card.assignee} size="small" />

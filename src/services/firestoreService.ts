@@ -90,7 +90,7 @@ export const firestoreService = {
     }
     const updateData = Object.fromEntries(
       Object.entries({ ...normalizedInput, updatedAt: new Date().toISOString() })
-        .filter(([_, value]) => value !== undefined)
+        .filter(([, value]) => value !== undefined)
     );
 
     try {

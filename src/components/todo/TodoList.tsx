@@ -33,8 +33,7 @@ export function TodoList() {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
-        tolerance: 5,
+        distance: 5,
       },
     })
   );

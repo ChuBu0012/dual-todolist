@@ -84,7 +84,7 @@ export function useDebouncedCardSync(initialCard: CardItem | null) {
       setSyncState('ERROR');
       isDirtyRef.current = true; // Revert to dirty so it tries again
     }
-  }, [createCard, updateCard, deleteCard]);
+  }, [createCard, updateCard, deleteCard, defaultAssignee]);
 
   // Debounce logic
   useEffect(() => {

@@ -14,6 +14,8 @@ interface Props {
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
+const discordTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+
 export function CardModal({ card, onClose }: Props) {
   const currentUser = useAuthStore((s) => s.currentUser);
   const pendingNotifications = useTodoStore(s => s.pendingNotifications);
@@ -74,13 +76,12 @@ export function CardModal({ card, onClose }: Props) {
       useTodoStore.setState(s => ({
         pendingNotifications: [...s.pendingNotifications, id]
       }));
-      // Using global timer map from window to avoid duplication
-      if ((window as any)._discordTimers && (window as any)._discordTimers[id]) {
-        clearTimeout((window as any)._discordTimers[id]);
+      // Using global timer map to avoid duplication
+      if (discordTimers[id]) {
+        clearTimeout(discordTimers[id]);
       }
-      if (!(window as any)._discordTimers) (window as any)._discordTimers = {};
       
-      (window as any)._discordTimers[id] = setTimeout(async () => {
+      discordTimers[id] = setTimeout(async () => {
         try {
           const { discordService } = await import('../../services/discordService');
           await discordService.sendTaskCompleted(cardTitle, toggledItemText, currentUser || 'both');
@@ -90,16 +91,16 @@ export function CardModal({ card, onClose }: Props) {
           useTodoStore.setState(s => ({
             pendingNotifications: s.pendingNotifications.filter(pid => pid !== id)
           }));
-          delete (window as any)._discordTimers[id];
+          delete discordTimers[id];
         }
       }, 2000);
     } else {
       useTodoStore.setState(s => ({
         pendingNotifications: s.pendingNotifications.filter(pid => pid !== id)
       }));
-      if ((window as any)._discordTimers && (window as any)._discordTimers[id]) {
-        clearTimeout((window as any)._discordTimers[id]);
-        delete (window as any)._discordTimers[id];
+      if (discordTimers[id]) {
+        clearTimeout(discordTimers[id]);
+        delete discordTimers[id];
       }
     }
   };
