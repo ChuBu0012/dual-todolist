@@ -1,120 +1,32 @@
-# PROJECT_CONTEXT.md
+# Dual Todo Project Context
 
-## Tech Stack & Tools
-- **Frontend Framework:** React 18+ with TypeScript
-- **State Management:** Zustand (Lightweight, no boilerplate)
-- **Styling:** TailwindCSS + DaisyUI (Utility-first + Pre-built components)
-- **Backend / Database:** Firebase Firestore (NoSQL, Real-time sync)
-- **Build Tool:** Vite (Fast HMR, optimized bundles)
-- **Linting/Formatting:** OXLint + Prettier + pre-commit hook
+## App Architecture
+**Name:** Dual Todo
+**Framework:** React 18, TypeScript, Vite
+**State Management:** Zustand
+**Styling:** Tailwind CSS + daisyUI (Brutalist "RawBlock" Theme)
+**Backend/DB:** Firebase Firestore
+**PWA:** vite-plugin-pwa
 
-## 🎯 Project Goal
-Realtime update todolist and notification in discord for 2 users.
-- **Key Focus:** Daily and Persistent Todolist, Notification in Discord
-- **UX Requirement:** Cute UI, easy-to-use, smooth interaction
+## Data Architecture (Google Keep Style)
+- A single board containing Cards (`TodoCard`).
+- **Cards (`todos` collection in Firestore):**
+  - Have a `title`, `isPinned` (boolean), and an `order` for drag/drop.
+  - Contain an array of `items` (`ChecklistItem`).
+  - Assignee (`most`, `fern`, or `both`) is set at the card level.
+- **Checklist Items (`ChecklistItem`):**
+  - Belong to a Card.
+  - Can be toggled `isDone`.
+  - Strikethrough style when checked.
+  - Discord notifications fire per checklist item completion.
 
-## ⚠️ Key Constraints
-- **Lightweight First:** Prefer Zustand over Redux; avoid heavy libraries.
-- **Discord Integration:** Use Webhooks or Bot API efficiently; handle rate limits gracefully.
-- **Firestore Security:** Implement strict rules; never expose raw DB access to clients.
-- **PWA & Offline First:** 
-  - Must support offline usage via Service Worker + IndexedDB/local cache.
-  - Sync to Firestore automatically when online; handle conflicts gracefully.
-  - Use `vite-plugin-pwa` or similar lightweight solution.
+## Design Rules
+1. English ONLY in UI text.
+2. NO parentheses (e.g. `(Title)` is not allowed).
+3. Design is brutalist: thick black borders (`3px solid #000`), `#fff` backgrounds, high contrast.
+4. Icons: `●` for Most, `○` for Fern. No text for user names on cards.
 
-## Project Structure
-public/
-│   ├── favicon.ico
-│   ├── robots.txt
-│   └── index.html
-│
-├── src/
-│   ├── assets/                  # Static assets
-│   │   ├── images/
-│   │   ├── fonts/
-│   │   └── icons/
-│   │
-│   ├── components/               # Reusable, UI components
-│   │   ├── common/               # Buttons, Inputs, Modals, etc.
-│   │   │   ├── Button/
-│   │   │   │   ├── Button.jsx
-│   │   │   │   ├── Button.module.css
-│   │   │   │   ├── Button.test.jsx
-│   │   │   │   └── index.js
-│   │   │   └── Modal/
-│   │   └── layout/               # Header, Footer, Sidebar, Navbar
-│   │       ├── Header/
-│   │       └── Footer/
-│   │
-│   ├── features/                 # Feature-based modules (recommended for scale)
-│   │   ├── auth/
-│   │   │   ├── components/
-│   │   │   ├── hooks/
-│   │   │   ├── services/         # API calls specific to auth
-│   │   │   ├── authSlice.js      # Redux slice / Zustand store
-│   │   │   └── index.js
-│   │   ├── dashboard/
-│   │   └── profile/
-│   │
-│   ├── pages/                    # Route-level components / views
-│   │   ├── Home/
-│   │   │   ├── Home.jsx
-│   │   │   └── Home.module.css
-│   │   ├── About/
-│   │   └── NotFound/
-│   │
-│   ├── routes/                   # Routing configuration
-│   │   ├── AppRoutes.jsx
-│   │   └── ProtectedRoute.jsx
-│   │
-│   ├── hooks/                    # Global/shared custom hooks
-│   │   ├── useAuth.js
-│   │   ├── useDebounce.js
-│   │   └── useFetch.js
-│   │
-│   ├── context/                  # React Context providers
-│   │   ├── ThemeContext.jsx
-│   │   └── AuthContext.jsx
-│   │
-│   ├── store/                    # Global state management (Redux/Zustand/Recoil)
-│   │   ├── index.js
-│   │   └── slices/
-│   │
-│   ├── services/                 # API/axios instances, external service logic
-│   │   ├── api.js                # Axios instance/config
-│   │   ├── authService.js
-│   │   └── userService.js
-│   │
-│   ├── utils/                    # Helper/utility functions
-│   │   ├── formatDate.js
-│   │   ├── validators.js
-│   │   └── constants.js
-│   │
-│   ├── types/                    # TypeScript types/interfaces (if using TS)
-│   │   ├── user.types.ts
-│   │   └── api.types.ts
-│   │
-│   ├── styles/                   # Global styles
-│   │   ├── globals.css
-│   │   ├── variables.css
-│   │   └── theme.js              # If using styled-components/MUI theme
-│   │
-│   ├── config/                   # App-level configuration
-│   │   ├── env.js
-│   │   └── appConfig.js
-│   │
-│   ├── App.jsx
-│   ├── App.css
-│   ├── main.jsx                  # Entry point (Vite) / index.js (CRA)
-│   └── index.css
-│
-├── tests/                        # Global/integration tests (if not colocated)
-│
-├── .env
-├── .env.example
-├── .eslintrc.cjs
-├── .prettierrc
-├── .gitignore
-├── package.json
-├── vite.config.js
-└── README.md
+## Recent Updates
+- [SYNCED: 2026-09-12] Migrated from flat tasks to Google Keep style cards.
+- [SYNCED: 2026-09-12] Updated Zustand Store and Firestore schema.
+- [SYNCED: 2026-09-12] Moved PIN configurations from code to `.env` variables.

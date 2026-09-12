@@ -1,35 +1,45 @@
-# React + TypeScript + Vite
+# Dual Todo
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A shared, brutalist-style checklist app for couples, built with React, Vite, and Firebase.
 
-Currently, two official plugins are available:
+## Features
+- **Google Keep-Style Board:** Organize lists into Cards.
+- **Pinning & Reordering:** Pin important cards and drag-to-reorder.
+- **Shared Access:** Tag cards for 'most', 'fern', or 'both'.
+- **Checklist Items:** Add multiple sub-tasks per card.
+- **Discord Integration:** Sends notifications when items are checked off.
+- **PWA:** Installable as an app.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Setup
 
-## React Compiler
+1. **Clone & Install**
+   ```bash
+   npm install
+   ```
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+2. **Environment Setup**
+   Copy `.env.example` to `.env` and fill in the values:
+   - `VITE_PIN_MOST`
+   - `VITE_PIN_FERN`
+   - `VITE_DISCORD_WEBHOOK_URL`
+   - Firebase Config variables
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+3. **Run Dev Server**
+   ```bash
+   npm run dev
+   ```
 
-## Expanding the Oxlint configuration
+4. **Testing**
+   ```bash
+   npm run test:run
+   ```
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Tech Stack
+- React 18
+- TypeScript
+- Vite
+- Zustand
+- TailwindCSS + daisyUI
+- Firebase Firestore
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+[SYNCED: 2026-09-12]

@@ -8,3 +8,10 @@
 - User dislikes unnecessary complexity or "bloat" in project architecture.
 - User responds best to structured, step-by-step plans and clear code examples.
 - User prefers to delegate detailed processing tasks but likes to handle data collection personally.
+- All UI and notification text/messages must be strictly in English.
+- Messages must be clear, concise, avoid using parentheses like `(...)`, and avoid dumping unnecessary information.
+- use thai language in response
+- NEVER output code snippets in chat messages for review.
+- ALWAYS use write_file tool directly to create/update files.
+- If user asks to "see the code", describe what will be written instead of printing it.
+- Only show file paths and brief summaries after writing.

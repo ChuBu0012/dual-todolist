@@ -1,9 +1,9 @@
-export function App() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200">
-      <h1 className="text-2xl font-bold">Dual Todo</h1>
-    </div>
-  )
-}
+import { useAuthStore } from './store/authStore';
+import { LoginScreen } from './components/auth/LoginScreen';
+import { MainLayout } from './components/layout/MainLayout';
 
-export default App
+export default function App() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  return isAuthenticated ? <MainLayout /> : <LoginScreen />;
+}

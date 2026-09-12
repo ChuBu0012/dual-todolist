@@ -7,6 +7,12 @@
       "skillPath": "toolchains/ui/components/daisyui/SKILL.md",
       "computedHash": "417706293b8d2661734750ed57decda38945e8e25b2261cc45e8b2ffd0aa3c8a"
     },
+    "diagnosing-bugs": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
+      "computedHash": "37b5e9c624513551da790b52864dc8c84bff996a6d03a380cc6facdcc0a88354"
+    },
     "firebase-firestore": {
       "source": "firebase/agent-skills",
       "sourceType": "github",

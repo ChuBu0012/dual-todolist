@@ -1,0 +1,19 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Flexible rules for Dual Todo app:
+    // Allows rapid iteration without strict field-level schema blocking
+    match /todos/{todoId} {
+      allow read, write: if true;
+    }
+    
+    match /dailySummaries/{summaryId} {
+      allow read, write: if true;
+    }
+    
+    match /completedTasks/{taskId} {
+      allow read, write: if true;
+    }
+  }
+}

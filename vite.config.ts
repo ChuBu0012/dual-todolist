@@ -22,8 +22,8 @@ export default defineConfig({
         name: 'Dual Todo - Realtime & Offline Todo for Two',
         short_name: 'DualTodo',
         description: 'Realtime todolist and Discord notification for 2 users',
-        theme_color: '#f472b6',
-        background_color: '#fff1f2',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
         display: 'standalone',
         icons: [
           {

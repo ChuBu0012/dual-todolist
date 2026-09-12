@@ -1,2 +1,80 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* ===================================
+   RawBlock Design System — Global Base
+   Brutalist: thick borders, no radius, no shadows, black on white
+   =================================== */
+
+*, *::before, *::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #000000;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography */
+h1, h2, h3 {
+  font-family: 'Archivo Black', sans-serif;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.25rem; }
+
+/* Mono elements */
+code, kbd, pre, .mono {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.9375rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: #000; }
+::-webkit-scrollbar-track { background: #fff; }
+
+/* Touch / select */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* Sync Animations */
+@keyframes sync-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes sync-pop {
+  0% { transform: scale(0.6); opacity: 0.2; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes sync-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.92); }
+}
+
+.animate-sync-spin {
+  animation: sync-spin 0.75s linear infinite;
+}
+
+.animate-sync-pop {
+  animation: sync-pop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-sync-pulse {
+  animation: sync-pulse 1.2s ease-in-out infinite;
+}
