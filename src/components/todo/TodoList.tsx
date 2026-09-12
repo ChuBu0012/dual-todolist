@@ -12,24 +12,11 @@ import {
   MouseSensor,
   useSensor,
   useSensors,
-  MeasuringStrategy,
 } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 
-const measuringConfig = {
-  draggable: {
-    measure: (node: HTMLElement) => node.getBoundingClientRect(),
-  },
-  droppable: {
-    measure: (node: HTMLElement) => node.getBoundingClientRect(),
-    strategy: MeasuringStrategy.Always,
-    frequency: 'optimized' as any,
-  },
-  dragOverlay: {
-    measure: (node: HTMLElement) => node.getBoundingClientRect(),
-  },
-};
+
 
 export function TodoList() {
   const cards = useTodoStore((s) => s.cards);
@@ -74,6 +61,7 @@ export function TodoList() {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
+    console.log('DRAG_END', { active: active?.id, over: over?.id });
     if (!over || active.id === over.id) return;
 
     const activeCard = cards.find(c => c.id === active.id);
@@ -123,7 +111,6 @@ export function TodoList() {
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragEnd={handleDragEnd}
-        measuring={measuringConfig}
       >
       
       {/* PINNED SECTION */}
