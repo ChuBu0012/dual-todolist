@@ -92,7 +92,7 @@ export function CardModal({ card, onClose }: Props) {
           }));
           delete (window as any)._discordTimers[id];
         }
-      }, 5000);
+      }, 2000);
     } else {
       useTodoStore.setState(s => ({
         pendingNotifications: s.pendingNotifications.filter(pid => pid !== id)

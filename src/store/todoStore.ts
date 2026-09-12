@@ -209,7 +209,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
           useTodoStore.setState({ pendingNotifications: Array.from(nowPending) });
           pendingDiscordTimeouts.delete(itemId);
         }
-      }, 5000); // 5 seconds delay
+      }, 2000); // 2 seconds delay
       
       pendingDiscordTimeouts.set(itemId, timer);
     } else if (!isDone && itemToUpdate.isDone) {

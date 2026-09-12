@@ -84,7 +84,7 @@ const submit = await findElement(page, [
 async function clickWithRecovery(page: Page, selector: string, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
-      await page.click(selector, { timeout: 5000 });
+      await page.click(selector, { timeout: 2000 });
       return;
     } catch (e) {
       if (i === retries - 1) throw e;
