@@ -61,18 +61,11 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   const isToday = card.title === formatThaiDate();
   
   // Base classes
-  let cardClasses = `animate-fade-in border-[3px] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all ${isDragging ? 'opacity-50' : 'opacity-100'}`;
-  
-  // Date-based active styling (Green for today, normal for others)
-  const borderColor = isToday ? 'border-green-500' : 'border-[var(--border-color)]';
-  cardClasses += ` ${borderColor}`;
+  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all ${isDragging ? 'opacity-50' : 'opacity-100'}`;
 
   // Shared Date styling (3D shadow + dashed border)
   if (isSharedDate) {
-    cardClasses += ` border-dashed -translate-y-1 -translate-x-1`;
-    cardClasses += isToday 
-      ? ` shadow-[6px_6px_0_0_#22c55e]` 
-      : ` shadow-[6px_6px_0_0_var(--border-color)]`;
+    cardClasses += ` border-dashed -translate-y-1 -translate-x-1 shadow-[6px_6px_0_0_var(--border-color)]`;
   }
 
   return (
@@ -121,9 +114,13 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
             margin: 0,
             lineHeight: 1.25,
             wordBreak: 'break-word',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}
         >
           {card.title || formatThaiDate(card.createdAt ? new Date(card.createdAt) : new Date())}
+          {isToday && <div className="w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0" title="Today" />}
         </h3>
         </div>
         
