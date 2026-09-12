@@ -3,6 +3,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
 import { TodoList } from '../todo/TodoList';
 import { SyncStatusIcon } from '../todo/SyncStatusIcon';
+import { Sun, Moon } from 'lucide-react';
 
 export function MainLayout() {
   const currentUser = useAuthStore((s) => s.currentUser);
@@ -64,6 +65,7 @@ export function MainLayout() {
           >
             DUAL TODO
           </h1>
+          <SyncStatusIcon state={syncState} />
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -74,18 +76,18 @@ export function MainLayout() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              fontSize: '1.25rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              color: 'var(--border-color)',
+              padding: '4px',
             }}
             title="Toggle Dark Mode"
           >
-            {isDark ? '☀️' : '🌙'}
+            {isDark ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
           </button>
 
           {/* User badge */}
-          <SyncStatusIcon state={syncState} />
           <div
             style={{
               fontFamily: 'Space Mono, monospace',
