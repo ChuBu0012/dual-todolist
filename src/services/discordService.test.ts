@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { discordService, splitDiscordMessage } from './discordService';
 import type { CompletedTaskLog } from '../types/todo';
+import { formatThaiDate } from '../utils/dateFormat';
 
 describe('discordService', () => {
   beforeEach(() => {
@@ -67,7 +68,7 @@ describe('discordService', () => {
       const body = JSON.parse(call[1]?.body as string);
 
       expect(body.content).toContain('Dual Todo · สรุปงานที่เสร็จ (รอบ 30 นาที)');
-      expect(body.content).toContain('12/09/69');
+      expect(body.content).toContain(formatThaiDate(new Date()));
       expect(body.content).toContain('Most completed (1):');
       expect(body.content).toContain('[Groceries] Buy milk');
       expect(body.content).toContain('Fern completed (1):');

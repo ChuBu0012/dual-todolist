@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { AssigneeBadge } from './AssigneeBadge';
 import { useDebouncedCardSync } from '../../hooks/useDebouncedCardSync';
 import { PinIcon } from './PinIcon';
+import { formatThaiDate } from '../../utils/dateFormat';
 
 interface Props {
   card?: CardItem | null;
@@ -207,7 +208,7 @@ export function CardModal({ card, onClose }: Props) {
             ref={titleInputRef}
             className="rb-input"
             type="text"
-            placeholder="TITLE"
+            placeholder={formatThaiDate()}
             value={localCard.title || ''}
             onChange={(e) => updateField({ title: e.target.value })}
             maxLength={100}

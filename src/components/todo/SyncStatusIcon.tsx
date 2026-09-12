@@ -35,7 +35,7 @@ export function SyncStatusIcon({ state }: Props) {
     );
   }
 
-  if (state === 'SAVED' || state === 'IDLE') {
+  if (state === 'SAVED') {
     return (
       <span
         key="saved-icon"

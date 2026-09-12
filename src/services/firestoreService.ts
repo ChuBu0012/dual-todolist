@@ -52,7 +52,7 @@ export const firestoreService = {
       }
 
       const cardData: Omit<CardItem, 'id'> = {
-        title: input.title.trim(),
+        title: (input.title || '').trim() || formatThaiDate(new Date()),
         isPinned: input.isPinned ?? false,
         assignee: input.assignee,
         order: topOrder,
@@ -85,10 +85,13 @@ export const firestoreService = {
    * Update an existing card
    */
   async updateCard(id: string, input: UpdateCardInput): Promise<void> {
-    console.log('[DEBUG-7f3a] firestoreService.updateCard called for id:', id, 'input:', input);
     const docRef = doc(db, TODOS_COLLECTION, id);
+    const normalizedInput = { ...input };
+    if (normalizedInput.title !== undefined) {
+      normalizedInput.title = normalizedInput.title.trim() || formatThaiDate(new Date());
+    }
     const updateData = Object.fromEntries(
-      Object.entries({ ...input, updatedAt: new Date().toISOString() })
+      Object.entries({ ...normalizedInput, updatedAt: new Date().toISOString() })
         .filter(([_, value]) => value !== undefined)
     );
 

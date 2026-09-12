@@ -5,6 +5,7 @@ import { AssigneeBadge } from './AssigneeBadge';
 import { PinIcon } from './PinIcon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { formatThaiDate } from '../../utils/dateFormat';
 
 interface Props {
   card: CardItem;
@@ -90,7 +91,7 @@ export function TodoCard({ card, onClick }: Props) {
             wordBreak: 'break-word',
           }}
         >
-          {card.title}
+          {card.title || formatThaiDate(card.createdAt ? new Date(card.createdAt) : new Date())}
         </h3>
         
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>

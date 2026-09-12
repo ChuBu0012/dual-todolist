@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTodoStore } from '../store/todoStore';
 import type { CardItem } from '../types/todo';
 import type { CreateCardInput, UpdateCardInput } from '../services/firestoreService';
+import { formatThaiDate } from '../utils/dateFormat';
 
 export type SyncState = 'IDLE' | 'SAVING' | 'SAVED' | 'ERROR';
 
@@ -55,14 +56,22 @@ export function useDebouncedCardSync(initialCard: CardItem | null) {
     setSyncState('SAVING');
     isDirtyRef.current = false; // Mark clean immediately to prevent double flush
     
+    const effectiveTitle = hasTitle ? cardData.title!.trim() : formatThaiDate(new Date());
+
     try {
       if (!createdIdRef.current) {
         // Create
-        const newId = await createCard(cardData as CreateCardInput);
+        const newId = await createCard({
+          ...(cardData as CreateCardInput),
+          title: effectiveTitle,
+        });
         createdIdRef.current = newId;
       } else {
         // Update
-        await updateCard(createdIdRef.current, cardData as UpdateCardInput);
+        await updateCard(createdIdRef.current, {
+          ...(cardData as UpdateCardInput),
+          title: effectiveTitle,
+        });
       }
       setSyncState('SAVED');
     } catch (err) {
