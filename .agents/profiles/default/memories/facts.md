@@ -1,0 +1,10 @@
+- Always read PROJECT_CONTEXT.md before coding; PWA/offline support is mandatory.
+- User's name is Most.
+- User prefers to communicate in Thai unless asked otherwise.
+- User is an IT student currently studying independently (solo learner).
+- User values lightweight, efficient, and minimalist technical solutions.
+- User has a background in Computer Science and Electrical Engineering.
+- User prefers React for frontend development when applicable.
+- User dislikes unnecessary complexity or "bloat" in project architecture.
+- User responds best to structured, step-by-step plans and clear code examples.
+- User prefers to delegate detailed processing tasks but likes to handle data collection personally.
