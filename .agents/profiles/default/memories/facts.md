@@ -15,3 +15,7 @@
 - ALWAYS use write_file tool directly to create/update files.
 - If user asks to "see the code", describe what will be written instead of printing it.
 - Only show file paths and brief summaries after writing.
+- NEVER overwrite files without reading them first
+- User's manual edits are ALWAYS source of truth
+- If conflict detected between memory and file → Trust the FILE
+- When modifying existing code → Show diff summary before writing

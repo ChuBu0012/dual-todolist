@@ -81,3 +81,12 @@ ALWAYS start responses with:
     - This causes "Accept" button to capture garbage text
     - ALWAYS write directly to filesystem via write_file tool
     - If user wants to review → Write to temp file first, then read_file to show
+    ## Mandatory Pre-Write Check
+
+
+BEFORE using write_file on ANY existing file:
+1. MUST call read_file first to get current content
+2. Compare with user's requested changes
+3. Preserve ALL user modifications not mentioned in request
+4. Only modify what was explicitly asked
+5. If unsure about a section → Keep it unchanged, don't guess
