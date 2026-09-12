@@ -164,24 +164,35 @@ export const discordService = {
   },
 
   /**
-   * 2. 22:00 Check-in Reminder
-   * Friendly check-in asking if there's anything to jot down for tomorrow
-   * 22:30 Check-in Reminder
-   * Cute check-in asking if there's anything to jot down for tomorrow
+   * 22:00 Check-in Reminder
+   */
+  async sendCheckinReminder() {
+    const todayThai = formatThaiDate(new Date());
+
+    const content = [
+      `🌙 **22:00 Check-in · มี Todo อะไรอยากจดไว้ไหมนะ?** (${todayThai})`,
+      '',
+      `สวัสดีตอนค่ำ Most & Fern ✨`,
+      `วันนี้เหนื่อยกันไหม? ก่อนนอนหรือเตรียมพักผ่อน มีสิ่งที่ทำค้างไว้ หรือคิดไอเดียสำหรับพรุ่งนี้ได้ไหมนะ? 📝`,
+      '',
+      `💬 *เปิด Dual Todo เข้ามาจดไว้ได้เลย จะได้ไม่ต้องคอยกังวล แล้วนอนหลับฝันดีนะ zzz* 💤`,
+    ].join('\n');
+
+    await this.sendMessage({ content });
+  },
+
+  /**
+   * 22:30 Check-in Reminder (Cute version)
    */
   async sendNightlyReminder() {
     const todayThai = formatThaiDate(new Date());
 
     const content = [
-      `🌙 **22:00 Check-in · มี Todo อะไรอยากจดไว้ไหมนะ?** (${todayThai})`,
       `🌟 **22:30 แล้วค้าบ! · แวะมาเตือนความจำนะ ( ˘ ³˘)♥** (${todayThai})`,
       '',
-      `สวัสดีตอนค่ำ Most & Fern ✨`,
-      `วันนี้เหนื่อยกันไหม? ก่อนนอนหรือเตรียมพักผ่อน มีสิ่งที่ทำค้างไว้ หรือคิดไอเดียสำหรับพรุ่งนี้ได้ไหมนะ? 📝`,
       `ฮัลโหลลลล Most & Fern คนเก่ง ✨`,
       `วันนี้เหนื่อยกันมั้ยเอ่ย? ก่อนจะทิ้งตัวลงนอน มีอะไรค้างคาในใจ หรือปิ๊งไอเดียอะไรสำหรับพรุ่งนี้มั้ยนะ? 📝`,
       '',
-      `💬 *เปิด Dual Todo เข้ามาจดไว้ได้เลย จะได้ไม่ต้องคอยกังวล แล้วนอนหลับฝันดีนะ zzz* 💤`,
       `💬 *แวะมาจดใน Dual Todo ไว้ได้เลยน้า พรุ่งนี้จะได้ตื่นมาทำต่อแบบชิลๆ... ฝันดีผีจับหัวนะค้าบบบ จุ๊บๆ* 💤💕`,
     ].join('\n');
 
