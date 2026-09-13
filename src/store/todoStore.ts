@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { firestoreService, type CreateCardInput, type UpdateCardInput } from '../services/firestoreService';
 import { discordService } from '../services/discordService';
-import type { CardItem } from '../types/todo';
+import type { CardItem, DailyStat } from '../types/todo';
 import { useAuthStore } from './authStore';
 
 export type SyncState = 'IDLE' | 'SAVING' | 'SAVED' | 'ERROR';
@@ -11,6 +11,7 @@ const pendingDiscordTimeouts = new Map<string, NodeJS.Timeout>();
 
 interface TodoState {
   cards: CardItem[];
+  dailyStats: Record<string, DailyStat>;
   isLoading: boolean;
   syncState: SyncState;
   error: string | null;
@@ -30,6 +31,7 @@ interface TodoState {
 
 export const useTodoStore = create<TodoState>((set, get) => ({
   cards: [],
+  dailyStats: {},
   isLoading: true,
   syncState: 'IDLE',
   error: null,
@@ -53,7 +55,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   initialize: () => {
     console.log('[DEBUG-7f3a] todoStore.initialize called');
     set({ isLoading: true, error: null });
-    const unsubscribe = firestoreService.subscribeCards(
+    const unsubscribeCards = firestoreService.subscribeCards(
       (cards) => {
         console.log('[DEBUG-7f3a] todoStore updated with cards:', cards.length);
         set({ cards, isLoading: false });
@@ -63,7 +65,10 @@ export const useTodoStore = create<TodoState>((set, get) => ({
         set({ error: error.message, isLoading: false });
       }
     );
-    return unsubscribe;
+    const unsubscribeStats = firestoreService.subscribeDailyStats(
+      (dailyStats) => set({ dailyStats }),
+    );
+    return () => { unsubscribeCards(); unsubscribeStats(); };
   },
 
   createCard: async (input) => {
@@ -221,6 +226,11 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
     try {
       await firestoreService.updateCard(cardId, { items: updatedItems });
+      // Update heatmap stat (fire-and-forget, non-blocking)
+      const delta = isDone && !itemToUpdate.isDone ? 1 : (!isDone && itemToUpdate.isDone ? -1 : 0);
+      if (delta !== 0 && (currentUser === 'most' || currentUser === 'fern')) {
+        firestoreService.updateDailyStat(currentUser, delta).catch(() => {/* non-critical */});
+      }
       get().setSyncState('SAVED');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to toggle item';
