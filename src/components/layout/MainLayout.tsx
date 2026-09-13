@@ -37,7 +37,10 @@ export function MainLayout() {
       {/* Top Navbar */}
       <header className="border-b-[3px] border-[var(--border-color)] py-3 px-4 flex items-center justify-between sticky top-0 bg-[var(--card-bg)] z-45">
         <div className="flex items-center gap-2.5">
-          <h1 className="font-archivo-black text-[1.25rem] m-0 tracking-[-0.01em] flex items-center gap-2">
+          <h1 
+            style={{ fontFamily: '"Archivo Black", sans-serif', fontSize: '1.25rem', margin: 0, letterSpacing: '-0.01em' }}
+            className="flex items-center gap-2"
+          >
             DUAL TODO
           </h1>
           <SyncStatusIcon state={syncState} />
