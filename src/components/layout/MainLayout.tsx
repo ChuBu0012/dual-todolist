@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
 import { TodoList } from '../todo/TodoList';
+import { AssigneeBadge } from "../todo/AssigneeBadge";
+
 import { SyncStatusIcon } from '../todo/SyncStatusIcon';
 import { Sun, Moon } from 'lucide-react';
 
 export function MainLayout() {
   const currentUser = useAuthStore((s) => s.currentUser);
-  const userProfile = useAuthStore((s) => s.userProfile);
   const logout = useAuthStore((s) => s.logout);
   const initialize = useTodoStore((s) => s.initialize);
   const syncState = useTodoStore((s) => s.syncState);
@@ -53,11 +54,9 @@ export function MainLayout() {
           </button>
 
           {/* User badge */}
-          <div
-            className={`mono text-[0.75rem] uppercase tracking-[0.08em] border-2 border-[var(--border-color)] py-1 px-2.5 ${currentUser === 'most' ? 'bg-[var(--border-color)] text-[var(--card-bg)]' : 'bg-[var(--card-bg)] text-[var(--border-color)]'}`}
-          >
-            {userProfile?.name ?? currentUser}
-          </div>
+          {currentUser && (
+            <AssigneeBadge assignee={currentUser as any} size="medium" />
+          )}
 
           <button
             className="rb-btn-ghost text-[0.75rem] no-underline tracking-[0.05em]"
