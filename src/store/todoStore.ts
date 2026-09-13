@@ -229,7 +229,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       // Update heatmap stat (fire-and-forget, non-blocking)
       const delta = isDone && !itemToUpdate.isDone ? 1 : (!isDone && itemToUpdate.isDone ? -1 : 0);
       if (delta !== 0 && (currentUser === 'most' || currentUser === 'fern')) {
-        firestoreService.updateDailyStat(currentUser, delta).catch(() => {/* non-critical */});
+        firestoreService.updateDailyStat(currentUser, delta).catch(e => console.error("HEATMAP ERROR:", e));
       }
       get().setSyncState('SAVED');
     } catch (error: unknown) {
