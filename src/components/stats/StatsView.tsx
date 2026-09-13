@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { getLast30Days } from '../../utils/dateFormat';
 import type { DailyStat } from '../../types/todo';
 
@@ -18,11 +19,16 @@ function HeatmapGrid({ user, days, stats }: {
   days: string[];
   stats: Record<string, DailyStat>;
 }) {
+  const [activeDate, setActiveDate] = useState<string | null>(null);
+  
   const label = user === 'most' ? "MOST'S LOG" : "FERN'S LOG";
   const total = days.reduce((sum, d) => {
     const s = stats[d];
     return sum + (s ? (user === 'most' ? s.mostCount : s.fernCount) : 0);
   }, 0);
+
+  const activeStat = activeDate ? stats[activeDate] : null;
+  const activeCount = activeStat ? (user === 'most' ? activeStat.mostCount : activeStat.fernCount) : 0;
 
   return (
     <div style={{ marginBottom: '2rem' }}>
@@ -34,26 +40,43 @@ function HeatmapGrid({ user, days, stats }: {
           {total} tasks in 30 days
         </span>
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+      
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
         {days.map((date) => {
           const s = stats[date];
           const count = s ? (user === 'most' ? s.mostCount : s.fernCount) : 0;
-          const [year, month, day] = date.split('-');
-          const label = `${day}/${month}: ${count} task${count !== 1 ? 's' : ''}`;
           return (
             <div
               key={date}
-              title={label}
+              onMouseEnter={() => setActiveDate(date)}
+              onMouseLeave={() => setActiveDate(null)}
+              onClick={() => setActiveDate(date)}
               className={getColorLevel(count, user)}
               style={{
                 width: '20px',
                 height: '20px',
                 border: '2px solid var(--border-color)',
                 flexShrink: 0,
+                cursor: 'pointer',
+                opacity: activeDate && activeDate !== date ? 0.4 : 1,
+                transform: activeDate === date ? 'scale(1.1)' : 'scale(1)',
+                transition: 'all 0.1s ease-in-out',
+                position: activeDate === date ? 'relative' : 'static',
+                zIndex: activeDate === date ? 10 : 1
               }}
             />
           );
         })}
+      </div>
+
+      <div style={{ minHeight: '24px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 'bold' }}>
+        {activeDate ? (
+          <span>
+            {activeDate.split('-')[2]}/{activeDate.split('-')[1]}: {activeCount} task{activeCount !== 1 ? 's' : ''}
+          </span>
+        ) : (
+          <span style={{ opacity: 0.5 }}>Hover or tap a square for details</span>
+        )}
       </div>
     </div>
   );

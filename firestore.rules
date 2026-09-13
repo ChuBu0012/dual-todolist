@@ -11,6 +11,10 @@ service cloud.firestore {
     match /dailySummaries/{summaryId} {
       allow read, write: if true;
     }
+
+    match /dailyStats/{statId} {
+      allow read, write: if true;
+    }
     
     match /completedTasks/{taskId} {
       allow read, write: if true;
