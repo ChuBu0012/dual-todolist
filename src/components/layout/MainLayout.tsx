@@ -32,60 +32,22 @@ export function MainLayout() {
   }, [initialize]);
 
   return (
-    <div
-      style={{
-        minHeight: '100dvh',
-        backgroundColor: 'var(--card-bg)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div className="min-h-[100dvh] bg-[var(--card-bg)] flex flex-col">
       {/* Top Navbar */}
-      <header
-        style={{
-          borderBottom: '3px solid var(--border-color)',
-          padding: '12px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'sticky',
-          top: 0,
-          backgroundColor: 'var(--card-bg)',
-          zIndex: 45,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <h1
-            style={{
-              fontFamily: 'Archivo Black, sans-serif',
-              fontSize: '1.25rem',
-              margin: 0,
-              letterSpacing: '-0.01em',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <img src="/icon.png" alt="logo" style={{ width: '28px', height: '28px', borderRadius: '4px' }} />
+      <header className="border-b-[3px] border-[var(--border-color)] py-3 px-4 flex items-center justify-between sticky top-0 bg-[var(--card-bg)] z-45">
+        <div className="flex items-center gap-2.5">
+          <h1 className="font-archivo-black text-[1.25rem] m-0 tracking-[-0.01em] flex items-center gap-2">
+            <img src="/icon.png" alt="logo" className="w-[28px] h-[28px] rounded-[4px]" />
             DUAL TODO
           </h1>
           <SyncStatusIcon state={syncState} />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="flex items-center gap-3">
           {/* Dark Mode Toggle */}
           <button
             onClick={() => setIsDark(prev => !prev)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--border-color)',
-              padding: '4px',
-            }}
+            className="bg-none border-none cursor-pointer flex items-center justify-center text-[var(--border-color)] p-1"
             title="Toggle Dark Mode"
           >
             {isDark ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
@@ -93,28 +55,14 @@ export function MainLayout() {
 
           {/* User badge */}
           <div
-            style={{
-              fontFamily: 'Space Mono, monospace',
-              fontSize: '0.75rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              border: '2px solid var(--border-color)',
-              padding: '4px 10px',
-              backgroundColor: currentUser === 'most' ? 'var(--border-color)' : 'var(--card-bg)',
-              color: currentUser === 'most' ? 'var(--card-bg)' : 'var(--border-color)',
-            }}
+            className={`mono text-[0.75rem] uppercase tracking-[0.08em] border-2 border-[var(--border-color)] py-1 px-2.5 ${currentUser === 'most' ? 'bg-[var(--border-color)] text-[var(--card-bg)]' : 'bg-[var(--card-bg)] text-[var(--border-color)]'}`}
           >
             {userProfile?.name ?? currentUser}
           </div>
 
           <button
-            className="rb-btn-ghost"
+            className="rb-btn-ghost text-[0.75rem] no-underline tracking-[0.05em]"
             onClick={logout}
-            style={{
-              fontSize: '0.75rem',
-              textDecoration: 'none',
-              letterSpacing: '0.05em',
-            }}
           >
             OUT
           </button>
@@ -122,14 +70,7 @@ export function MainLayout() {
       </header>
 
       {/* Main content */}
-      <main
-        style={{
-          flex: 1,
-          padding: '16px',
-          overflowY: 'auto',
-          backgroundColor: 'var(--bg-color)',
-        }}
-      >
+      <main className="flex-1 p-4 overflow-y-auto bg-[var(--bg-color)]">
         <TodoList />
       </main>
     </div>

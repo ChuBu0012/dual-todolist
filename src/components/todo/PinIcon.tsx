@@ -15,7 +15,7 @@ export function PinIcon({ isPinned = false, size = 18, color = 'currentColor' }:
       strokeWidth="2.5"
       strokeLinecap="square"
       strokeLinejoin="miter"
-      style={{ display: 'block', flexShrink: 0 }}
+      className="block shrink-0"
       aria-hidden="true"
     >
       {/* Brutalist technical pushpin */}

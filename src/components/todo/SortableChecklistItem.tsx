@@ -27,46 +27,27 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 10 : 1,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    position: 'relative' as const,
-    overflow: 'hidden',
-    backgroundColor: 'var(--card-bg)', // ensure it has bg when dragging
   };
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-[12px] relative overflow-hidden bg-[var(--card-bg)] ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`}
+    >
       {isPending && (
         <div
-          style={{
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-            pointerEvents: 'none',
-            zIndex: 0,
-            background: 'rgba(0,0,0,0.05)',
-            borderBottom: '2px solid var(--border-color)'
-          }}
+          className="absolute inset-0 pointer-events-none z-0 bg-[rgba(0,0,0,0.05)] border-b-2 border-[var(--border-color)]"
         >
           <div 
-            className="animate-undo-shrink"
-            style={{ height: '100%', background: 'rgba(0,0,0,0.1)' }}
+            className="animate-undo-shrink h-full bg-[rgba(0,0,0,0.1)]"
           />
         </div>
       )}
       <span
         {...(isReadOnly ? {} : attributes)}
         {...(isReadOnly ? {} : listeners)}
-        style={{
-          color: 'var(--border-color)',
-          cursor: isReadOnly ? 'default' : 'grab',
-          zIndex: 1,
-          opacity: isReadOnly ? 0.5 : 1,
-          padding: '4px',
-          touchAction: 'none'
-        }}
+        className={`text-[var(--border-color)] z-1 p-[4px] touch-none ${isReadOnly ? 'cursor-default opacity-50' : 'cursor-grab opacity-100'}`}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="9" cy="5" r="1" />
@@ -80,11 +61,10 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
       
       <input
         type="checkbox"
-        className="rb-checkbox"
+        className={`rb-checkbox w-[20px] h-[20px] shrink-0 z-1 ${isReadOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
         checked={item.isDone}
         onChange={() => onToggle(item.id)}
         disabled={isReadOnly}
-        style={{ width: '20px', height: '20px', flexShrink: 0, zIndex: 1, cursor: isReadOnly ? 'not-allowed' : 'pointer' }}
       />
       
       <input
@@ -100,34 +80,14 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
         placeholder="ITEM..."
         autoFocus={autoFocus}
         readOnly={isReadOnly}
-        style={{
-          flex: 1,
-          border: 'none',
-          borderBottom: '1px dashed #ccc',
-          fontFamily: 'Work Sans, sans-serif',
-          fontSize: '1rem',
-          outline: 'none',
-          background: 'transparent',
-          textDecoration: item.isDone ? 'line-through' : 'none',
-          opacity: item.isDone || isReadOnly ? 0.5 : 1,
-          color: 'var(--border-color)',
-        }}
+        className={`flex-1 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
       />
       
       <button
         type="button"
         onClick={() => onRemove(item.id)}
         disabled={isReadOnly}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: isReadOnly ? 'not-allowed' : 'pointer',
-          color: 'var(--error-text)',
-          fontSize: '1.2rem',
-          padding: '0 4px',
-          opacity: isReadOnly ? 0.5 : 1,
-          zIndex: 1,
-        }}
+        className={`bg-none border-none text-[var(--error-text)] text-[1.2rem] px-[4px] z-1 ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
         title="Remove item"
       >
         ×

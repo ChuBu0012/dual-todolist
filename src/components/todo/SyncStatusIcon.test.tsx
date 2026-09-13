@@ -5,8 +5,9 @@ import { SyncStatusIcon } from './SyncStatusIcon';
 describe('SyncStatusIcon', () => {
   it('should render dimmed saved icon when state is IDLE', () => {
     render(<SyncStatusIcon state="IDLE" />);
-    expect(screen.getByTitle('Saved')).toBeInTheDocument();
-    expect(screen.getByTitle('Saved')).toHaveStyle({ opacity: '0.5' });
+    const icon = screen.getByTitle('Saved');
+    expect(icon).toBeInTheDocument();
+    expect(icon).toHaveClass('opacity-50');
   });
 
   it('should render spinning icon when state is SAVING', () => {

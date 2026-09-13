@@ -10,23 +10,17 @@ export function SyncStatusIcon({ state }: Props) {
     return (
       <span
         title="Saving..."
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--fg-color)',
-        }}
+        className="inline-flex items-center justify-center text-[var(--fg-color)]"
         aria-label="Saving"
       >
         <svg
-          className="animate-sync-spin"
+          className="animate-sync-spin block"
           width="15"
           height="15"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="3"
-          style={{ display: 'block' }}
         >
           <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" />
           <path d="M12 3a9 9 0 0 1 9 9" stroke="currentColor" strokeLinecap="square" />
@@ -40,16 +34,11 @@ export function SyncStatusIcon({ state }: Props) {
       <span
         key="saved-icon"
         title="Saved"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--fg-color)',
-        }}
+        className="inline-flex items-center justify-center text-[var(--fg-color)]"
         aria-label="Saved"
       >
         <svg
-          className="animate-sync-pop"
+          className="animate-sync-pop block"
           width="15"
           height="15"
           viewBox="0 0 24 24"
@@ -57,7 +46,6 @@ export function SyncStatusIcon({ state }: Props) {
           stroke="currentColor"
           strokeWidth="3"
           strokeLinecap="square"
-          style={{ display: 'block' }}
         >
           <path d="M20 6L9 17l-5-5" />
         </svg>
@@ -69,16 +57,11 @@ export function SyncStatusIcon({ state }: Props) {
     return (
       <span
         title="Sync error"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--error-text)',
-        }}
+        className="inline-flex items-center justify-center text-[var(--error-text)]"
         aria-label="Sync error"
       >
         <svg
-          className="animate-sync-pulse"
+          className="animate-sync-pulse block"
           width="15"
           height="15"
           viewBox="0 0 24 24"
@@ -86,7 +69,6 @@ export function SyncStatusIcon({ state }: Props) {
           stroke="currentColor"
           strokeWidth="3"
           strokeLinecap="square"
-          style={{ display: 'block' }}
         >
           <circle cx="12" cy="12" r="9" />
           <line x1="12" y1="8" x2="12" y2="12" />
@@ -100,16 +82,11 @@ export function SyncStatusIcon({ state }: Props) {
     <span
       key="idle-icon"
       title="Saved"
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'var(--fg-color)',
-        opacity: 0.5,
-      }}
+      className="inline-flex items-center justify-center text-[var(--fg-color)] opacity-50"
       aria-label="Saved"
     >
       <svg
+        className="block"
         width="15"
         height="15"
         viewBox="0 0 24 24"
@@ -117,7 +94,6 @@ export function SyncStatusIcon({ state }: Props) {
         stroke="currentColor"
         strokeWidth="3"
         strokeLinecap="square"
-        style={{ display: 'block' }}
       >
         <path d="M20 6L9 17l-5-5" />
       </svg>

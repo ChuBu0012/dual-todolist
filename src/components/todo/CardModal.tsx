@@ -146,107 +146,38 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
       {/* Backdrop */}
       <div
         onClick={handleClose}
-        className="animate-fade-in"
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'var(--overlay-bg)',
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
-          zIndex: 40,
-        }}
+        className="animate-fade-in fixed inset-0 bg-[var(--overlay-bg)] backdrop-blur-sm z-40"
       />
 
       {/* Modal Container */}
       <div
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 'calc(100% - 32px)',
-          maxWidth: '480px',
-          zIndex: 50,
-          pointerEvents: 'none',
-        }}
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-32px)] max-w-[480px] z-50 pointer-events-none"
       >
         <div
-          className="animate-fade-up"
-          style={{
-            pointerEvents: 'auto',
-            backgroundColor: 'var(--card-bg)',
-            border: '3px solid var(--border-color)',
-            padding: '16px',
-            boxSizing: 'border-box',
-            maxHeight: '88dvh',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
+          className="animate-fade-up pointer-events-auto bg-[var(--card-bg)] border-[3px] border-[var(--border-color)] p-4 box-border max-h-[88dvh] flex flex-col"
         >
         {/* Header Options: 40px touch targets */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '16px',
-            borderBottom: '2px solid var(--border-color)',
-            paddingBottom: '12px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div className="flex justify-between items-center mb-4 border-b-2 border-[var(--border-color)] pb-3">
+          <div className="flex items-center">
             {!card && (
-              <span
-                style={{
-                  fontFamily: 'Space Mono, monospace',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                }}
-              >
+              <span className="mono text-[0.75rem] font-bold tracking-[0.08em] uppercase">
                 NEW TASK
               </span>
             )}
             {isReadOnly && (
-              <span
-                style={{
-                  fontFamily: 'Space Mono, monospace',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: 'var(--error-text)',
-                  backgroundColor: 'var(--error-bg)',
-                  padding: '4px 8px',
-                  border: '1px solid var(--error-border)',
-                  marginLeft: card ? 0 : '8px'
-                }}
-              >
+              <span className={`mono text-[0.75rem] font-bold text-[var(--error-text)] bg-[var(--error-bg)] px-2 py-1 border border-[var(--error-border)] ${card ? '' : 'ml-2'}`}>
                 LOCKED BY {localCard.lockedBy?.toUpperCase()}
               </span>
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="flex items-center gap-2">
             {/* Pin Toggle Button */}
             <button
               type="button"
               onClick={() => updateField({ isPinned: !localCard.isPinned })}
               disabled={isReadOnly}
-              style={{
-                width: '40px',
-                height: '40px',
-                background: localCard.isPinned ? 'var(--border-color)' : 'var(--card-bg)',
-                color: localCard.isPinned ? 'var(--card-bg)' : 'var(--border-color)',
-                border: '2px solid var(--border-color)',
-                cursor: isReadOnly ? 'not-allowed' : 'pointer',
-                opacity: isReadOnly ? 0.5 : 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className={`w-[40px] h-[40px] border-2 border-[var(--border-color)] flex items-center justify-center ${localCard.isPinned ? 'bg-[var(--border-color)] text-[var(--card-bg)]' : 'bg-[var(--card-bg)] text-[var(--border-color)]'} ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
               title={localCard.isPinned ? 'Unpin task' : 'Pin task'}
             >
               <PinIcon isPinned={localCard.isPinned} size={18} />
@@ -257,27 +188,10 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               type="button"
               onClick={handleAssigneeCycle}
               disabled={isReadOnly}
-              style={{
-                height: '40px',
-                padding: '0 10px',
-                background: 'var(--card-bg)',
-                border: '2px solid var(--border-color)',
-                cursor: isReadOnly ? 'not-allowed' : 'pointer',
-                opacity: isReadOnly ? 0.5 : 1,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
+              className={`h-[40px] px-[10px] bg-[var(--card-bg)] border-2 border-[var(--border-color)] flex items-center gap-2 ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
               title="Click to switch assignee: Most -> Fern -> Both"
             >
-              <span
-                style={{
-                  fontFamily: 'Space Mono, monospace',
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                  color: '#555',
-                }}
-              >
+              <span className="mono text-[0.7rem] font-bold text-[#555]">
                 FOR:
               </span>
               <AssigneeBadge assignee={localCard.assignee || 'both'} size="medium" />
@@ -287,19 +201,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
             <button
               type="button"
               onClick={handleClose}
-              style={{
-                width: '40px',
-                height: '40px',
-                background: 'var(--card-bg)',
-                border: '2px solid var(--border-color)',
-                cursor: 'pointer',
-                fontFamily: 'Space Mono, monospace',
-                fontWeight: 700,
-                fontSize: '1.1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              className="w-[40px] h-[40px] bg-[var(--card-bg)] border-2 border-[var(--border-color)] cursor-pointer mono font-bold text-[1.1rem] flex items-center justify-center"
               title="Close modal"
             >
               ✕
@@ -308,27 +210,16 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
         </div>
 
         {/* Scrollable Content */}
-        <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '16px' }}>
+        <div className="overflow-y-auto flex-1 pb-4">
           {/* Title input */}
           <input
-            className="rb-input"
+            className={`rb-input text-[1.25rem] font-archivo-black border-none border-b-2 border-[var(--border-color)] py-2 mb-6 w-full box-border ${isReadOnly ? 'opacity-70' : 'opacity-100'}`}
             type="text"
             placeholder={formatThaiDate()}
             value={localCard.title || ''}
             onChange={(e) => updateField({ title: e.target.value })}
             maxLength={100}
             readOnly={isReadOnly}
-            style={{
-              fontSize: '1.25rem',
-              fontFamily: 'Archivo Black, sans-serif',
-              border: 'none',
-              borderBottom: '2px solid var(--border-color)',
-              padding: '8px 0',
-              marginBottom: '24px',
-              width: '100%',
-              boxSizing: 'border-box',
-              opacity: isReadOnly ? 0.7 : 1,
-            }}
           />
 
           {/* Checklist Items */}
@@ -342,7 +233,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               items={(localCard.items || []).map(i => i.id)}
               strategy={verticalListSortingStrategy}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+              <div className="flex flex-col gap-2 mb-4">
                 {(localCard.items || []).map((item, index) => (
                   <SortableChecklistItem
                     key={item.id}
@@ -364,37 +255,15 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
             type="button"
             onClick={handleAddItem}
             disabled={isReadOnly}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: isReadOnly ? 'not-allowed' : 'pointer',
-              fontFamily: 'Work Sans, sans-serif',
-              fontSize: '1rem',
-              display: isReadOnly ? 'none' : 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 0',
-              color: '#555',
-            }}
+            className={`bg-none border-none font-work-sans text-[1rem] items-center gap-2 py-2 text-[#555] ${isReadOnly ? 'hidden' : 'flex cursor-pointer'}`}
           >
-            <span style={{ fontSize: '1.25rem' }}>+</span> ITEM
+            <span className="text-[1.25rem]">+</span> ITEM
           </button>
         </div>
 
         {/* Error message banner */}
         {syncState === 'ERROR' && (
-          <div
-            style={{
-              padding: '8px 12px',
-              backgroundColor: 'var(--error-bg)',
-              border: '2px solid var(--error-border)',
-              color: 'var(--error-text)',
-              fontSize: '0.85rem',
-              fontFamily: 'Space Mono, monospace',
-              marginBottom: '12px',
-              wordBreak: 'break-all',
-            }}
-          >
+          <div className="p-2 px-3 bg-[var(--error-bg)] border-2 border-[var(--error-border)] text-[var(--error-text)] text-[0.85rem] mono mb-3 break-all">
             Failed to sync changes. Retrying...
           </div>
         )}

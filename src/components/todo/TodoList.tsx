@@ -118,14 +118,14 @@ export function TodoList() {
 
   if (isLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '40px', fontFamily: 'Space Mono, monospace' }}>
+      <div className="text-center p-10 mono">
         LOADING...
       </div>
     );
   }
 
   return (
-    <div style={{ paddingBottom: '96px', maxWidth: '840px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
+    <div className="pb-[96px] max-w-[840px] mx-auto w-full box-border">
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -134,30 +134,12 @@ export function TodoList() {
       
       {/* PINNED SECTION */}
       {pinnedCards.length > 0 && (
-        <div style={{ marginBottom: '28px' }}>
-          <h2
-            style={{
-              fontFamily: 'Archivo Black, sans-serif',
-              fontSize: '0.95rem',
-              marginBottom: '12px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
+        <div className="mb-7">
+          <h2 className="font-archivo-black text-[0.95rem] mb-3 uppercase tracking-wide flex items-center gap-1.5">
             <PinIcon isPinned size={14} /> Pinned
           </h2>
           <SortableContext items={pinnedCards.map(c => c.id)} strategy={rectSortingStrategy}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '12px',
-                alignItems: 'start',
-              }}
-            >
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 items-start">
               {pinnedCards.map((card) => (
                 <TodoCard
                   key={card.id}
@@ -175,19 +157,12 @@ export function TodoList() {
       {otherCards.length > 0 && (
         <div>
           {pinnedCards.length > 0 && (
-            <h2 style={{ fontFamily: 'Archivo Black, sans-serif', fontSize: '1rem', margin: '0 0 12px 0', padding: '0 4px', textTransform: 'uppercase' }}>
+            <h2 className="font-archivo-black text-[1rem] m-0 mb-3 px-1 uppercase">
               Other Tasks
             </h2>
           )}
           <SortableContext items={otherCards.map(c => c.id)} strategy={rectSortingStrategy}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '12px',
-                alignItems: 'start',
-              }}
-            >
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 items-start">
               {otherCards.map((card) => (
                 <TodoCard
                   key={card.id}
@@ -202,8 +177,8 @@ export function TodoList() {
       )}
 
       {cards.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', fontFamily: 'Work Sans, sans-serif' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📝</div>
+        <div className="text-center py-15 px-5 text-[#666] font-work-sans">
+          <div className="text-[3rem] mb-4">📝</div>
           No tasks found. Click the + button to create one.
         </div>
       )}
@@ -211,24 +186,7 @@ export function TodoList() {
       {/* Floating Action Button */}
       <button
         onClick={() => setSelectedCard({ card: null, isReadOnly: false })} // null means create new
-        style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          width: '56px',
-          height: '56px',
-          borderRadius: '28px',
-          backgroundColor: 'var(--border-color)',
-          color: 'var(--card-bg)',
-          border: 'none',
-          fontSize: '2rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          zIndex: 30,
-        }}
+        className="fixed bottom-6 right-6 w-14 h-14 !rounded-full bg-[var(--border-color)] text-[var(--card-bg)] border-none text-[2rem] flex items-center justify-center cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-30"
         title="Add new task"
       >
         +

@@ -13,43 +13,18 @@ export function AssigneeBadge({ assignee, size = 'small' }: Props) {
   if (assignee === 'both') {
     return (
       <div
-        style={{
-          display: 'inline-flex',
-          border: '2px solid var(--border-color)',
-          height,
-          userSelect: 'none',
-          boxSizing: 'border-box',
-        }}
+        className={`inline-flex border-2 border-[var(--border-color)] select-none box-border ${isSmall ? 'h-[20px]' : 'h-[28px]'}`}
         title="Assignee: Both Most and Fern"
       >
         <span
-          style={{
-            backgroundColor: 'var(--border-color)',
-            color: 'var(--card-bg)',
-            fontFamily: 'Space Mono, monospace',
-            fontWeight: 700,
-            fontSize,
-            padding: '0 6px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRight: '1px solid var(--card-bg)',
-          }}
+          className="bg-[var(--border-color)] text-[var(--card-bg)] mono font-bold px-[6px] flex items-center justify-center border-r border-[var(--card-bg)]"
+          style={{ fontSize }}
         >
           M
         </span>
         <span
-          style={{
-            backgroundColor: 'var(--card-bg)',
-            color: 'var(--border-color)',
-            fontFamily: 'Space Mono, monospace',
-            fontWeight: 700,
-            fontSize,
-            padding: '0 6px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className="bg-[var(--card-bg)] text-[var(--border-color)] mono font-bold px-[6px] flex items-center justify-center"
+          style={{ fontSize }}
         >
           F
         </span>
@@ -61,21 +36,8 @@ export function AssigneeBadge({ assignee, size = 'small' }: Props) {
 
   return (
     <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        border: '2px solid var(--border-color)',
-        height,
-        padding: '0 7px',
-        backgroundColor: isMost ? 'var(--border-color)' : 'var(--card-bg)',
-        color: isMost ? 'var(--card-bg)' : 'var(--border-color)',
-        fontFamily: 'Space Mono, monospace',
-        fontWeight: 700,
-        fontSize,
-        userSelect: 'none',
-        boxSizing: 'border-box',
-      }}
+      className={`inline-flex items-center justify-center border-2 border-[var(--border-color)] px-[7px] mono font-bold select-none box-border ${isSmall ? 'h-[20px]' : 'h-[28px]'} ${isMost ? 'bg-[var(--border-color)] text-[var(--card-bg)]' : 'bg-[var(--card-bg)] text-[var(--border-color)]'}`}
+      style={{ fontSize }}
       title={`Assignee: ${isMost ? 'Most' : 'Fern'}`}
     >
       {isMost ? 'M' : 'F'}

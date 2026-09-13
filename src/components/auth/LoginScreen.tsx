@@ -21,41 +21,15 @@ export function LoginScreen() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100dvh',
-        backgroundColor: 'var(--card-bg)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-      }}
-    >
-      <div style={{ width: '100%', maxWidth: '360px' }}>
+    <div className="min-h-[100dvh] bg-[var(--card-bg)] flex items-center justify-center p-6">
+      <div className="w-full max-w-[360px]">
         {/* Header */}
-        <div style={{ marginBottom: '40px' }}>
-          <h1
-            style={{
-              fontFamily: 'Archivo Black, sans-serif',
-              fontSize: '2.5rem',
-              lineHeight: 1,
-              margin: 0,
-              marginBottom: '8px',
-            }}
-          >
+        <div className="mb-10">
+          <h1 className="font-archivo-black text-[2.5rem] leading-none m-0 mb-2">
             DUAL TODO
           </h1>
-          <div style={{ borderTop: '3px solid #000', paddingTop: '8px' }}>
-            <p
-              style={{
-                fontFamily: 'Work Sans, sans-serif',
-                fontSize: '0.875rem',
-                margin: 0,
-                color: '#555',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-              }}
-            >
+          <div className="border-t-[3px] border-[#000] pt-2">
+            <p className="font-work-sans text-[0.875rem] m-0 text-[#555] tracking-[0.05em] uppercase">
               For Most & Fern
             </p>
           </div>
@@ -63,7 +37,7 @@ export function LoginScreen() {
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '16px' }}>
+          <div className="mb-4">
             <label className="rb-label" htmlFor="pin-input">
               Birthday PIN
             </label>
@@ -83,14 +57,7 @@ export function LoginScreen() {
               disabled={loading}
             />
             {error && (
-              <p
-                style={{
-                  fontFamily: 'Work Sans, sans-serif',
-                  fontSize: '0.75rem',
-                  color: '#ff0000',
-                  margin: '4px 0 0',
-                }}
-              >
+              <p className="font-work-sans text-[0.75rem] text-[#ff0000] m-0 mt-1">
                 {error}
               </p>
             )}
@@ -98,24 +65,15 @@ export function LoginScreen() {
 
           <button
             type="submit"
-            className="rb-btn-primary"
+            className="rb-btn-primary w-full"
             disabled={loading || !pin.trim()}
-            style={{ width: '100%' }}
           >
             {loading ? 'SIGNING IN...' : 'LOGIN'}
           </button>
         </form>
 
         {/* Footer hint */}
-        <p
-          style={{
-            fontFamily: 'Space Mono, monospace',
-            fontSize: '0.75rem',
-            color: '#999',
-            marginTop: '24px',
-            textAlign: 'center',
-          }}
-        >
+        <p className="mono text-[0.75rem] text-[#999] mt-6 text-center">
           Use your partner's birthday as PIN
         </p>
       </div>

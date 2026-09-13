@@ -1,5 +1,11 @@
 @import "tailwindcss";
 @plugin "daisyui";
+@theme {
+  --font-space-mono: "Space Mono", monospace;
+  --font-archivo-black: "Archivo Black", sans-serif;
+  --font-work-sans: "Work Sans", sans-serif;
+}
+
 
 /* ===================================
    RawBlock Design System — Global Base

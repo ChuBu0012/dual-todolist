@@ -33,7 +33,6 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? 10 : 1,
   };
 
   const handleToggle = (e: React.MouseEvent, item: ChecklistItem) => {
@@ -61,7 +60,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   const isToday = card.title === formatThaiDate();
   
   // Base classes
-  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border ${isDragging ? 'opacity-50' : 'opacity-100'}`;
+  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
 
   // Shared Date styling (3D shadow + dashed border)
   if (isSharedDate) {
@@ -80,23 +79,14 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
       }}
     >
       {/* Header: Title and Assignee/Pin icons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+      <div className="flex justify-between items-start gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           {/* Drag Handle */}
           <div
             {...attributes}
             {...listeners}
             onClick={(e) => e.stopPropagation()}
-            style={{
-              cursor: isDragging ? 'grabbing' : 'grab',
-              padding: '4px',
-              margin: '-4px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#999',
-              touchAction: 'none'
-            }}
+            className={`p-1 -m-1 flex items-center justify-center text-[#999] touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="9" cy="5" r="1" />
@@ -107,24 +97,13 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
               <circle cx="15" cy="19" r="1" />
             </svg>
           </div>
-        <h3
-          style={{
-            fontFamily: 'Archivo Black, sans-serif',
-            fontSize: '1.05rem',
-            margin: 0,
-            lineHeight: 1.25,
-            wordBreak: 'break-word',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}
-        >
+        <h3 className="font-archivo-black text-[1.05rem] m-0 leading-[1.25] break-words flex items-center gap-2">
           {card.title || formatThaiDate(card.createdAt ? new Date(card.createdAt) : new Date())}
           {isToday && <div className="w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0" title="Today" />}
         </h3>
         </div>
         
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+        <div className="flex gap-2 items-center shrink-0">
           <AssigneeBadge assignee={card.assignee} size="small" />
           {card.isPinned && (
             <button 
@@ -132,14 +111,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
                 e.stopPropagation();
                 useTodoStore.getState().updateCard(card.id, { isPinned: false });
               }}
-              style={{ 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                background: 'none', 
-                border: 'none', 
-                cursor: 'pointer',
-                padding: 0
-              }} 
+              className="inline-flex items-center bg-none border-none cursor-pointer p-0"
               title="Unpin task"
             >
               <PinIcon isPinned size={16} />
@@ -150,66 +122,32 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
 
       {/* Checklist Items */}
       {card.items && card.items.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div className="flex flex-col gap-1">
           {card.items.map((item) => {
             const isPending = pendingNotifications.includes(item.id);
             return (
               <div
                 key={item.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  minHeight: '32px',
-                  padding: '2px 0',
-                  opacity: item.isDone && !isPending ? 0.45 : 1,
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
+                className={`flex items-center gap-2 min-h-[32px] py-[2px] relative overflow-hidden ${item.isDone && !isPending ? 'opacity-45' : 'opacity-100'}`}
               >
                 {isPending && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 0, left: 0, right: 0, bottom: 0,
-                      pointerEvents: 'none',
-                      zIndex: 0,
-                      background: 'rgba(0,0,0,0.05)',
-                      borderBottom: '2px solid var(--border-color)'
-                    }}
-                  >
+                  <div className="absolute inset-0 pointer-events-none z-0 bg-[rgba(0,0,0,0.05)] border-b-2 border-[var(--border-color)]">
                     <div 
-                      className="animate-undo-shrink"
-                      style={{ height: '100%', background: 'rgba(0,0,0,0.1)' }}
+                      className="animate-undo-shrink h-full bg-[rgba(0,0,0,0.1)]"
                     />
                   </div>
                 )}
                 {/* Checkbox: click strictly toggles done state */}
                 <div
                   onClick={(e) => handleToggle(e, item)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    flexShrink: 0,
-                    zIndex: 1,
-                  }}
+                  className="flex items-center justify-center cursor-pointer p-1 shrink-0 z-1"
                   title={item.isDone ? 'Mark uncompleted' : 'Mark completed'}
                 >
                   <input
                     type="checkbox"
-                    className="rb-checkbox"
+                    className="rb-checkbox w-[20px] h-[20px] cursor-pointer pointer-events-none shrink-0"
                     checked={item.isDone}
                     readOnly
-                    style={{
-                      width: '20px',
-                      height: '20px',
-                      cursor: 'pointer',
-                      pointerEvents: 'none',
-                      flexShrink: 0,
-                    }}
                   />
                 </div>
 
@@ -229,18 +167,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
                       setEditingItemId(null);
                     }
                   }}
-                  style={{
-                    fontFamily: 'Work Sans, sans-serif',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.3,
-                    flex: 1,
-                    border: 'none',
-                    borderBottom: '2px solid var(--border-color)',
-                    background: 'var(--card-bg)',
-                    outline: 'none',
-                    padding: '2px 4px',
-                    boxSizing: 'border-box',
-                  }}
+                  className="font-work-sans text-[0.9rem] leading-[1.3] flex-1 border-none border-b-2 border-[var(--border-color)] bg-[var(--card-bg)] outline-none py-[2px] px-1 box-border"
                 />
               ) : (
                 <span
@@ -249,16 +176,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
                     setEditingItemId(item.id);
                     setEditingText(item.text);
                   }}
-                  style={{
-                    fontFamily: 'Work Sans, sans-serif',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.3,
-                    textDecoration: item.isDone ? 'line-through' : 'none',
-                    flex: 1,
-                    wordBreak: 'break-word',
-                    cursor: 'text',
-                    padding: '2px 4px',
-                  }}
+                  className={`font-work-sans text-[0.9rem] leading-[1.3] flex-1 break-words cursor-text py-[2px] px-1 ${item.isDone ? 'line-through' : 'no-underline'}`}
                   title="Click to edit"
                 >
                   {item.text}
