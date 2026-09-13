@@ -8,7 +8,6 @@ interface Props {
 export function AssigneeBadge({ assignee, size = 'small' }: Props) {
   const isSmall = size === 'small';
   const fontSize = isSmall ? '0.7rem' : '0.8rem';
-  const height = isSmall ? '20px' : '28px';
 
   if (assignee === 'both') {
     return (

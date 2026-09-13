@@ -100,7 +100,7 @@ code, kbd, pre, .mono {
 }
 
 .animate-sync-spin {
-  animation: sync-spin 0.71.5s linear infinite;
+  animation: sync-spin 0.75s linear infinite;
 }
 
 .animate-sync-pop {
@@ -136,5 +136,5 @@ code, kbd, pre, .mono {
 }
 
 .animate-fade-in {
-  animation: fade-in 0.11.5s ease-out forwards;
+  animation: fade-in 0.15s ease-out forwards;
 }
