@@ -1,0 +1,52 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.0 [39m[90m/Users/most-too/Desktop/dual_todolist/dual-todo[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+[90mstdout[2m | src/services/discordService.test.ts[2m > [22m[2mdiscordService[2m > [22m[2msendBatchedCompletions[2m > [22m[2mshould not send if logs array is empty
+[22m[39mNo completed tasks in this interval. Skipping Discord batch notification.
+
+[90mstdout[2m | src/store/todoStore.test.ts[2m > [22m[2mTodoStore (Cards)[2m > [22m[2minitialize[2m > [22m[2mshould call subscribeCards and return unsubscribe
+[22m[39m[DEBUG-7f3a] todoStore.initialize called
+
+[90mstdout[2m | src/store/todoStore.test.ts[2m > [22m[2mTodoStore (Cards)[2m > [22m[2mcreateCard[2m > [22m[2mshould call firestoreService.createCard
+[22m[39m[DEBUG-7f3a] todoStore.createCard called with: { title: [32m'New card'[39m, assignee: [32m'both'[39m, items: [] }
+
+[90mstdout[2m | src/store/todoStore.test.ts[2m > [22m[2mTodoStore (Cards)[2m > [22m[2mcreateCard[2m > [22m[2mshould call firestoreService.createCard
+[22m[39m[DEBUG-7f3a] todoStore.createCard successfully completed
+
+[90mstdout[2m | src/store/todoStore.test.ts[2m > [22m[2mTodoStore (Cards)[2m > [22m[2mcreateCard[2m > [22m[2mshould set error on failure
+[22m[39m[DEBUG-7f3a] todoStore.createCard called with: { title: [32m'Fail'[39m, assignee: [32m'most'[39m }
+
+[90mstdout[2m | src/store/todoStore.test.ts[2m > [22m[2mTodoStore (Cards)[2m > [22m[2mtoggleChecklistItem[2m > [22m[2mshould mark item complete locally and update firestore
+[22m[39m[DEBUG-7f3a] todoStore.toggleChecklistItem called: { cardId: [32m'card-1'[39m, itemId: [32m'item-1'[39m, isDone: [33mtrue[39m }
+
+[90mstdout[2m | src/store/todoStore.test.ts[2m > [22m[2mTodoStore (Cards)[2m > [22m[2mtoggleChecklistItem[2m > [22m[2mshould uncheck an item locally and update firestore
+[22m[39m[DEBUG-7f3a] todoStore.toggleChecklistItem called: { cardId: [32m'card-1'[39m, itemId: [32m'item-1'[39m, isDone: [33mfalse[39m }
+
+[90mstdout[2m | src/store/todoStore.test.ts[2m > [22m[2mTodoStore (Cards)[2m > [22m[2mreorderCards[2m > [22m[2mshould optimistically reorder locally and persist
+[22m[39m[DEBUG-7f3a] todoStore.reorderCards called with: [ [32m'c'[39m, [32m'a'[39m, [32m'b'[39m ]
+
+ [32m✓[39m src/utils/dateFormat.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m src/services/discordService.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m src/store/authStore.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/store/todoStore.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/components/todo/SyncStatusIcon.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+[90mstdout[2m | src/components/todo/TodoCard.test.tsx
+[22m[39m[DEBUG-7f3a] Firebase initializing with projectId: dual-todo { hasApiKey: [33mtrue[39m, hasAuthDomain: [33mtrue[39m, hasAppId: [33mtrue[39m }
+[DEBUG-7f3a] Firestore initialized with experimentalForceLongPolling: true
+[DEBUG-7f3a] Firestore initialized { isBrowser: [33mtrue[39m }
+
+ [31m❯[39m src/components/todo/SortableChecklistItem.test.tsx [2m([22m[2m4 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 163[2mms[22m[39m
+   [31m❯[39m SortableChecklistItem [2m(4)[22m
+     [32m✓[39m should render correctly[32m 37[2mms[22m[39m
+[31m     [31m×[31m should call onToggle when clicking the checkbox[39m[32m 87[2mms[22m[39m
+     [32m✓[39m should trigger onEnter when pressing Enter key[32m 33[2mms[22m[39m
+     [32m✓[39m should apply autoFocus property to the input[32m 4[2mms[22m[39m
+ [32m✓[39m src/components/auth/LoginScreen.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 294[2mms[22m[39m
+ [32m✓[39m src/components/todo/TodoCard.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 163[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m39 passed[39m[22m[90m (40)[39m
+[2m   Start at [22m 01:28:22
+[2m   Duration [22m 1.63s[2m (environment 70%, setup 10%, tests 8%, transform 5%, import 4%, worker 4%)[22m
+

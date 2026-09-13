@@ -79,7 +79,7 @@ describe('TodoCard Interactions', () => {
   it('should render PinIcon and not emoji', () => {
     render(<TodoCard card={mockCard} onClick={vi.fn()} />);
     expect(screen.queryByText('📌')).toBeNull();
-    expect(screen.getByTitle('Pinned')).toBeInTheDocument();
+    expect(screen.getByTitle('Unpin task')).toBeInTheDocument();
   });
 });
 

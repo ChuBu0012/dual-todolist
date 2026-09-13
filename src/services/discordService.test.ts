@@ -29,6 +29,20 @@ describe('discordService', () => {
     });
   });
 
+  describe('sendTaskCompleted', () => {
+    it('should send a green embed when a task is completed', async () => {
+      await discordService.sendTaskCompleted('Urgent Work', 'Finish report', 'most');
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      const call = vi.mocked(global.fetch).mock.calls[0];
+      const body = JSON.parse(call[1]?.body as string);
+
+      expect(body.embeds).toBeDefined();
+      expect(body.embeds[0].color).toBe(5763719); // Discord Green
+      expect(body.embeds[0].description).toContain('✅ **DONE:** MOST - Finish report / Urgent Work');
+    });
+  });
+
   describe('sendBatchedCompletions', () => {
     it('should not send if logs array is empty', async () => {
       await discordService.sendBatchedCompletions([]);
@@ -67,26 +81,25 @@ describe('discordService', () => {
       const call = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
 
-      expect(body.content).toContain('Dual Todo · สรุปงานที่เสร็จ (รอบ 30 นาที)');
+      expect(body.content).toContain('BATCH UPDATE');
       expect(body.content).toContain(formatThaiDate(new Date()));
-      expect(body.content).toContain('Most completed (1):');
-      expect(body.content).toContain('[Groceries] Buy milk');
-      expect(body.content).toContain('Fern completed (1):');
-      expect(body.content).toContain('[Groceries] Buy eggs');
+      expect(body.content).toContain('MOST COMPLETED:');
+      expect(body.content).toContain('- Buy milk / Groceries');
+      expect(body.content).toContain('FERN COMPLETED:');
+      expect(body.content).toContain('- Buy eggs / Groceries');
     });
   });
 
   describe('sendNightlyReminder', () => {
-    it('should send the 22:00 check-in message', async () => {
+    it('should send the 22:30 check-in message', async () => {
       await discordService.sendNightlyReminder();
 
       expect(global.fetch).toHaveBeenCalledTimes(1);
       const call = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
 
-      expect(body.content).toContain('22:00 Check-in');
-      expect(body.content).toContain('มี Todo อะไรอยากจดไว้ไหมนะ?');
-      expect(body.content).toContain('Most & Fern');
+      expect(body.content).toContain('SYSTEM CHECK: 22:30');
+      expect(body.content).toContain('FINAL REVIEW BEFORE TOMORROW.');
     });
   });
 
@@ -118,19 +131,19 @@ describe('discordService', () => {
       const call = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
 
-      expect(body.content).toContain('Dual Todo Summary · 12 Sep 2026');
-      expect(body.content).toContain('Total items: 12');
-      expect(body.content).toContain('Completed: 8');
-      expect(body.content).toContain('Pending: 4');
-      expect(body.content).toContain('Completion rate: 67%');
-      expect(body.content).toContain('Most completed: 5');
-      expect(body.content).toContain('Fern completed: 3');
-      expect(body.content).toContain('รายการค้าง จัดกลุ่มตามการ์ด:');
-      expect(body.content).toContain('• **Urgent Work**');
-      expect(body.content).toContain('- Finish report (Most)');
-      expect(body.content).toContain('- Review slides (Both)');
-      expect(body.content).toContain('• **House Chores**');
-      expect(body.content).toContain('- Clean room (Fern)');
+      expect(body.content).toContain('DAILY SUMMARY: 12 Sep 2026');
+      expect(body.content).toContain('TOTAL: 12');
+      expect(body.content).toContain('COMPLETED: 8');
+      expect(body.content).toContain('PENDING: 4');
+      expect(body.content).toContain('RATE: 67%');
+      expect(body.content).toContain('MOST DONE: 5');
+      expect(body.content).toContain('FERN DONE: 3');
+      expect(body.content).toContain('PENDING TASKS:');
+      expect(body.content).toContain('URGENT WORK');
+      expect(body.content).toContain('- Finish report | MOST');
+      expect(body.content).toContain('- Review slides | BOTH');
+      expect(body.content).toContain('HOUSE CHORES');
+      expect(body.content).toContain('- Clean room | FERN');
     });
 
     it('should handle zero pending items with a praise message', async () => {
@@ -148,7 +161,7 @@ describe('discordService', () => {
       const call = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
 
-      expect(body.content).toContain('ไม่มีรายการค้าง เก่งมากทั้งคู่เลย!');
+      expect(body.content).toContain('STATUS: NO PENDING TASKS');
     });
   });
 

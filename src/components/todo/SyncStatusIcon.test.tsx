@@ -3,9 +3,10 @@ import { render, screen } from '@testing-library/react';
 import { SyncStatusIcon } from './SyncStatusIcon';
 
 describe('SyncStatusIcon', () => {
-  it('should render nothing when state is IDLE', () => {
-    const { container } = render(<SyncStatusIcon state="IDLE" />);
-    expect(container.firstChild).toBeNull();
+  it('should render dimmed saved icon when state is IDLE', () => {
+    render(<SyncStatusIcon state="IDLE" />);
+    expect(screen.getByTitle('Saved')).toBeInTheDocument();
+    expect(screen.getByTitle('Saved')).toHaveStyle({ opacity: '0.5' });
   });
 
   it('should render spinning icon when state is SAVING', () => {
