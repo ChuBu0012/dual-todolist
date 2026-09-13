@@ -15,8 +15,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { firestoreService } = await import('../../src/services/firestoreService');
     const cards = await firestoreService.getAllCards();
     
+    // Use ICT (Asia/Bangkok, UTC+7) to match card timestamps stored by browser
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = new Date(now.getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
     
     const activeCards = cards.filter(card => {
       const createdStr = card.createdAt ? new Date(card.createdAt).toISOString().split('T')[0] : '';

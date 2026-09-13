@@ -16,8 +16,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const cards = await firestoreService.getAllCards();
     
     // Check if there's any work today
+    // Use ICT (Asia/Bangkok, UTC+7) to match card timestamps stored by browser
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = new Date(now.getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
     
     const activeCards = cards.filter(card => {
       // Include if created today, updated today, or has pending items and was updated recently

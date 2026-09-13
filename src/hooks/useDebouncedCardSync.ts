@@ -12,7 +12,7 @@ export function useDebouncedCardSync(initialCard: CardItem | null) {
   const defaultAssignee = currentUser || 'both';
 
   const [localCard, setLocalCard] = useState<Partial<CardItem>>(
-    initialCard || { title: '', items: [], assignee: defaultAssignee, isPinned: false }
+    initialCard || { title: '', items: [{ id: Math.random().toString(36).substr(2, 9), text: '', isDone: false }], assignee: defaultAssignee, isPinned: false }
   );
   const [syncState, setSyncState] = useState<SyncState>(initialCard ? 'SAVED' : 'IDLE');
   const createCard = useTodoStore((s) => s.createCard);

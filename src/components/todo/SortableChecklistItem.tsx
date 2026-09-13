@@ -11,9 +11,10 @@ interface Props {
   onChangeText: (id: string, text: string) => void;
   onRemove: (id: string) => void;
   onEnter?: () => void;
+  autoFocus?: boolean;
 }
 
-export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter }: Props) {
+export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, autoFocus }: Props) {
   const {
     attributes,
     listeners,
@@ -97,6 +98,7 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
           }
         }}
         placeholder="ITEM..."
+        autoFocus={autoFocus}
         readOnly={isReadOnly}
         style={{
           flex: 1,

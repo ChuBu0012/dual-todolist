@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+
 import type { CardItem, TodoAssignee } from '../../types/todo';
 import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
@@ -34,7 +34,8 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
   const pendingNotifications = useTodoStore(s => s.pendingNotifications);
   const { localCard, updateField, syncState, flush } = useDebouncedCardSync(card || null);
 
-  const titleInputRef = useRef<HTMLInputElement>(null);
+
+
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
@@ -53,13 +54,8 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
     }
   };
 
-  useEffect(() => {
-    if (!card) {
-      if (!localCard.items || localCard.items.length === 0) {
-        updateField({ items: [{ id: generateId(), text: '', isDone: false }] });
-      }
-    }
-  }, [card]);
+
+
 
   const handleAssigneeCycle = () => {
     if (isReadOnly) return;
@@ -128,7 +124,6 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
           }));
           delete discordTimers[id];
         }
-      }, 2000);
       }, 1500);
     } else {
       useTodoStore.setState(s => ({
@@ -316,7 +311,6 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
         <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '16px' }}>
           {/* Title input */}
           <input
-            ref={titleInputRef}
             className="rb-input"
             type="text"
             placeholder={formatThaiDate()}
