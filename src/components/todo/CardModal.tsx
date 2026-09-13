@@ -55,7 +55,9 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
 
   useEffect(() => {
     if (!card) {
-      titleInputRef.current?.focus();
+      if (!localCard.items || localCard.items.length === 0) {
+        updateField({ items: [{ id: generateId(), text: '', isDone: false }] });
+      }
     }
   }, [card]);
 
@@ -126,6 +128,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
           }));
           delete discordTimers[id];
         }
+      }, 2000);
       }, 1500);
     } else {
       useTodoStore.setState(s => ({
@@ -346,7 +349,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               strategy={verticalListSortingStrategy}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-                {(localCard.items || []).map((item) => (
+                {(localCard.items || []).map((item, index) => (
                   <SortableChecklistItem
                     key={item.id}
                     item={item}
@@ -356,6 +359,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                     onChangeText={handleItemChange}
                     onRemove={handleRemoveItem}
                     onEnter={handleAddItem}
+                    autoFocus={!card && index === 0}
                   />
                 ))}
               </div>
