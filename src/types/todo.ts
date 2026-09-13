@@ -57,3 +57,10 @@ export interface CompletedTaskLog {
   notified: boolean;
   notifiedAt?: string | null;
 }
+
+/** Daily activity stats for heatmap tracking */
+export interface DailyStat {
+  date: string; // 'YYYY-MM-DD' Asia/Bangkok
+  mostCount: number;
+  fernCount: number;
+}

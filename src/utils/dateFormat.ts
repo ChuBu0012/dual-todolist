@@ -28,3 +28,20 @@ export function formatSummaryDate(date: Date = new Date()): string {
   return `${day} ${monthStr} ${year}`;
 }
 
+/** Returns 'YYYY-MM-DD' in Asia/Bangkok timezone */
+export function getBangkokDateString(date: Date = new Date()): string {
+  const d = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** Returns last 30 dates as YYYY-MM-DD strings, oldest first */
+export function getLast30Days(): string[] {
+  const days: string[] = [];
+  const now = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    days.push(getBangkokDateString(d));
+  }
+  return days;
+}
