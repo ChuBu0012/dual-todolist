@@ -20,4 +20,4 @@
 - If conflict detected between memory and file → Trust the FILE
 - When modifying existing code → Show diff summary before writing
 - ALWAYS create/checkout a new git branch BEFORE making any code edits or modifications.
-- ALWAYS thoroughly inspect and read relevant context, files, and dependencies before editing to ensure complete and accurate implementation.
+- ALWAYS thoroughly inspect and read relevant context, files, and dependencies before editing to ensure complete and accurate implementation.- NEVER queue multiple tool calls that modify the filesystem alongside a command that requires bypass sandbox approval (e.g., Git commands). You MUST stop and wait for the user's explicit approval on the blocking command before issuing any further edits, otherwise the codebase state will desynchronize and changes will overlap incorrectly.
