@@ -135,7 +135,7 @@ export function TodoList() {
       {/* PINNED SECTION */}
       {pinnedCards.length > 0 && (
         <div className="mb-7">
-          <h2 className="font-archivo-black text-[0.95rem] mb-3 uppercase tracking-wide flex items-center gap-1.5">
+          <h2 className="font-archivo-black text-[1rem] m-0 mb-[12px] px-[4px] uppercase flex items-center gap-1.5">
             <PinIcon isPinned size={14} /> Pinned
           </h2>
           <SortableContext items={pinnedCards.map(c => c.id)} strategy={rectSortingStrategy}>
@@ -157,7 +157,7 @@ export function TodoList() {
       {otherCards.length > 0 && (
         <div>
           {pinnedCards.length > 0 && (
-            <h2 className="font-archivo-black text-[1rem] m-0 mb-3 px-1 uppercase">
+            <h2 className="font-archivo-black text-[1rem] m-0 mb-[12px] px-[4px] uppercase">
               Other Tasks
             </h2>
           )}
