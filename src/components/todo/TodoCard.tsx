@@ -60,13 +60,13 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   const isToday = card.title === formatThaiDate();
   
   // Base classes
-  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all cursor-pointer ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
+  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all duration-200 ease-out cursor-pointer ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
 
   // Shared Date styling (3D shadow + dashed border)
   if (isSharedDate) {
-    cardClasses += ` border-dashed -translate-y-1 -translate-x-1 shadow-[6px_6px_0_0_var(--border-color)] hover:-translate-y-2 hover:-translate-x-2 hover:shadow-[8px_8px_0_0_var(--border-color)]`;
+    cardClasses += ` border-dashed -translate-y-1 -translate-x-1 shadow-[6px_6px_0_0_var(--border-color)] hover:-translate-y-2 hover:-translate-x-2 hover:shadow-[8px_8px_0_0_var(--border-color)] active:translate-y-0 active:translate-x-0 active:shadow-none`;
   } else {
-    cardClasses += ` hover:-translate-y-1 hover:-translate-x-[2px] hover:shadow-[4px_4px_0_0_var(--border-color)]`;
+    cardClasses += ` hover:-translate-y-1 hover:-translate-x-[2px] hover:shadow-[4px_4px_0_0_var(--border-color)] active:translate-y-0 active:translate-x-0 active:shadow-none`;
   }
 
   return (
