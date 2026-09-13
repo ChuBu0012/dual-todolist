@@ -61,8 +61,12 @@ export function MainLayout() {
               fontSize: '1.25rem',
               margin: 0,
               letterSpacing: '-0.01em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
+            <img src="/icon.png" alt="logo" style={{ width: '28px', height: '28px', borderRadius: '4px' }} />
             DUAL TODO
           </h1>
           <SyncStatusIcon state={syncState} />
