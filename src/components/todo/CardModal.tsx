@@ -126,7 +126,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
           }));
           delete discordTimers[id];
         }
-      }, 2000);
+      }, 1500);
     } else {
       useTodoStore.setState(s => ({
         pendingNotifications: s.pendingNotifications.filter(pid => pid !== id)
@@ -355,6 +355,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                     onToggle={handleToggleItemDone}
                     onChangeText={handleItemChange}
                     onRemove={handleRemoveItem}
+                    onEnter={handleAddItem}
                   />
                 ))}
               </div>

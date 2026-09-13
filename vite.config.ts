@@ -15,22 +15,22 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.ico', 'robots.txt', 'icon.png'],
       manifest: {
-        name: 'Dual Todo - Realtime & Offline Todo for Two',
-        short_name: 'DualTodo',
+        name: 'dual todo',
+        short_name: 'dual todo',
         description: 'Realtime todolist and Discord notification for 2 users',
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [
           {
-            src: '/pwa-192x192.png',
+            src: '/icon.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/pwa-512x512.png',
+            src: '/icon.png',
             sizes: '512x512',
             type: 'image/png',
           },

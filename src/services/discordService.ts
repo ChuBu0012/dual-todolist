@@ -49,8 +49,11 @@ export function splitDiscordMessage(text: string, maxLength: number = 1850): str
 export const discordService = {
   async sendTaskCompleted(cardTitle: string, itemText: string, completedBy: string) {
     const by = completedBy === 'most' ? 'Most' : 'Fern';
-    const content = `DONE: ${by.toUpperCase()} - ${itemText} / ${cardTitle || 'UNTITLED'}`; 
-    await this.sendMessage({ content });
+    const embed = {
+      description: `✅ **DONE:** ${by.toUpperCase()} - ${itemText} / ${cardTitle || 'UNTITLED'}`,
+      color: 5763719 // Discord Green
+    };
+    await this.sendMessage({ embeds: [embed] });
   },
 
   getWebhookUrl(): string | undefined {

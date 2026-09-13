@@ -10,9 +10,10 @@ interface Props {
   onToggle: (id: string) => void;
   onChangeText: (id: string, text: string) => void;
   onRemove: (id: string) => void;
+  onEnter?: () => void;
 }
 
-export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove }: Props) {
+export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter }: Props) {
   const {
     attributes,
     listeners,
@@ -89,6 +90,12 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
         type="text"
         value={item.text}
         onChange={(e) => onChangeText(item.id, e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && onEnter) {
+            e.preventDefault();
+            onEnter();
+          }
+        }}
         placeholder="ITEM..."
         readOnly={isReadOnly}
         style={{
