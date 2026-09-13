@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
 import { TodoList } from '../todo/TodoList';
@@ -7,7 +7,7 @@ import { AssigneeBadge } from "../todo/AssigneeBadge";
 import { SyncStatusIcon } from '../todo/SyncStatusIcon';
 import { Sun, Moon } from 'lucide-react';
 
-export function MainLayout() {
+export function MainLayout({ onLogoClick, children }: { onLogoClick?: () => void; children?: ReactNode }) {
   const currentUser = useAuthStore((s) => s.currentUser);
   const logout = useAuthStore((s) => s.logout);
   const initialize = useTodoStore((s) => s.initialize);
@@ -37,9 +37,11 @@ export function MainLayout() {
       {/* Top Navbar */}
       <header className="border-b-[3px] border-[var(--border-color)] py-3 px-4 flex items-center justify-between sticky top-0 bg-[var(--card-bg)] z-45">
         <div className="flex items-center gap-2.5">
-          <h1 
+          <h1
             style={{ fontFamily: '"Archivo Black", sans-serif', fontSize: '1.25rem', margin: 0, letterSpacing: '-0.01em' }}
-            className="flex items-center gap-2"
+            className={`flex items-center gap-2 ${onLogoClick ? 'cursor-pointer select-none active:scale-95 transition-transform' : ''}`}
+            onClick={onLogoClick}
+            title={onLogoClick ? 'View Activity Log' : undefined}
           >
             DUAL TODO
           </h1>
@@ -72,7 +74,7 @@ export function MainLayout() {
 
       {/* Main content */}
       <main className="flex-1 p-4 overflow-y-auto bg-[var(--bg-color)]">
-        <TodoList />
+        {children ?? <TodoList />}
       </main>
     </div>
   )
