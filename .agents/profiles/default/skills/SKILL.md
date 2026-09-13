@@ -22,10 +22,12 @@ Dynamically select and activate skills from other profiles based on task require
 
 | Profile | Core Expertise | Key Skills to Look For |
 | :--- | :--- | :--- |
-| `software_engineer` | React, TS, Zustand, Firestore, PWA, Architecture | `react-state-management`, `code-reviewer`, `firebase-firestore`, `scope-guardian` |
+| `software_engineer` | React, TS, Zustand, Firestore, PWA, Architecture | `react-state-management`, `code-reviewer`, `firebase-firestore`, `scope-guardian`, `ponytail` |
 | `tester_engineer` | Vitest, Test Strategy, Edge Cases, QA | `test-master`, `vitest`, `bug-report-formatter` |
 | `ux_design` | DaisyUI, Tailwind, Interface Kit, Visual Design | `interface-kit`, `web-design-guidelines`, `daisyui` |
 | `ux_research` | User Journey, Edge Case Discovery, Interviews | `journey`, `deliver-edge-cases`, `persona-creator` |
+
+> **Note for `ponytail` skill:** Only invoke the `ponytail` skill from the `software_engineer` profile when the user explicitly requests "ทำง่ายๆ" (make it easy/simple).
 
 ## ️ Decision Workflow
 
