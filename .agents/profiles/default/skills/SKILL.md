@@ -9,7 +9,12 @@ trigger: >-
 
 # Cross-Profile Router Skill
 
-##  Purpose
+## ⚠️ Mandatory Core Rules & User Preferences
+> **IMPORTANT:** Before performing any actions, always inspect and follow `profiles/default/memories/facts.md`!
+> 1. **Git Branching Rule:** ALWAYS create/checkout a new git branch (`git checkout -b <branch-name>`) BEFORE modifying or writing any code.
+> 2. **Context First Rule:** ALWAYS read and thoroughly inspect relevant context, existing files, and dependencies BEFORE making edits so no necessary parts or dependencies are missed.
+
+## 🎯 Purpose
 Act as a bridge between the 'default' persona and specialized role profiles.
 Dynamically select and activate skills from other profiles based on task requirements.
 

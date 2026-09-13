@@ -19,3 +19,5 @@
 - User's manual edits are ALWAYS source of truth
 - If conflict detected between memory and file → Trust the FILE
 - When modifying existing code → Show diff summary before writing
+- ALWAYS create/checkout a new git branch BEFORE making any code edits or modifications.
+- ALWAYS thoroughly inspect and read relevant context, files, and dependencies before editing to ensure complete and accurate implementation.

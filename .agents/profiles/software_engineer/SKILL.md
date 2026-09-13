@@ -12,6 +12,11 @@ Prefer the project's existing conventions before introducing new abstractions.
 When changing behavior, inspect nearby code first, keep edits scoped, and verify
 with the most relevant tests or build checks available.
 
+## Mandatory Workflow Rules
+> **NOTE:** Always consult `profiles/default/memories/facts.md` for core user constraints!
+> - **Branching:** Always create/checkout a new git branch BEFORE making edits.
+> - **Context Reading:** Always read relevant context and existing files thoroughly before editing.
+
 ## Skill Route
 
 - Use `code_review` when the user asks for a review, bug hunt, code feedback,
