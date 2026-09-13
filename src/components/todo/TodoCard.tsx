@@ -60,11 +60,13 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   const isToday = card.title === formatThaiDate();
   
   // Base classes
-  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
+  let cardClasses = `animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-all cursor-pointer ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
 
   // Shared Date styling (3D shadow + dashed border)
   if (isSharedDate) {
-    cardClasses += ` border-dashed -translate-y-1 -translate-x-1 shadow-[6px_6px_0_0_var(--border-color)]`;
+    cardClasses += ` border-dashed -translate-y-1 -translate-x-1 shadow-[6px_6px_0_0_var(--border-color)] hover:-translate-y-2 hover:-translate-x-2 hover:shadow-[8px_8px_0_0_var(--border-color)]`;
+  } else {
+    cardClasses += ` hover:-translate-y-1 hover:-translate-x-[2px] hover:shadow-[4px_4px_0_0_var(--border-color)]`;
   }
 
   return (
@@ -140,7 +142,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
                 {/* Checkbox: click strictly toggles done state */}
                 <div
                   onClick={(e) => handleToggle(e, item)}
-                  className="flex items-center justify-center cursor-pointer p-1 shrink-0 z-1"
+                  className="flex items-center justify-center cursor-pointer p-1 shrink-0 z-1 hover:bg-[rgba(0,0,0,0.05)] rounded-sm transition-colors"
                   title={item.isDone ? 'Mark uncompleted' : 'Mark completed'}
                 >
                   <input
@@ -176,7 +178,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
                     setEditingItemId(item.id);
                     setEditingText(item.text);
                   }}
-                  className={`font-work-sans text-[0.9rem] leading-[1.3] flex-1 break-words cursor-text py-[2px] px-1 ${item.isDone ? 'line-through' : 'no-underline'}`}
+                  className={`font-work-sans text-[0.9rem] leading-[1.3] flex-1 break-words cursor-text py-[2px] px-1 rounded-sm transition-colors hover:bg-[rgba(0,0,0,0.05)] ${item.isDone ? 'line-through' : 'no-underline'}`}
                   title="Click to edit"
                 >
                   {item.text}

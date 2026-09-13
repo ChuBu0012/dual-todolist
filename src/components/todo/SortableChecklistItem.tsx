@@ -59,13 +59,20 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
         </svg>
       </span>
       
-      <input
-        type="checkbox"
-        className={`rb-checkbox w-[20px] h-[20px] shrink-0 z-1 ${isReadOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-        checked={item.isDone}
-        onChange={() => onToggle(item.id)}
-        disabled={isReadOnly}
-      />
+      <div className="relative group">
+        <div
+          onClick={() => !isReadOnly && onToggle(item.id)}
+          className={`flex items-center justify-center p-2 shrink-0 z-1 transition-colors rounded-sm ${isReadOnly ? 'cursor-default' : 'cursor-pointer hover:bg-[rgba(0,0,0,0.05)]'}`}
+        >
+          <input
+            type="checkbox"
+            className={`rb-checkbox w-[20px] h-[20px] shrink-0 z-1 ${isReadOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            checked={item.isDone}
+            readOnly
+            disabled={isReadOnly}
+          />
+        </div>
+      </div>
       
       <input
         type="text"

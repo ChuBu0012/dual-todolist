@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 
 import type { CardItem, TodoAssignee } from '../../types/todo';
 import { useAuthStore } from '../../store/authStore';
@@ -41,6 +43,16 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
     useSensor(TouchSensor, { activationConstraint: { distance: 5 } })
   );
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -177,7 +189,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               type="button"
               onClick={() => updateField({ isPinned: !localCard.isPinned })}
               disabled={isReadOnly}
-              className={`w-[40px] h-[40px] border-2 border-[var(--border-color)] flex items-center justify-center ${localCard.isPinned ? 'bg-[var(--border-color)] text-[var(--card-bg)]' : 'bg-[var(--card-bg)] text-[var(--border-color)]'} ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
+              className={`w-[40px] h-[40px] border-2 border-[var(--border-color)] flex items-center justify-center transition-colors ${localCard.isPinned ? 'bg-[var(--border-color)] text-[var(--card-bg)] hover:bg-[var(--card-bg)] hover:text-[var(--border-color)]' : 'bg-[var(--card-bg)] text-[var(--border-color)] hover:bg-[var(--border-color)] hover:text-[var(--card-bg)]'} ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
               title={localCard.isPinned ? 'Unpin task' : 'Pin task'}
             >
               <PinIcon isPinned={localCard.isPinned} size={18} />
