@@ -140,16 +140,16 @@ export default function StatsView({ dailyStats, onBack }: StatsViewProps) {
   let mvpSubtitle = '';
   if (most7DayCount === 0 && fern7DayCount === 0) {
     mvpText = "IT'S A TIE. WORK HARDER.";
-    mvpSubtitle = '0 tasks completed this week.';
+    mvpSubtitle = '0 TASKS COMPLETED THIS WEEK';
   } else if (most7DayCount > fern7DayCount) {
     mvpText = 'CURRENT MVP: MOST 🏆';
-    mvpSubtitle = `Leading with ${most7DayCount} tasks (Fern: ${fern7DayCount})`;
+    mvpSubtitle = `SCORE: ${most7DayCount} TO ${fern7DayCount}`;
   } else if (fern7DayCount > most7DayCount) {
     mvpText = 'CURRENT MVP: FERN 🏆';
-    mvpSubtitle = `Leading with ${fern7DayCount} tasks (Most: ${most7DayCount})`;
+    mvpSubtitle = `SCORE: ${fern7DayCount} TO ${most7DayCount}`;
   } else {
     mvpText = "IT'S A TIE. WORK HARDER.";
-    mvpSubtitle = `Neck and neck at ${most7DayCount} tasks each.`;
+    mvpSubtitle = `NECK AND NECK AT ${most7DayCount} TASKS EACH`;
   }
 
   return (
