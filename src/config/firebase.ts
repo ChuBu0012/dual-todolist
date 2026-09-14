@@ -8,8 +8,8 @@ import {
 } from 'firebase/firestore';
 
 const getEnv = (nodeKey: string): string => {
-  if (typeof process !== 'undefined' && process.env && process.env[nodeKey]) {
-    return process.env[nodeKey] as string;
+  if (typeof process !== 'undefined' && process.env) {
+    return (process.env[nodeKey] || process.env[`VITE_${nodeKey}`] || '') as string;
   }
   return '';
 };
