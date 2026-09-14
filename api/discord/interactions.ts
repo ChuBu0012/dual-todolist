@@ -3,6 +3,7 @@ import nacl from 'tweetnacl';
 import { randomUUID } from 'crypto';
 import { waitUntil } from '@vercel/functions';
 import { firestoreService } from '../../src/services/firestoreService.js';
+import { formatThaiDate } from '../../src/utils/dateFormat.js';
 import type { TodoAssignee } from '../../src/types/todo.js';
 
 export const config = {
@@ -37,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (payload.type === 1) return res.status(200).json({ type: 1 });
 
     if (payload.type === 2) {
-      if (payload.data.name === 'todo') {
+      if (['todo', 'daily', 'next'].includes(payload.data.name)) {
         // Use waitUntil to do the work in the background so we can respond instantly
         waitUntil(processTodoCommand(payload));
 
@@ -58,18 +59,29 @@ async function processTodoCommand(payload: any) {
     const { data, member, user, token } = payload;
     const appId = process.env.DISCORD_APP_ID;
     const discordUserId = member?.user?.id || user?.id;
+    const commandName = data.name; // 'todo', 'daily', or 'next'
     
     let defaultAssignee: TodoAssignee = 'both';
     if (discordUserId === process.env.DISCORD_MOST_ID) defaultAssignee = 'most';
     else if (discordUserId === process.env.DISCORD_FERN_ID) defaultAssignee = 'fern';
 
     const itemsOpt = data.options?.find((o: any) => o.name === 'items');
-    const cardOpt = data.options?.find((o: any) => o.name === 'card');
     const assignOpt = data.options?.find((o: any) => o.name === 'assign');
-
     const rawItemsString = itemsOpt?.value || '';
-    const cardSearch = cardOpt?.value || 'Inbox';
     const assign = (assignOpt?.value as TodoAssignee) || defaultAssignee;
+
+    let cardSearch = 'Inbox';
+
+    if (commandName === 'todo') {
+      const cardOpt = data.options?.find((o: any) => o.name === 'card');
+      cardSearch = cardOpt?.value || 'Inbox';
+    } else if (commandName === 'daily') {
+      cardSearch = formatThaiDate(new Date());
+    } else if (commandName === 'next') {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      cardSearch = formatThaiDate(tomorrow);
+    }
 
     const itemNames = rawItemsString
       .split(',')

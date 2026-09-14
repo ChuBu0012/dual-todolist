@@ -9,54 +9,71 @@ if (!APP_ID || !BOT_TOKEN) {
 
 const url = `https://discord.com/api/v10/applications/${APP_ID}/commands`;
 
-const commandData = {
-  name: 'todo',
-  description: 'เพิ่มงานใหม่ลงใน Dual Todo (ใส่ได้หลายงานโดยคั่นด้วยเครื่องหมายจุลภาค ,)',
-  options: [
-    {
-      name: 'items',
-      description: 'สิ่งที่ต้องทำ เช่น: ซื้อนม, ล้างรถ, กวาดห้อง',
-      type: 3, // STRING
-      required: true,
-    },
-    {
-      name: 'card',
-      description: 'ชื่อการ์ดที่ต้องการใส่ (ไม่ระบุ = ใส่ลงการ์ด Inbox)',
-      type: 3, // STRING
-      required: false,
-    },
-    {
-      name: 'assign',
-      description: 'มอบหมายให้ใคร (ไม่ระบุ = ผู้พิมพ์คำสั่งเป็นเจ้าของ)',
-      type: 3, // STRING
-      required: false,
-      choices: [
-        { name: 'Most', value: 'most' },
-        { name: 'Fern', value: 'fern' },
-        { name: 'Both (ทุกคน)', value: 'both' },
-      ],
-    },
-  ],
-};
+const optionsShared = [
+  {
+    name: 'items',
+    description: 'สิ่งที่ต้องทำ เช่น: ซื้อนม, ล้างรถ, กวาดห้อง',
+    type: 3, // STRING
+    required: true,
+  },
+  {
+    name: 'assign',
+    description: 'มอบหมายให้ใคร (ไม่ระบุ = ผู้พิมพ์คำสั่งเป็นเจ้าของ)',
+    type: 3, // STRING
+    required: false,
+    choices: [
+      { name: 'Most', value: 'most' },
+      { name: 'Fern', value: 'fern' },
+      { name: 'Both (ทุกคน)', value: 'both' },
+    ],
+  },
+];
+
+const commands = [
+  {
+    name: 'todo',
+    description: 'เพิ่มงานใหม่ลงใน Dual Todo (ระบุการ์ดได้เอง)',
+    options: [
+      ...optionsShared,
+      {
+        name: 'card',
+        description: 'ชื่อการ์ดที่ต้องการใส่ (ไม่ระบุ = ใส่ลงการ์ด Inbox)',
+        type: 3, // STRING
+        required: false,
+      }
+    ],
+  },
+  {
+    name: 'daily',
+    description: 'เพิ่มงานสำหรับวันนี้ (ระบบจะหา/สร้างการ์ดของวันนี้ให้อัตโนมัติ)',
+    options: [...optionsShared],
+  },
+  {
+    name: 'next',
+    description: 'เพิ่มงานสำหรับวันพรุ่งนี้ (ระบบจะหา/สร้างการ์ดของพรุ่งนี้ให้อัตโนมัติ)',
+    options: [...optionsShared],
+  },
+];
 
 async function main() {
-  console.log('🔄 Registering Discord command...');
+  console.log('🔄 Registering Discord commands...');
 
   const response = await fetch(url, {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bot ${BOT_TOKEN}`,
     },
-    body: JSON.stringify(commandData),
+    body: JSON.stringify(commands),
   });
 
   if (response.ok) {
     const data = await response.json();
-    console.log(`✅ Successfully registered command: /${data.name}`);
+    console.log(`✅ Successfully registered ${data.length} commands:`);
+    data.forEach((cmd: any) => console.log(`   - /${cmd.name}`));
   } else {
     const errorText = await response.text();
-    console.error('❌ Failed to register command:', response.status, errorText);
+    console.error('❌ Failed to register commands:', response.status, errorText);
   }
 }
 
