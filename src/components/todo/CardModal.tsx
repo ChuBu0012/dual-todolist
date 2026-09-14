@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 
-import type { CardItem, TodoAssignee } from '../../types/todo';
+import type { CardItem, TodoAssignee, ChecklistItem } from '../../types/todo';
 import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
+import { firestoreService } from '../../services/firestoreService';
 import { AssigneeBadge } from './AssigneeBadge';
 import { useDebouncedCardSync } from '../../hooks/useDebouncedCardSync';
 import { PinIcon } from './PinIcon';
@@ -32,8 +33,11 @@ const generateId = () => Math.random().toString(36).substr(2, 9);
 const discordTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
 export function CardModal({ card, onClose, isReadOnly }: Props) {
+  const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
+  const [movingItem, setMovingItem] = useState<ChecklistItem | null>(null);
   const currentUser = useAuthStore((s) => s.currentUser);
   const pendingNotifications = useTodoStore(s => s.pendingNotifications);
+  const allCards = useTodoStore(s => s.cards);
   const { localCard, updateField, syncState, flush } = useDebouncedCardSync(card || null);
 
 
@@ -75,10 +79,22 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
     updateField({ assignee: next as TodoAssignee });
   };
 
-  const handleAddItem = () => {
+  const handleAddItem = (afterId?: string) => {
     if (isReadOnly) return;
-    const newItems = [...(localCard.items || []), { id: generateId(), text: '', isDone: false }];
+    const newId = generateId();
+    const newItem = { id: newId, text: '', isDone: false };
+    
+    let newItems;
+    if (afterId) {
+      const idx = (localCard.items || []).findIndex(i => i.id === afterId);
+      newItems = [...(localCard.items || [])];
+      newItems.splice(idx + 1, 0, newItem);
+    } else {
+      newItems = [...(localCard.items || []), newItem];
+    }
+    
     updateField({ items: newItems });
+    setFocusedItemId(newId);
   };
 
   const handleItemChange = (id: string, text: string) => {
@@ -89,8 +105,20 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
 
   const handleRemoveItem = (id: string) => {
     if (isReadOnly) return;
-    const newItems = (localCard.items || []).filter((it) => it.id !== id);
+    const items = localCard.items || [];
+    const index = items.findIndex((it) => it.id === id);
+    const newItems = items.filter((it) => it.id !== id);
     updateField({ items: newItems });
+    
+    if (focusedItemId === id) {
+      if (index > 0) {
+        setFocusedItemId(items[index - 1].id);
+      } else if (newItems.length > 0) {
+        setFocusedItemId(newItems[0].id);
+      } else {
+        setFocusedItemId(null);
+      }
+    }
   };
 
   const handleToggleItemDone = (id: string) => {
@@ -145,6 +173,27 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
         clearTimeout(discordTimers[id]);
         delete discordTimers[id];
       }
+    }
+  };
+
+  const handleMoveItem = async (targetCardId: string) => {
+    if (!movingItem || isReadOnly) return;
+    try {
+      const targetCard = allCards.find(c => c.id === targetCardId);
+      if (!targetCard) return;
+
+      // 1. Remove from current card
+      const newItems = (localCard.items || []).filter(it => it.id !== movingItem.id);
+      updateField({ items: newItems }); // optimistic
+
+      // 2. Add to target card
+      const targetItems = [...(targetCard.items || []), movingItem];
+      // Note: We need to import firestoreService if not already imported? It is imported!
+      await firestoreService.updateCard(targetCard.id, { items: targetItems });
+
+      setMovingItem(null);
+    } catch (e) {
+      console.error('Move failed', e);
     }
   };
 
@@ -255,8 +304,9 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                     onToggle={handleToggleItemDone}
                     onChangeText={handleItemChange}
                     onRemove={handleRemoveItem}
-                    onEnter={handleAddItem}
-                    autoFocus={!card && index === 0}
+                    onEnter={() => handleAddItem(item.id)}
+                    onLongPress={() => setMovingItem(item)}
+                    autoFocus={(!card && index === 0 && !focusedItemId) || focusedItemId === item.id}
                   />
                 ))}
               </div>
@@ -265,7 +315,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
 
           <button
             type="button"
-            onClick={handleAddItem}
+            onClick={() => handleAddItem()}
             disabled={isReadOnly}
             className={`bg-none border-none font-work-sans text-[1rem] items-center gap-2 py-2 text-[#555] ${isReadOnly ? 'hidden' : 'flex cursor-pointer'}`}
           >
@@ -281,6 +331,43 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
         )}
         </div>
       </div>
+
+      {/* Move Item Bottom Sheet */}
+      {movingItem && (
+        <div 
+          onClick={() => setMovingItem(null)}
+          className="fixed inset-0 bg-[var(--overlay-bg)] backdrop-blur-sm z-[60] flex items-end justify-center pointer-events-auto"
+        >
+          <div 
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-[480px] bg-[var(--card-bg)] border-t-[3px] border-[var(--border-color)] p-4 animate-fade-up flex flex-col max-h-[80vh]"
+          >
+            <h3 className="mono font-bold mb-4 uppercase tracking-widest text-[0.8rem] text-[var(--border-color)]">
+              Move to...
+            </h3>
+            <div className="flex-1 overflow-y-auto flex flex-col gap-2">
+              {allCards.filter(c => c.id !== localCard.id).map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => handleMoveItem(c.id)}
+                  className="p-3 border-2 border-[var(--border-color)] text-left hover:bg-[rgba(0,0,0,0.05)] bg-[var(--bg-color)] truncate font-archivo-black text-[var(--border-color)]"
+                >
+                  {c.title || 'Untitled'}
+                </button>
+              ))}
+              {allCards.filter(c => c.id !== localCard.id).length === 0 && (
+                <div className="text-center text-[#888] py-4 mono text-[0.8rem]">NO OTHER CARDS</div>
+              )}
+            </div>
+            <button
+              onClick={() => setMovingItem(null)}
+              className="mt-4 p-3 border-2 border-[var(--border-color)] bg-[var(--border-color)] text-[var(--card-bg)] font-bold mono uppercase tracking-widest"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

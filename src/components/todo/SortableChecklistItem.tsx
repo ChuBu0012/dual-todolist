@@ -1,4 +1,4 @@
-
+import { useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { ChecklistItem } from '../../types/todo';
@@ -11,10 +11,11 @@ interface Props {
   onChangeText: (id: string, text: string) => void;
   onRemove: (id: string) => void;
   onEnter?: () => void;
+  onLongPress?: () => void;
   autoFocus?: boolean;
 }
 
-export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, autoFocus }: Props) {
+export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, onLongPress, autoFocus }: Props) {
   const {
     attributes,
     listeners,
@@ -23,6 +24,34 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
     transition,
     isDragging,
   } = useSortable({ id: item.id });
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [autoFocus]);
+
+  const startLongPress = (e: React.PointerEvent) => {
+    if (isReadOnly || !onLongPress) return;
+    if ((e.target as HTMLElement).tagName.toLowerCase() === 'input') return;
+    longPressTimer.current = setTimeout(() => {
+      onLongPress();
+      // Vibrate to provide feedback if supported
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }, 500);
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -34,6 +63,10 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
       ref={setNodeRef}
       style={style}
       className={`flex items-center gap-[12px] relative overflow-hidden bg-[var(--card-bg)] ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`}
+      onPointerDown={startLongPress}
+      onPointerUp={cancelLongPress}
+      onPointerCancel={cancelLongPress}
+      onPointerMove={cancelLongPress}
     >
       {isPending && (
         <div
@@ -75,30 +108,27 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
       </div>
       
       <input
+        ref={inputRef}
         type="text"
         value={item.text}
         onChange={(e) => onChangeText(item.id, e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && onEnter) {
             e.preventDefault();
+            if (item.text.trim() === '') {
+              e.currentTarget.blur();
+              return;
+            }
             onEnter();
+          } else if (e.key === 'Backspace' && item.text === '') {
+            e.preventDefault();
+            onRemove(item.id);
           }
         }}
         placeholder="ITEM..."
-        autoFocus={autoFocus}
         readOnly={isReadOnly}
         className={`flex-1 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
       />
-      
-      <button
-        type="button"
-        onClick={() => onRemove(item.id)}
-        disabled={isReadOnly}
-        className={`bg-none border-none text-[var(--error-text)] text-[1.2rem] px-[4px] z-1 ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
-        title="Remove item"
-      >
-        ×
-      </button>
     </div>
   );
 }

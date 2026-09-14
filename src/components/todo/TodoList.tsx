@@ -78,6 +78,42 @@ export function TodoList() {
     }
   };
 
+  const [quickAddText, setQuickAddText] = useState('');
+  const [isQuickAdding, setIsQuickAdding] = useState(false);
+
+  const handleQuickAdd = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && quickAddText.trim() && !isQuickAdding) {
+      const text = quickAddText.trim();
+      setIsQuickAdding(true);
+      
+      const inboxCard = cards.find(c => c.title.toLowerCase() === 'inbox');
+      const newItem = {
+        id: Math.random().toString(36).substring(2, 9),
+        text: text,
+        isDone: false,
+      };
+
+      try {
+        if (inboxCard) {
+          const updatedItems = [...(inboxCard.items || []), newItem];
+          await useTodoStore.getState().updateCard(inboxCard.id, { items: updatedItems });
+        } else {
+          await useTodoStore.getState().createCard({
+            title: 'Inbox',
+            assignee: (currentUser as any) || 'both',
+            items: [newItem]
+          });
+        }
+        setQuickAddText(''); // clear on success
+      } catch (error) {
+        console.error('Quick add failed', error);
+        alert('Failed to add task. Please try again.');
+      } finally {
+        setIsQuickAdding(false);
+      }
+    }
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     console.log('DRAG_END', { active: active?.id, over: over?.id });
@@ -126,6 +162,19 @@ export function TodoList() {
 
   return (
     <div className="pb-[96px] max-w-[840px] mx-auto w-full box-border">
+      {/* Quick Add Bar */}
+      <div className="mb-6 sticky top-0 z-20 bg-[var(--bg-color)] py-2">
+        <input
+          type="text"
+          value={quickAddText}
+          onChange={e => setQuickAddText(e.target.value)}
+          onKeyDown={handleQuickAdd}
+          disabled={isQuickAdding}
+          placeholder={isQuickAdding ? "ADDING..." : "QUICK ADD TO INBOX... (Press Enter)"}
+          className={`w-full p-4 border-[3px] border-[var(--border-color)] bg-[var(--card-bg)] font-archivo-black text-[1rem] outline-none placeholder:text-[#888] focus:shadow-[4px_4px_0_0_var(--border-color)] transition-shadow ${isQuickAdding ? 'opacity-50 cursor-not-allowed' : ''}`}
+        />
+      </div>
+
       <DndContext 
         sensors={sensors}
         collisionDetection={closestCorners}
