@@ -12,12 +12,11 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import db from '../config/firebase';
-import type { CardItem, DailyStat, DailySummary, TodoAssignee, ChecklistItem } from '../types/todo';
-import { formatThaiDate, getBangkokDateString } from '../utils/dateFormat';
+import type { CardItem, DailySummary, TodoAssignee, ChecklistItem } from '../types/todo';
+import { formatThaiDate } from '../utils/dateFormat';
 
 const TODOS_COLLECTION = 'todos';
 const SUMMARIES_COLLECTION = 'dailySummaries';
-const DAILY_STATS_COLLECTION = 'dailyStats';
 
 export interface CreateCardInput {
   title: string;

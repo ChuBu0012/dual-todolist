@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { firestoreService, type CreateCardInput, type UpdateCardInput } from '../services/firestoreService';
 import { discordService } from '../services/discordService';
-import type { CardItem, DailyStat } from '../types/todo';
+import type { CardItem } from '../types/todo';
 import { useAuthStore } from './authStore';
 
 export type SyncState = 'IDLE' | 'SAVING' | 'SAVED' | 'ERROR';
