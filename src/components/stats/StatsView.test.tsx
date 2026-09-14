@@ -24,9 +24,9 @@ describe('StatsView', () => {
     expect(screen.getByText("MOST'S LOG")).toBeInTheDocument();
     expect(screen.getByText("FERN'S LOG")).toBeInTheDocument();
 
-    // Now squares don't have title, we query them by border style or width
-    const squares = container.querySelectorAll('div[style*="width: 20px"]');
-    expect(squares).toHaveLength(60); // 30 Most + 30 Fern
+    // Now bars don't have title, we query them by width
+    const bars = container.querySelectorAll('div[style*="width: 24px"]');
+    expect(bars).toHaveLength(60); // 30 Most + 30 Fern
   });
 
   it('calls onBack when back button is clicked', () => {
@@ -47,13 +47,11 @@ describe('StatsView', () => {
     const mostSection = screen.getByText("MOST'S LOG").parentElement?.parentElement;
     const fernSection = screen.getByText("FERN'S LOG").parentElement?.parentElement;
     
-    // Most has 3 on 10th (red-400), 0 on 11th, 7 on 12th (red-600)
-    expect(mostSection?.querySelector('.bg-red-400')).toBeInTheDocument();
-    expect(mostSection?.querySelector('.bg-red-600')).toBeInTheDocument();
+    // Most has red-500 bars
+    expect(mostSection?.querySelector('.bg-red-500')).toBeInTheDocument();
     
-    // Fern has 0 on 10th, 5 on 11th (green-400), 7 on 12th (green-600)
-    expect(fernSection?.querySelector('.bg-green-400')).toBeInTheDocument();
-    expect(fernSection?.querySelector('.bg-green-600')).toBeInTheDocument();
+    // Fern has green-500 bars
+    expect(fernSection?.querySelector('.bg-green-500')).toBeInTheDocument();
   });
 });
 

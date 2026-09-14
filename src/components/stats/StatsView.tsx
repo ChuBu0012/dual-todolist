@@ -7,13 +7,6 @@ interface StatsViewProps {
   onBack: () => void;
 }
 
-function getColorLevel(count: number, user: 'most' | 'fern'): string {
-  if (count === 0) return 'bg-white';
-  if (count <= 2) return user === 'most' ? 'bg-red-200' : 'bg-green-200';
-  if (count <= 5) return user === 'most' ? 'bg-red-400' : 'bg-green-400';
-  return user === 'most' ? 'bg-red-600' : 'bg-green-600';
-}
-
 function HeatmapGrid({ user, days, stats }: {
   user: 'most' | 'fern';
   days: string[];
@@ -22,17 +15,24 @@ function HeatmapGrid({ user, days, stats }: {
   const [activeDate, setActiveDate] = useState<string | null>(null);
   
   const label = user === 'most' ? "MOST'S LOG" : "FERN'S LOG";
-  const total = days.reduce((sum, d) => {
+  const userColor = user === 'most' ? 'bg-red-500' : 'bg-green-500';
+  
+  let total = 0;
+  let maxCount = 1; // minimum scale
+
+  days.forEach(d => {
     const s = stats[d];
-    return sum + (s ? (user === 'most' ? s.mostCount : s.fernCount) : 0);
-  }, 0);
+    const c = s ? (user === 'most' ? s.mostCount : s.fernCount) : 0;
+    total += c;
+    if (c > maxCount) maxCount = c;
+  });
 
   const activeStat = activeDate ? stats[activeDate] : null;
   const activeCount = activeStat ? (user === 'most' ? activeStat.mostCount : activeStat.fernCount) : 0;
 
   return (
-    <div style={{ marginBottom: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginBottom: '0.75rem' }}>
+    <div style={{ marginBottom: '2.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginBottom: '1rem' }}>
         <h2 style={{ fontFamily: '"Archivo Black", sans-serif', fontSize: '1rem', margin: 0, textTransform: 'uppercase' }}>
           {label}
         </h2>
@@ -41,41 +41,66 @@ function HeatmapGrid({ user, days, stats }: {
         </span>
       </div>
       
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
+      {/* Scrollable Bar Chart Container */}
+      <div 
+        className="hide-scrollbar"
+        style={{ 
+          display: 'flex', 
+          alignItems: 'flex-end', 
+          gap: '6px', 
+          overflowX: 'auto', 
+          paddingBottom: '8px',
+          height: '120px',
+          paddingTop: '20px' 
+        }}
+      >
         {days.map((date) => {
           const s = stats[date];
           const count = s ? (user === 'most' ? s.mostCount : s.fernCount) : 0;
+          const heightPerc = count === 0 ? '8px' : `${Math.max(15, (count / maxCount) * 100)}%`;
+          
           return (
             <div
               key={date}
               onMouseEnter={() => setActiveDate(date)}
               onMouseLeave={() => setActiveDate(null)}
               onClick={() => setActiveDate(date)}
-              className={getColorLevel(count, user)}
               style={{
-                width: '20px',
-                height: '20px',
-                border: '2px solid var(--border-color)',
+                width: '24px',
                 flexShrink: 0,
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
                 cursor: 'pointer',
-                opacity: activeDate && activeDate !== date ? 0.4 : 1,
-                transform: activeDate === date ? 'scale(1.1)' : 'scale(1)',
-                transition: 'all 0.1s ease-in-out',
-                position: activeDate === date ? 'relative' : 'static',
-                zIndex: activeDate === date ? 10 : 1
+                position: 'relative'
               }}
-            />
+            >
+              <div 
+                className={count > 0 ? userColor : 'bg-[var(--card-bg)]'}
+                style={{
+                  height: heightPerc,
+                  width: '100%',
+                  border: '2px solid var(--border-color)',
+                  opacity: activeDate && activeDate !== date ? 0.3 : 1,
+                  transform: activeDate === date ? 'scale(1.1) translateY(-2px)' : 'scale(1)',
+                  transformOrigin: 'bottom center',
+                  transition: 'all 0.1s ease-in-out',
+                  zIndex: activeDate === date ? 10 : 1
+                }}
+              />
+            </div>
           );
         })}
       </div>
 
-      <div style={{ minHeight: '24px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 'bold' }}>
+      <div style={{ minHeight: '24px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 'bold', marginTop: '0.5rem' }}>
         {activeDate ? (
           <span>
-            {activeDate.split('-')[2]}/{activeDate.split('-')[1]}: {activeCount} task{activeCount !== 1 ? 's' : ''}
+            {activeDate.split('-')[2]}/{activeDate.split('-')[1]}: <span className="px-1 bg-[var(--border-color)] text-[var(--bg-color)]">{activeCount}</span> task{activeCount !== 1 ? 's' : ''}
           </span>
         ) : (
-          <span style={{ opacity: 0.5 }}>Hover or tap a square for details</span>
+          <span style={{ opacity: 0.5 }}>Hover or tap a bar for details</span>
         )}
       </div>
     </div>
