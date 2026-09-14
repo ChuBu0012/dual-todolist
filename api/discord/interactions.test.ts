@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import handler from './interactions.js';
 import { firestoreService } from '../../src/services/firestoreService.js';
 import nacl from 'tweetnacl';
-import { randomUUID } from 'crypto';
 
 vi.mock('../../src/services/firestoreService.js', () => ({
   firestoreService: {
@@ -91,8 +90,8 @@ describe('Discord Interactions Webhook', () => {
     
     expect(firestoreService.createCard).toHaveBeenCalled();
     const createCall = vi.mocked(firestoreService.createCard).mock.calls[0][0];
-    expect(createCall.items.length).toBe(1);
-    expect(createCall.items[0].text).toBe('Task 1');
+    expect(createCall.items?.length).toBe(1);
+    expect(createCall.items?.[0]?.text).toBe('Task 1');
     // Title should be today's date formatted
     expect(createCall.title).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
   });
