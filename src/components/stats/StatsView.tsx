@@ -122,6 +122,35 @@ function HeatmapGrid({ user, days, stats }: {
 
 export default function StatsView({ dailyStats, onBack }: StatsViewProps) {
   const days = getLast30Days();
+  
+  // Calculate 7-day MVP
+  const last7Days = days.slice(-7);
+  let most7DayCount = 0;
+  let fern7DayCount = 0;
+  
+  last7Days.forEach(d => {
+    const s = dailyStats[d];
+    if (s) {
+      most7DayCount += s.mostCount;
+      fern7DayCount += s.fernCount;
+    }
+  });
+
+  let mvpText = '';
+  let mvpSubtitle = '';
+  if (most7DayCount === 0 && fern7DayCount === 0) {
+    mvpText = "IT'S A TIE. WORK HARDER.";
+    mvpSubtitle = '0 tasks completed this week.';
+  } else if (most7DayCount > fern7DayCount) {
+    mvpText = 'CURRENT MVP: MOST 🏆';
+    mvpSubtitle = `Leading with ${most7DayCount} tasks (Fern: ${fern7DayCount})`;
+  } else if (fern7DayCount > most7DayCount) {
+    mvpText = 'CURRENT MVP: FERN 🏆';
+    mvpSubtitle = `Leading with ${fern7DayCount} tasks (Most: ${most7DayCount})`;
+  } else {
+    mvpText = "IT'S A TIE. WORK HARDER.";
+    mvpSubtitle = `Neck and neck at ${most7DayCount} tasks each.`;
+  }
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto', padding: '1.5rem 1rem' }}>
@@ -132,6 +161,24 @@ export default function StatsView({ dailyStats, onBack }: StatsViewProps) {
       >
         &lt; BACK TO LIST
       </button>
+
+      {/* MVP Banner */}
+      <div style={{
+        border: '4px solid var(--border-color)',
+        padding: '1.5rem 1rem',
+        marginBottom: '2rem',
+        textAlign: 'center',
+        background: 'var(--border-color)',
+        color: 'var(--bg-color)',
+        textTransform: 'uppercase',
+      }}>
+        <div style={{ fontFamily: '"Archivo Black", sans-serif', fontSize: '2rem', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '0.5rem' }}>
+          {mvpText}
+        </div>
+        <div style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)' }}>
+          {mvpSubtitle}
+        </div>
+      </div>
 
       <h1 style={{ fontFamily: '"Archivo Black", sans-serif', fontSize: '1.25rem', margin: '0 0 1.5rem 0', letterSpacing: '-0.01em' }}>
         ACTIVITY LOG — LAST 30 DAYS
