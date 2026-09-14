@@ -167,13 +167,14 @@ describe('discordService', () => {
 
   describe('error handling', () => {
     it('should not send if webhook url is missing', async () => {
-      vi.stubEnv('VITE_DISCORD_WEBHOOK_URL', '');
+      const getWebhookUrlSpy = vi.spyOn(discordService, 'getWebhookUrl').mockReturnValue(undefined);
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       await discordService.sendNightlyReminder();
 
       expect(global.fetch).not.toHaveBeenCalled();
       expect(warnSpy).toHaveBeenCalled();
+      getWebhookUrlSpy.mockRestore();
     });
 
     it('should throw if fetch fails', async () => {

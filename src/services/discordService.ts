@@ -58,12 +58,11 @@ export const discordService = {
 
   getWebhookUrl(): string | undefined {
     try {
-      const meta = import.meta as any;
-      if (typeof meta !== 'undefined' && meta?.env?.VITE_DISCORD_WEBHOOK_URL) {
-        return meta.env.VITE_DISCORD_WEBHOOK_URL;
-      }
+      // Must use exact literal `import.meta.env` for Vite static replacement in browser
+      const viteUrl = (import.meta as any).env?.VITE_DISCORD_WEBHOOK_URL;
+      if (viteUrl) return viteUrl;
     } catch {
-      // Ignore in Node.js
+      // Ignore in Node.js where import.meta might throw or be undefined
     }
     if (typeof process !== 'undefined' && process.env) {
       return process.env.VITE_DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
