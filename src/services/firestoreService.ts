@@ -186,8 +186,6 @@ export const firestoreService = {
     return snap.data() as DailySummary;
   },
 
-
-
   /**
    * Fetch all active cards (used for daily summary calculation)
    */
@@ -203,35 +201,5 @@ export const firestoreService = {
       });
     });
     return cards;
-  },
-
-  /** Increment or decrement today's task count for a user (clamped ≥ 0) */
-  async updateDailyStat(user: 'most' | 'fern', delta: number): Promise<void> {
-    const dateStr = getBangkokDateString();
-    const docRef = doc(db, DAILY_STATS_COLLECTION, dateStr);
-    const snap = await getDoc(docRef);
-    const current: DailyStat = snap.exists()
-      ? (snap.data() as DailyStat)
-      : { date: dateStr, mostCount: 0, fernCount: 0 };
-    const field = user === 'most' ? 'mostCount' : 'fernCount';
-    const updated = Math.max(0, current[field] + delta);
-    await setDoc(docRef, { ...current, [field]: updated });
-  },
-
-  /** Real-time listener for daily stats (last 30 days) */
-  subscribeDailyStats(
-    onUpdate: (stats: Record<string, DailyStat>) => void,
-    onError?: (err: Error) => void
-  ): () => void {
-    const colRef = collection(db, DAILY_STATS_COLLECTION);
-    return onSnapshot(
-      colRef,
-      (snapshot) => {
-        const map: Record<string, DailyStat> = {};
-        snapshot.forEach((d) => { map[d.id] = d.data() as DailyStat; });
-        onUpdate(map);
-      },
-      (err) => { if (onError) onError(err); }
-    );
   },
 };

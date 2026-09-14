@@ -11,7 +11,6 @@ const pendingDiscordTimeouts = new Map<string, NodeJS.Timeout>();
 
 interface TodoState {
   cards: CardItem[];
-  dailyStats: Record<string, DailyStat>;
   isLoading: boolean;
   syncState: SyncState;
   error: string | null;
@@ -31,7 +30,6 @@ interface TodoState {
 
 export const useTodoStore = create<TodoState>((set, get) => ({
   cards: [],
-  dailyStats: {},
   isLoading: true,
   syncState: 'IDLE',
   error: null,
@@ -65,10 +63,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
         set({ error: error.message, isLoading: false });
       }
     );
-    const unsubscribeStats = firestoreService.subscribeDailyStats(
-      (dailyStats) => set({ dailyStats }),
-    );
-    return () => { unsubscribeCards(); unsubscribeStats(); };
+    return () => { unsubscribeCards(); };
   },
 
   createCard: async (input) => {
@@ -226,11 +221,6 @@ export const useTodoStore = create<TodoState>((set, get) => ({
 
     try {
       await firestoreService.updateCard(cardId, { items: updatedItems });
-      // Update heatmap stat (fire-and-forget, non-blocking)
-      const delta = isDone && !itemToUpdate.isDone ? 1 : (!isDone && itemToUpdate.isDone ? -1 : 0);
-      if (delta !== 0 && (currentUser === 'most' || currentUser === 'fern')) {
-        firestoreService.updateDailyStat(currentUser, delta).catch(e => console.error("HEATMAP ERROR:", e));
-      }
       get().setSyncState('SAVED');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to toggle item';

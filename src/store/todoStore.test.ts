@@ -7,8 +7,6 @@ import { useAuthStore } from './authStore';
 vi.mock('../services/firestoreService', () => ({
   firestoreService: {
     subscribeCards: vi.fn(),
-    subscribeDailyStats: vi.fn(),
-    updateDailyStat: vi.fn().mockResolvedValue(undefined),
     createCard: vi.fn(),
     updateCard: vi.fn(),
     deleteCard: vi.fn(),
@@ -30,22 +28,18 @@ describe('TodoStore (Cards)', () => {
   });
 
   describe('initialize', () => {
-    it('should call subscribeCards, subscribeDailyStats and return unsubscribe function', () => {
+    it('should call subscribeCards and return unsubscribe function', () => {
       const mockUnsubscribeCards = vi.fn();
-      const mockUnsubscribeStats = vi.fn();
       vi.mocked(firestoreService.subscribeCards).mockReturnValue(mockUnsubscribeCards);
-      vi.mocked(firestoreService.subscribeDailyStats).mockReturnValue(mockUnsubscribeStats);
 
       const { initialize } = useTodoStore.getState();
       const unsubscribe = initialize();
 
       expect(firestoreService.subscribeCards).toHaveBeenCalled();
-      expect(firestoreService.subscribeDailyStats).toHaveBeenCalled();
       expect(useTodoStore.getState().isLoading).toBe(true);
       
       unsubscribe();
       expect(mockUnsubscribeCards).toHaveBeenCalled();
-      expect(mockUnsubscribeStats).toHaveBeenCalled();
     });
   });
 
