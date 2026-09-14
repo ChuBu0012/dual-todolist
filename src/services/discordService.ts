@@ -1,6 +1,6 @@
-import type { DiscordWebhookPayload } from '../types/discord';
-import type { CompletedTaskLog } from '../types/todo';
-import { formatThaiDate, formatSummaryDate } from '../utils/dateFormat';
+import type { DiscordWebhookPayload } from '../types/discord.js';
+import type { CompletedTaskLog } from '../types/todo.js';
+import { formatThaiDate, formatSummaryDate } from '../utils/dateFormat.js';
 
 const BOT_USERNAME = 'pipin';
 
