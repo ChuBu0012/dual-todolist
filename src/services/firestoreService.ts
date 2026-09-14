@@ -11,9 +11,9 @@ import {
   getDocs,
   writeBatch,
 } from 'firebase/firestore';
-import db from '../config/firebase';
-import type { CardItem, DailySummary, TodoAssignee, ChecklistItem } from '../types/todo';
-import { formatThaiDate } from '../utils/dateFormat';
+import db from '../config/firebase.js';
+import type { CardItem, DailySummary, TodoAssignee, ChecklistItem } from '../types/todo.js';
+import { formatThaiDate } from '../utils/dateFormat.js';
 
 const TODOS_COLLECTION = 'todos';
 const SUMMARIES_COLLECTION = 'dailySummaries';

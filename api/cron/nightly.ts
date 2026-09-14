@@ -1,5 +1,5 @@
-import { discordService } from '../../src/services/discordService';
-import { firestoreService } from '../../src/services/firestoreService';
+import { discordService } from '../../src/services/discordService.js';
+import { firestoreService } from '../../src/services/firestoreService.js';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

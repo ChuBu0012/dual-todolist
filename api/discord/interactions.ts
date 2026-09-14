@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nacl from 'tweetnacl';
 import { randomUUID } from 'crypto';
-import { firestoreService } from '../../src/services/firestoreService';
-import type { TodoAssignee } from '../../src/types/todo';
+import { firestoreService } from '../../src/services/firestoreService.js';
+import type { TodoAssignee } from '../../src/types/todo.js';
 
 export const config = {
   api: {
