@@ -1,32 +1,79 @@
-# Dual Todo Project Context
+# Dual Todo — Project Context
 
-## App Architecture
-**Name:** Dual Todo
-**Framework:** React 18, TypeScript, Vite
-**State Management:** Zustand
-**Styling:** Tailwind CSS + daisyUI (Brutalist "RawBlock" Theme)
-**Backend/DB:** Firebase Firestore
-**PWA:** vite-plugin-pwa
+## What This Is
+A shared to-do app for two people (Most & Fern). Brutalist UI, real-time sync, no accounts — PIN login only.
 
-## Data Architecture (Google Keep Style)
-- A single board containing Cards (`TodoCard`).
-- **Cards (`todos` collection in Firestore):**
-  - Have a `title`, `isPinned` (boolean), and an `order` for drag/drop.
-  - Contain an array of `items` (`ChecklistItem`).
-  - Assignee (`most`, `fern`, or `both`) is set at the card level.
-- **Checklist Items (`ChecklistItem`):**
-  - Belong to a Card.
-  - Can be toggled `isDone`.
-  - Strikethrough style when checked.
-  - Discord notifications fire per checklist item completion.
+## Stack
+| Layer | Choice |
+|---|---|
+| Framework | React 18 + TypeScript + Vite |
+| State | Zustand |
+| Styling | Tailwind CSS v4 + daisyUI ("RawBlock" brutalist theme) |
+| DB | Firebase Firestore (real-time `onSnapshot`) |
+| Hosting | Vercel (static + `/api/cron/nightly` serverless) |
+| PWA | vite-plugin-pwa |
+
+## Data Model (Firestore)
+- **`todos` collection** — Google Keep-style cards.
+  - `title`, `isPinned`, `order` (drag-and-drop), `assignee` (most | fern | both).
+  - `items[]` — `ChecklistItem` sub-tasks with `isDone`, `completedAt`, `completedBy`.
+- **`dailySummaries` collection** — nightly cron snapshots (pending count, completed count per user).
+
+## Source Map
+```
+src/
+├── App.tsx                     # Root: auth gate, view routing (todo ↔ stats)
+├── main.tsx                    # Vite entry
+├── components/
+│   ├── auth/LoginScreen.tsx    # PIN login (birthday-based)
+│   ├── layout/MainLayout.tsx   # Header + logo click → stats toggle
+│   ├── stats/StatsView.tsx     # Bar chart heatmap + MVP banner
+│   └── todo/
+│       ├── TodoList.tsx        # Board: pinned + others, dnd-kit sorting
+│       ├── TodoCard.tsx        # Card preview (title, progress, assignee)
+│       ├── CardModal.tsx       # Full card editor (auto-sync, debounced)
+│       ├── SortableChecklistItem.tsx  # Draggable sub-task row
+│       ├── AssigneeBadge.tsx   # M / F / M+F badge
+│       ├── PinIcon.tsx         # 📌 toggle
+│       └── SyncStatusIcon.tsx  # SAVED / SAVING / ERROR indicator
+├── hooks/
+│   └── useDebouncedCardSync.ts # 800ms debounce + flush-on-close
+├── services/
+│   ├── firestoreService.ts     # CRUD + real-time subscriptions
+│   └── discordService.ts       # Webhook notifications
+├── store/
+│   ├── authStore.ts            # PIN auth state
+│   └── todoStore.ts            # Cards state + checklist mutations
+├── types/
+│   ├── todo.ts                 # CardItem, ChecklistItem, DailyStat, DailySummary
+│   ├── auth.ts                 # AuthState
+│   └── discord.ts              # Webhook payload types
+├── utils/
+│   └── dateFormat.ts           # Thai BE dates, Bangkok TZ, getLast30Days
+├── styles/
+│   ├── globals.css             # Tailwind + daisyUI + RawBlock utilities
+│   └── variables.css           # CSS custom properties (colors, fonts, borders)
+├── config/
+│   └── firebase.ts             # Firebase init (long-polling mode)
+└── test/
+    └── setup.ts                # Vitest global setup
+api/
+└── cron/nightly.ts             # Vercel cron: daily summary → Discord
+```
 
 ## Design Rules
-1. English ONLY in UI text.
-2. NO parentheses (e.g. `(Title)` is not allowed).
-3. Design is brutalist: thick black borders (`3px solid #000`), `#fff` backgrounds, high contrast.
-4. Icons: `●` for Most, `○` for Fern. No text for user names on cards.
+1. English only in UI text.
+2. No parentheses in user-facing copy.
+3. Brutalist: thick borders, high contrast, `Archivo Black` headings, `Space Mono` body.
+4. Dark mode via `[data-theme="dark"]` — inverts `--border-color` and `--bg-color`.
 
-## Recent Updates
-- [SYNCED: 2026-09-12] Migrated from flat tasks to Google Keep style cards.
-- [SYNCED: 2026-09-12] Updated Zustand Store and Firestore schema.
-- [SYNCED: 2026-09-12] Moved PIN configurations from code to `.env` variables.
+## Features
+- **Cards & Checklists** — Create, edit, pin, reorder (drag-and-drop via dnd-kit).
+- **Auto-Sync** — 800ms debounced writes, flush on modal close / unmount.
+- **Activity Heatmap** — 30-day bar chart computed client-side from `completedAt` timestamps.
+- **MVP Banner** — Weekly leaderboard (7-day totals) shown at top of stats view.
+- **Discord Notifications** — Per-item completion webhook + nightly summary cron.
+- **PWA** — Installable, offline-capable shell.
+
+## Updated
+2026-09-14
