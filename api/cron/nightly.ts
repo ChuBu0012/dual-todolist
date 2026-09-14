@@ -15,15 +15,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Fetch all cards and compute summary
     const cards = await firestoreService.getAllCards();
 
-    // Check if there's any work today
-    // Use ICT (Asia/Bangkok, UTC+7) to match card timestamps stored by browser
+    // Use ICT (Asia/Bangkok, UTC+7) to match card timestamps
     const now = new Date();
-    const todayStr = new Date(now.getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
+    // If run past midnight (between 00:00 and 03:00 ICT), subtract 1 day to fetch "yesterday's" cards
+    const ictTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+    if (ictTime.getUTCHours() < 3) {
+      ictTime.setDate(ictTime.getUTCDate() - 1);
+    }
+    const todayStr = ictTime.toISOString().split('T')[0];
+
+    const getIctDateStr = (dateString: string) => {
+      const d = new Date(dateString);
+      return new Date(d.getTime() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
+    };
 
     const activeCards = cards.filter(card => {
-      // Include if created today, updated today, or has pending items and was updated recently
-      const createdStr = card.createdAt ? new Date(card.createdAt).toISOString().split('T')[0] : '';
-      const updatedStr = card.updatedAt ? new Date(card.updatedAt).toISOString().split('T')[0] : '';
+      // Include if created today, updated today
+      const createdStr = card.createdAt ? getIctDateStr(card.createdAt) : '';
+      const updatedStr = card.updatedAt ? getIctDateStr(card.updatedAt) : '';
       return createdStr === todayStr || updatedStr === todayStr;
     });
 
