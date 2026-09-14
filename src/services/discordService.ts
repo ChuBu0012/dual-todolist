@@ -58,8 +58,9 @@ export const discordService = {
 
   getWebhookUrl(): string | undefined {
     try {
-      if (typeof import.meta !== 'undefined' && import.meta.env) {
-        const url = import.meta.env.VITE_DISCORD_WEBHOOK_URL || import.meta.env.DISCORD_WEBHOOK_URL;
+      const meta = import.meta as any;
+      if (typeof meta !== 'undefined' && meta?.env) {
+        const url = meta.env.VITE_DISCORD_WEBHOOK_URL || meta.env.DISCORD_WEBHOOK_URL;
         if (url) return url;
       }
     } catch {

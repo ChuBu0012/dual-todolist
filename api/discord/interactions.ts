@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nacl from 'tweetnacl';
+import { randomUUID } from 'crypto';
 import { firestoreService } from '../../src/services/firestoreService';
 import type { TodoAssignee } from '../../src/types/todo';
 
@@ -84,7 +85,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         );
 
         const newItems = itemNames.map((text: string) => ({
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           text,
           isDone: false,
         }));

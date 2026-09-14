@@ -9,8 +9,9 @@ import {
 
 const getEnv = (key: string): string => {
   try {
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-      return import.meta.env[key];
+    const meta = import.meta as any;
+    if (typeof meta !== 'undefined' && meta?.env && meta.env[key]) {
+      return meta.env[key];
     }
   } catch {
     // Ignore error in environments where import.meta is unavailable
