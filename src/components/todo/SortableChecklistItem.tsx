@@ -12,10 +12,11 @@ interface Props {
   onRemove: (id: string) => void;
   onEnter?: () => void;
   onLongPress?: () => void;
+  onFocus?: () => void;
   autoFocus?: boolean;
 }
 
-export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, onLongPress, autoFocus }: Props) {
+export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, onLongPress, onFocus, autoFocus }: Props) {
   const {
     attributes,
     listeners,
@@ -31,8 +32,11 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
   useEffect(() => {
     if (autoFocus && inputRef.current) {
       inputRef.current.focus();
+      // Move cursor to the end of the text
+      const length = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(length, length);
     }
-  }, [autoFocus]);
+  }, [autoFocus, item.id]);
 
   const startLongPress = (e: React.PointerEvent) => {
     if (isReadOnly || !onLongPress) return;
@@ -127,6 +131,7 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
         }}
         placeholder="ITEM..."
         readOnly={isReadOnly}
+        onFocus={onFocus}
         className={`flex-1 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
       />
     </div>

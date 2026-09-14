@@ -111,14 +111,12 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
     const newItems = items.filter((it) => it.id !== id);
     updateField({ items: newItems });
     
-    if (focusedItemId === id) {
-      if (index > 0) {
-        setFocusedItemId(items[index - 1].id);
-      } else if (newItems.length > 0) {
-        setFocusedItemId(newItems[0].id);
-      } else {
-        setFocusedItemId(null);
-      }
+    if (index > 0) {
+      setFocusedItemId(items[index - 1].id);
+    } else if (newItems.length > 0) {
+      setFocusedItemId(newItems[0].id);
+    } else {
+      setFocusedItemId(null);
     }
   };
 
@@ -306,6 +304,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                     onRemove={handleRemoveItem}
                     onEnter={() => handleAddItem(item.id)}
                     onLongPress={() => setMovingItem(item)}
+                    onFocus={() => setFocusedItemId(item.id)}
                     autoFocus={(!card && index === 0 && !focusedItemId) || focusedItemId === item.id}
                   />
                 ))}
