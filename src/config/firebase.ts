@@ -37,6 +37,10 @@ console.log('[DEBUG-7f3a] Firebase initializing with projectId:', firebaseConfig
   hasAppId: !!firebaseConfig.appId,
 });
 
+if (!firebaseConfig.projectId) {
+  console.error('❌ CRITICAL ERROR: Firebase Project ID is missing! Make sure VITE_FIREBASE_PROJECT_ID is set in your environment or Vercel dashboard.');
+}
+
 // Initialize Firebase App instance
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
