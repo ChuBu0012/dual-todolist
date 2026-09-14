@@ -1,4 +1,4 @@
-export interface DiscordEmbed {
+interface DiscordEmbed {
   title?: string;
   description?: string;
   url?: string;

@@ -24,24 +24,17 @@ const firebaseConfig = {
   appId: (import.meta as any).env?.VITE_FIREBASE_APP_ID || getEnv('FIREBASE_APP_ID'),
 };
 
-console.log('[DEBUG-7f3a] Firebase initializing with projectId:', firebaseConfig.projectId, {
-  hasApiKey: !!firebaseConfig.apiKey,
-  hasAuthDomain: !!firebaseConfig.authDomain,
-  hasAppId: !!firebaseConfig.appId,
-});
-
 if (!firebaseConfig.projectId) {
   console.error('❌ CRITICAL ERROR: Firebase Project ID is missing! Make sure VITE_FIREBASE_PROJECT_ID is set in your environment or Vercel dashboard.');
 }
 
 // Initialize Firebase App instance
-export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const isBrowser = typeof window !== 'undefined';
 
-console.log('[DEBUG-7f3a] Firestore initialized with experimentalForceLongPolling: true');
 // Initialize Firestore (with offline cache in browser, standard in Node/serverless)
-export const db: Firestore = isBrowser
+const db: Firestore = isBrowser
   ? initializeFirestore(app, {
       experimentalForceLongPolling: true,
       localCache: persistentLocalCache({
@@ -49,7 +42,5 @@ export const db: Firestore = isBrowser
       }),
     })
   : getFirestore(app);
-
-console.log('[DEBUG-7f3a] Firestore initialized', { isBrowser });
 
 export default db;

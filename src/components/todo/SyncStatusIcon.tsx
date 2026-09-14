@@ -1,4 +1,4 @@
-export type SyncState = 'IDLE' | 'SAVING' | 'SAVED' | 'ERROR';
+type SyncState = 'IDLE' | 'SAVING' | 'SAVED' | 'ERROR';
 
 interface Props {
   state: SyncState;

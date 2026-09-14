@@ -5,6 +5,7 @@ import type { CardItem, TodoAssignee, ChecklistItem } from '../../types/todo';
 import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
 import { firestoreService } from '../../services/firestoreService';
+import { discordService } from '../../services/discordService';
 import { AssigneeBadge } from './AssigneeBadge';
 import { useDebouncedCardSync } from '../../hooks/useDebouncedCardSync';
 import { PinIcon } from './PinIcon';
@@ -154,7 +155,6 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
       
       discordTimers[id] = setTimeout(async () => {
         try {
-          const { discordService } = await import('../../services/discordService');
           await discordService.sendTaskCompleted(cardTitle, toggledItemText, currentUser || 'both');
         } catch (e) {
           console.error(e);

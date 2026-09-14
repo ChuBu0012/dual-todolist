@@ -32,15 +32,12 @@ export const firestoreService = {
    * Create a new card at top of list (order = 0, shift others down)
    */
   async createCard(input: CreateCardInput): Promise<string> {
-    console.log('[DEBUG-7f3a] firestoreService.createCard called with input:', input);
     const todosRef = collection(db, TODOS_COLLECTION);
     const newDocRef = doc(todosRef);
     const now = new Date().toISOString();
 
     try {
-      console.log('[DEBUG-7f3a] Fetching existing cards to determine order...');
       const snapshot = await getDocs(query(todosRef, orderBy('order', 'asc')));
-      console.log('[DEBUG-7f3a] Fetched existing cards count:', snapshot.docs.length);
 
       // Determine top order: smaller than lowest order so it appears at top
       let topOrder = 0;
@@ -59,13 +56,10 @@ export const firestoreService = {
         updatedAt: now,
       };
 
-      console.log('[DEBUG-7f3a] Writing new doc with setDoc:', newDocRef.id, cardData);
       await setDoc(newDocRef, cardData);
-      console.log('[DEBUG-7f3a] Card created successfully with ID:', newDocRef.id);
 
       return newDocRef.id;
     } catch (error) {
-      console.error('[DEBUG-7f3a] Error in firestoreService.createCard:', error);
       if (error && typeof error === 'object') {
         const err = error as Record<string, unknown>;
         console.error('[DEBUG-7f3a] Error details:', {
@@ -95,9 +89,7 @@ export const firestoreService = {
 
     try {
       await updateDoc(docRef, updateData);
-      console.log('[DEBUG-7f3a] firestoreService.updateCard success for id:', id);
     } catch (error) {
-      console.error('[DEBUG-7f3a] Error in firestoreService.updateCard:', error);
       throw error;
     }
   },
@@ -106,7 +98,6 @@ export const firestoreService = {
    * Reorder cards after drag: persist new order values in a single batch
    */
   async reorderCards(orderedIds: string[]): Promise<void> {
-    console.log('[DEBUG-7f3a] firestoreService.reorderCards called with ids:', orderedIds);
     const batch = writeBatch(db);
     orderedIds.forEach((id, index) => {
       const docRef = doc(db, TODOS_COLLECTION, id);
@@ -114,9 +105,7 @@ export const firestoreService = {
     });
     try {
       await batch.commit();
-      console.log('[DEBUG-7f3a] firestoreService.reorderCards committed successfully');
     } catch (error) {
-      console.error('[DEBUG-7f3a] Error in firestoreService.reorderCards:', error);
       throw error;
     }
   },
@@ -125,13 +114,10 @@ export const firestoreService = {
    * Delete a card
    */
   async deleteCard(id: string): Promise<void> {
-    console.log('[DEBUG-7f3a] firestoreService.deleteCard called for id:', id);
     const docRef = doc(db, TODOS_COLLECTION, id);
     try {
       await deleteDoc(docRef);
-      console.log('[DEBUG-7f3a] firestoreService.deleteCard success for id:', id);
     } catch (error) {
-      console.error('[DEBUG-7f3a] Error in firestoreService.deleteCard:', error);
       throw error;
     }
   },
@@ -143,14 +129,12 @@ export const firestoreService = {
     onUpdate: (cards: CardItem[]) => void,
     onError?: (error: Error) => void
   ): () => void {
-    console.log('[DEBUG-7f3a] Subscribing to cards collection...');
     const todosRef = collection(db, TODOS_COLLECTION);
     const q = query(todosRef, orderBy('order', 'asc'));
 
     return onSnapshot(
       q,
       (snapshot) => {
-        console.log('[DEBUG-7f3a] Firestore snapshot received. Docs count:', snapshot.docs.length);
         const cards: CardItem[] = [];
         snapshot.forEach((docSnapshot) => {
           cards.push({
@@ -161,7 +145,6 @@ export const firestoreService = {
         onUpdate(cards);
       },
       (error) => {
-        console.error('[DEBUG-7f3a] Firestore subscription error:', error);
         if (onError) onError(error);
       }
     );

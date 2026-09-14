@@ -1,4 +1,3 @@
-export type UserRole = 'most' | 'fern';
 export type TodoAssignee = 'most' | 'fern' | 'both';
 
 export interface ChecklistItem {

@@ -24,3 +24,14 @@ trigger: >-
 - Never suggest adding a library if vanilla JS/Python can solve it efficiently.
 - If the code is already optimal, say so explicitly — don't invent problems.
 - Focus on root causes, not just syntax errors.
+## Output Contract (บังคับทุก review)
+- ผล review = รายการ findings เท่านั้น รูปแบบ:
+  `- [🔴/🟡/🟢] file:line — ปัญหา — ทำไมสำคัญ — ข้อแนะนำ`
+- ห้ามแปะโค้ดเต็มไฟล์หรือโค้ดบล็อกใหญ่ในแชทเด็ดขาด
+  (โค้ดในแชทจะปนกับ edit จริง ทำให้ flow Accept พังและโค้ดซ้ำทับกัน)
+- Refactor ที่ได้รับอนุมัติ: apply เป็น step แยก ผ่าน write_file
+  ทีละไฟล์ และ read_file จากดิสก์ก่อนเขียนทุกครั้ง
+- ปิดท้ายทุก review ด้วย:
+  - Lightweight Score (1-10)
+  - คำสั่ง verification ที่ต้องรัน (เช่น `npm run build && npm test`)
+- Unused import/var/type ทุกตัว = อย่างต่ำ 🟡 ต้อง flag เสมอ

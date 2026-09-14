@@ -1,40 +1,51 @@
 ---
 name: investigate-bug
-description: >-
-  Use this skill when the user asks to investigate a bug, find an issue, or complains that you are "guessing" instead of debugging properly.
+trigger: >-
+  Use when user reports a bug, error, crash, wrong behavior, failed build,
+  or says "หาบัค", "debug", "ทำไมพัง", "investigate", "แก้ปัญหานี้".
 ---
 
-# Investigate Bug Skill
+# Investigate Bug Skill (v2 — Evidence First)
 
-## 🎯 Purpose
-Stop guessing. Diagnose bugs systematically using evidence, logs, and reproduction before suggesting any code changes.
+## Core Principle
+NO FIX WITHOUT EVIDENCE. การเดาถูกห้ามเด็ดขาด
+ทุกสมมติฐานต้องอ้าง file:line, บรรทัด log หรือผลการ reproduce ได้
 
-## 🔍 The Investigation Loop
+## Step 0: Classify the Bug
+- **Class A — LOCAL BEHAVIOR** (UI, DnD, animation, state, focus): → Verify Loop A
+- **Class B — PRODUCTION/SERVER** (vercel.app, cron, webhook, Discord interactions, env): → Verify Loop B
+- **Class C — BUILD/TYPE** (TS errors, build fail): → Verify Loop C
 
-### Step 1: Gather Evidence (No Code Changes Yet)
-1. Ask the user for the exact error message or stack trace if not provided.
-2. Search the codebase for the error text or relevant components using `grep` or `find_by_name`.
-3. Check recently modified files that might have introduced the bug.
+## Verify Loop A — Behavior Bugs
+1. REPRODUCE: ใช้ /browser หรือ e2e บันทึกสิ่งที่เกิดจริง (console, DOM, network)
+2. SPEC: เขียน test ที่ FAIL ซึ่ง encode พฤติกรรมที่คาดหวัง
+3. HYPOTHESIZE: ผู้ต้องสงสัยไม่เกิน 3 ตัว แต่ละตัวระบุ file:line + เหตุผลจากหลักฐาน
+4. FIX: เปลี่ยนแปลงน้อยที่สุด บน branch
+5. RE-VERIFY: รัน test ที่เคย fail จนเขียว + /browser sanity pass
+6. REPORT: หลักฐาน before/after
 
-### Step 2: Formulate Hypotheses
-List 1-2 probable causes based on the evidence. Example:
-- "The state is likely undefined before the API call finishes."
-- "The CSS class might be overridden by a parent container."
+## Verify Loop B — Production Bugs
+1. LOGS FIRST: `vercel logs <url>` หรือ Dashboard → Deployments → Functions ห้ามข้าม
+2. REPRODUCE บน deployed URL ถ้าทำได้
+3. MATCH กับ platform knowledge ใน skill `vercel-ops`
+4. FIX บน branch + รัน `npm run build` โลคอลก่อน push
+5. REDEPLOY แล้วดู log ยืนยันอีกครั้ง
 
-### Step 3: Add Targeted Probes
-If the cause is not 100% obvious, **DO NOT guess the fix**. 
-Instead, add temporary debug logs:
-```javascript
-console.log('[DEBUG-INVESTIGATE] state:', state);
-```
-Ask the user to run the code and report the logs back.
+## Verify Loop C — Build/Type Bugs
+1. รันคำสั่งที่ fail ตรงๆ โลคอล (`npm run build`)
+2. แก้ที่รากเหตุ — unused var ให้ "ลบออก" ไม่ใช่กด ignore
+3. รันซ้ำจน exit 0
 
-### Step 4: Fix and Verify
-ONLY when the root cause is proven by logs or clear code logic, propose the fix.
-1. Apply the fix.
-2. Remove the `[DEBUG-INVESTIGATE]` logs.
-3. Explain *why* it broke and *why* the fix works.
+## Forbidden
+- แก้โดยยังไม่ reproduce (Loop A) หรือยังไม่ดู log (Loop B)
+- บอกว่า "เสร็จ" โดยไม่มีผลการ re-verify
+- แตะไฟล์นอก SCOPE ที่ประกาศไว้
+- ปัด error ว่าเป็น "ปัญหา environment" โดยไม่มีหลักฐาน
 
-## ⚠️ Critical Rule
-**Never apply 5 random fixes at once hoping one works.** Change one variable at a time. If a fix fails, revert it before trying the next hypothesis.
-
+## Output Format
+> 🔍 Investigation Report
+> - Class: [A/B/C]
+> - Evidence: [สิ่งที่สังเกตได้ + แหล่งที่มา]
+> - Root cause: [file:line + คำอธิบาย]
+> - Fix: [สิ่งที่เปลี่ยน]
+> - Verification: [ผล test/log หลังแก้]

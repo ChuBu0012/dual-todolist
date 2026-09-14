@@ -51,15 +51,15 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   initialize: () => {
-    console.log('[DEBUG-7f3a] todoStore.initialize called');
+    
     set({ isLoading: true, error: null });
     const unsubscribeCards = firestoreService.subscribeCards(
       (cards) => {
-        console.log('[DEBUG-7f3a] todoStore updated with cards:', cards.length);
+        
         set({ cards, isLoading: false });
       },
       (error) => {
-        console.error('[DEBUG-7f3a] todoStore subscribeCards error:', error);
+        
         set({ error: error.message, isLoading: false });
       }
     );
@@ -67,16 +67,16 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   createCard: async (input) => {
-    console.log('[DEBUG-7f3a] todoStore.createCard called with:', input);
+    
     get().setSyncState('SAVING');
     try {
       const id = await firestoreService.createCard(input);
-      console.log('[DEBUG-7f3a] todoStore.createCard successfully completed');
+      
       get().setSyncState('SAVED');
       return id;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to create card';
-      console.error('[DEBUG-7f3a] todoStore.createCard error caught:', message, error);
+      
       get().setSyncState('ERROR');
       set({ error: message });
       throw error;
@@ -84,15 +84,15 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   updateCard: async (id, input) => {
-    console.log('[DEBUG-7f3a] todoStore.updateCard called for:', id, input);
+    
     get().setSyncState('SAVING');
     try {
       await firestoreService.updateCard(id, input);
-      console.log('[DEBUG-7f3a] todoStore.updateCard successfully completed');
+      
       get().setSyncState('SAVED');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to update card';
-      console.error('[DEBUG-7f3a] todoStore.updateCard error caught:', message, error);
+      
       get().setSyncState('ERROR');
       set({ error: message });
       throw error;
@@ -100,15 +100,15 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   deleteCard: async (id) => {
-    console.log('[DEBUG-7f3a] todoStore.deleteCard called for:', id);
+    
     get().setSyncState('SAVING');
     try {
       await firestoreService.deleteCard(id);
-      console.log('[DEBUG-7f3a] todoStore.deleteCard successfully completed');
+      
       get().setSyncState('SAVED');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to delete card';
-      console.error('[DEBUG-7f3a] todoStore.deleteCard error caught:', message, error);
+      
       get().setSyncState('ERROR');
       set({ error: message });
       throw error;
@@ -116,7 +116,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   reorderCards: async (orderedIds) => {
-    console.log('[DEBUG-7f3a] todoStore.reorderCards called with:', orderedIds);
+    
     // Optimistic update: reorder locally first with O(N) map
     const { cards } = get();
     const cardMap = new Map(cards.map((c) => [c.id, c]));
@@ -145,26 +145,26 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       get().setSyncState('SAVED');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to reorder cards';
-      console.error('[DEBUG-7f3a] todoStore.reorderCards error:', message, error);
+      
       get().setSyncState('ERROR');
       set({ error: message });
     }
   },
 
   toggleChecklistItem: async (cardId, itemId, isDone) => {
-    console.log('[DEBUG-7f3a] todoStore.toggleChecklistItem called:', { cardId, itemId, isDone });
+    
     const { cards } = get();
     const card = cards.find((c) => c.id === cardId);
     const currentUser = useAuthStore.getState().currentUser;
 
     if (!card || !currentUser) {
-      console.warn('[DEBUG-7f3a] Card or currentUser not found:', { card: !!card, currentUser });
+      
       return;
     }
 
     const itemIndex = card.items.findIndex(i => i.id === itemId);
     if (itemIndex === -1) {
-      console.warn('[DEBUG-7f3a] Item index not found for id:', itemId);
+      
       return;
     }
 
@@ -224,7 +224,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       get().setSyncState('SAVED');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to toggle item';
-      console.error('[DEBUG-7f3a] todoStore.toggleChecklistItem error:', message, error);
+      
       get().setSyncState('ERROR');
       set({ error: message });
     }
