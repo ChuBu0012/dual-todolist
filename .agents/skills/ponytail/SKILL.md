@@ -20,9 +20,9 @@ code is the code never written.
 
 ## Persistence
 
-ACTIVE EVERY RESPONSE. No drift back to over-building. Still active if
-unsure. Off only: "stop ponytail" / "normal mode". Default: **full**.
-Switch: `/ponytail lite|full|ultra`.
+This skill is strictly ON-DEMAND. Do NOT apply these lazy rules by default.
+Only use this mindset when the user explicitly asks for "ทำง่ายๆ", "ponytail mode", "be lazy", or "simplest solution".
+Once the specific task is done, return to normal, comprehensive engineering mode.
 
 ## The ladder
 
