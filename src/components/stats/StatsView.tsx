@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { getLast30Days } from '../../utils/dateFormat';
 import type { DailyStat } from '../../types/todo';
 
@@ -13,6 +13,7 @@ function HeatmapGrid({ user, days, stats }: {
   stats: Record<string, DailyStat>;
 }) {
   const [activeDate, setActiveDate] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   
   const label = user === 'most' ? "MOST'S LOG" : "FERN'S LOG";
   const userColor = user === 'most' ? 'bg-red-500' : 'bg-green-500';
@@ -26,6 +27,17 @@ function HeatmapGrid({ user, days, stats }: {
     total += c;
     if (c > maxCount) maxCount = c;
   });
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      // Auto-scroll to the far right (newest dates) after render
+      setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+        }
+      }, 50);
+    }
+  }, [days]);
 
   const activeStat = activeDate ? stats[activeDate] : null;
   const activeCount = activeStat ? (user === 'most' ? activeStat.mostCount : activeStat.fernCount) : 0;
@@ -43,6 +55,7 @@ function HeatmapGrid({ user, days, stats }: {
       
       {/* Scrollable Bar Chart Container */}
       <div 
+        ref={scrollRef}
         className="hide-scrollbar"
         style={{ 
           display: 'flex', 
