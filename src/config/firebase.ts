@@ -7,28 +7,21 @@ import {
   type Firestore,
 } from 'firebase/firestore';
 
-const getEnv = (key: string): string => {
-  try {
-    const meta = import.meta as any;
-    if (typeof meta !== 'undefined' && meta?.env && meta.env[key]) {
-      return meta.env[key];
-    }
-  } catch {
-    // Ignore error in environments where import.meta is unavailable
-  }
-  if (typeof process !== 'undefined' && process.env && process.env[key]) {
-    return process.env[key] as string;
+const getEnv = (viteKey: string, nodeKey: string): string => {
+  if (typeof process !== 'undefined' && process.env && process.env[nodeKey]) {
+    return process.env[nodeKey] as string;
   }
   return '';
 };
 
+// Note: Vite requires explicit import.meta.env.VITE_XXX references for static replacement in production builds.
 const firebaseConfig = {
-  apiKey: getEnv('VITE_FIREBASE_API_KEY') || getEnv('FIREBASE_API_KEY'),
-  authDomain: getEnv('VITE_FIREBASE_AUTH_DOMAIN') || getEnv('FIREBASE_AUTH_DOMAIN'),
-  projectId: getEnv('VITE_FIREBASE_PROJECT_ID') || getEnv('FIREBASE_PROJECT_ID'),
-  storageBucket: getEnv('VITE_FIREBASE_STORAGE_BUCKET') || getEnv('FIREBASE_STORAGE_BUCKET'),
-  messagingSenderId: getEnv('VITE_FIREBASE_MESSAGING_SENDER_ID') || getEnv('FIREBASE_MESSAGING_SENDER_ID'),
-  appId: getEnv('VITE_FIREBASE_APP_ID') || getEnv('FIREBASE_APP_ID'),
+  apiKey: (import.meta as any).env?.VITE_FIREBASE_API_KEY || getEnv('VITE_FIREBASE_API_KEY', 'FIREBASE_API_KEY'),
+  authDomain: (import.meta as any).env?.VITE_FIREBASE_AUTH_DOMAIN || getEnv('VITE_FIREBASE_AUTH_DOMAIN', 'FIREBASE_AUTH_DOMAIN'),
+  projectId: (import.meta as any).env?.VITE_FIREBASE_PROJECT_ID || getEnv('VITE_FIREBASE_PROJECT_ID', 'FIREBASE_PROJECT_ID'),
+  storageBucket: (import.meta as any).env?.VITE_FIREBASE_STORAGE_BUCKET || getEnv('VITE_FIREBASE_STORAGE_BUCKET', 'FIREBASE_STORAGE_BUCKET'),
+  messagingSenderId: (import.meta as any).env?.VITE_FIREBASE_MESSAGING_SENDER_ID || getEnv('VITE_FIREBASE_MESSAGING_SENDER_ID', 'FIREBASE_MESSAGING_SENDER_ID'),
+  appId: (import.meta as any).env?.VITE_FIREBASE_APP_ID || getEnv('VITE_FIREBASE_APP_ID', 'FIREBASE_APP_ID'),
 };
 
 console.log('[DEBUG-7f3a] Firebase initializing with projectId:', firebaseConfig.projectId, {
