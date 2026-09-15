@@ -70,11 +70,11 @@ async function processTodoCommand(payload: any) {
     const rawItemsString = itemsOpt?.value || '';
     const assign = (assignOpt?.value as TodoAssignee) || defaultAssignee;
 
-    let cardSearch = 'Inbox';
+    let cardSearch = formatThaiDate(new Date());
 
     if (commandName === 'todo') {
       const cardOpt = data.options?.find((o: any) => o.name === 'card');
-      cardSearch = cardOpt?.value || 'Inbox';
+      cardSearch = cardOpt?.value || formatThaiDate(new Date());
     } else if (commandName === 'daily') {
       cardSearch = formatThaiDate(new Date());
     } else if (commandName === 'next') {

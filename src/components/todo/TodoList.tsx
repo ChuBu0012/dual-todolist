@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { TodoCard } from './TodoCard';
 import { CardModal } from './CardModal';
 import { PinIcon } from './PinIcon';
+import { formatThaiDate } from '../../utils/dateFormat';
 import type { CardItem } from '../../types/todo';
 import {
   DndContext,
@@ -86,7 +87,8 @@ export function TodoList() {
       const text = quickAddText.trim();
       setIsQuickAdding(true);
       
-      const inboxCard = cards.find(c => c.title.toLowerCase() === 'inbox');
+      const todayTitle = formatThaiDate(new Date());
+      const targetCard = cards.find(c => c.title.toLowerCase() === todayTitle.toLowerCase());
       const newItem = {
         id: Math.random().toString(36).substring(2, 9),
         text: text,
@@ -94,12 +96,12 @@ export function TodoList() {
       };
 
       try {
-        if (inboxCard) {
-          const updatedItems = [...(inboxCard.items || []), newItem];
-          await useTodoStore.getState().updateCard(inboxCard.id, { items: updatedItems });
+        if (targetCard) {
+          const updatedItems = [...(targetCard.items || []), newItem];
+          await useTodoStore.getState().updateCard(targetCard.id, { items: updatedItems });
         } else {
           await useTodoStore.getState().createCard({
-            title: 'Inbox',
+            title: todayTitle,
             assignee: (currentUser as any) || 'both',
             items: [newItem]
           });
@@ -170,7 +172,7 @@ export function TodoList() {
           onChange={e => setQuickAddText(e.target.value)}
           onKeyDown={handleQuickAdd}
           disabled={isQuickAdding}
-          placeholder={isQuickAdding ? "ADDING..." : "QUICK ADD TO INBOX... (Press Enter)"}
+          placeholder={isQuickAdding ? "ADDING..." : "QUICK ADD TO TODAY... (Press Enter)"}
           className={`w-full p-4 border-[3px] border-[var(--border-color)] bg-[var(--card-bg)] font-archivo-black text-[1rem] outline-none placeholder:text-[#888] focus:shadow-[4px_4px_0_0_var(--border-color)] transition-shadow ${isQuickAdding ? 'opacity-50 cursor-not-allowed' : ''}`}
         />
       </div>

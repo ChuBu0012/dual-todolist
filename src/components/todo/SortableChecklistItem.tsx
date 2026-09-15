@@ -28,6 +28,7 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
 
   const inputRef = useRef<HTMLInputElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startPos = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (autoFocus && inputRef.current) {
@@ -41,6 +42,8 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
   const startLongPress = (e: React.PointerEvent) => {
     if (isReadOnly || !onLongPress) return;
     if ((e.target as HTMLElement).tagName.toLowerCase() === 'input') return;
+    
+    startPos.current = { x: e.clientX, y: e.clientY };
     longPressTimer.current = setTimeout(() => {
       onLongPress();
       // Vibrate to provide feedback if supported
@@ -50,11 +53,25 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
     }, 500);
   };
 
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!startPos.current || !longPressTimer.current) return;
+    
+    const dx = e.clientX - startPos.current.x;
+    const dy = e.clientY - startPos.current.y;
+    const distance = Math.hypot(dx, dy);
+    
+    // Only cancel if finger moved more than 10 pixels
+    if (distance > 10) {
+      cancelLongPress();
+    }
+  };
+
   const cancelLongPress = () => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
+    startPos.current = null;
   };
 
   const style = {
@@ -70,7 +87,7 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
       onPointerDown={startLongPress}
       onPointerUp={cancelLongPress}
       onPointerCancel={cancelLongPress}
-      onPointerMove={cancelLongPress}
+      onPointerMove={handlePointerMove}
     >
       {isPending && (
         <div

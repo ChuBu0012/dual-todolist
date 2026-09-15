@@ -37,7 +37,7 @@ const commands = [
       ...optionsShared,
       {
         name: 'card',
-        description: 'ชื่อการ์ดที่ต้องการใส่ (ไม่ระบุ = ใส่ลงการ์ด Inbox)',
+        description: 'ชื่อการ์ดที่ต้องการใส่ (ไม่ระบุ = ใส่ลงการ์ดของวันนี้)',
         type: 3, // STRING
         required: false,
       }
