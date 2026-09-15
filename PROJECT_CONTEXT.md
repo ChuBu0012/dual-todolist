@@ -37,7 +37,7 @@ src/
 │       ├── PinIcon.tsx         # 📌 toggle
 │       └── SyncStatusIcon.tsx  # SAVED / SAVING / ERROR indicator
 ├── hooks/
-│   └── useDebouncedCardSync.ts # 800ms debounce + flush-on-close
+│   └── useDebouncedCardSync.ts # 800ms debounce + serialized flush-on-close
 ├── services/
 │   ├── firestoreService.ts     # CRUD + real-time subscriptions
 │   └── discordService.ts       # Webhook notifications
@@ -58,7 +58,8 @@ src/
 └── test/
     └── setup.ts                # Vitest global setup
 api/
-└── cron/nightly.ts             # Vercel cron: daily summary → Discord
+├── cron/nightly.ts             # Vercel cron: fail-closed daily summary → Discord
+└── discord/interactions.ts     # Signed Discord commands with freshness/input checks
 ```
 
 ## Design Rules
@@ -70,10 +71,19 @@ api/
 ## Features
 - **Cards & Checklists** — Create, edit, pin, reorder (drag-and-drop via dnd-kit).
 - **Auto-Sync** — 800ms debounced writes, flush on modal close / unmount.
+- **Sync Recovery** — In-flight flushes are shared across close and unmount, load failures expose retry, and failed item moves restore the source list.
+- **Lock Recovery** — Cards open read-only when lock acquisition fails.
 - **Activity Heatmap** — 30-day bar chart computed client-side from `completedAt` timestamps.
 - **MVP Banner** — Weekly leaderboard (7-day totals) shown at top of stats view.
 - **Discord Notifications** — Per-item completion webhook + nightly summary cron.
 - **PWA** — Installable, offline-capable shell.
 
+## Operational Constraints
+- Authentication remains client-side PIN login with local storage persistence by design.
+- Firestore rules are currently permissive and must not be treated as an authorization boundary.
+- Concurrent card edits remain last-write-wins; revision conflict detection and merge are deferred.
+- Cron requests require `CRON_SECRET`; Discord interactions reject stale signatures and oversized checklist input.
+- Verification baseline: `npm run build` passes; the current full suite has 42 passing tests and 3 existing Discord message-format expectation failures.
+
 ## Updated
-2026-09-14
+2026-09-15

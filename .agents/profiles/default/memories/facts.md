@@ -26,3 +26,9 @@
 - ก่อนจบ turn: ตรวจว่าทุกรายการที่ user ขอถูกจัดการแล้ว ถ้ามีค้างต้อง liệt kêชัดเจน ห้ามจบเงียบๆ
 - เช็ค limit เป็นระยะ ถ้าเหลือ ~4% ให้จด context/ความคืบหน้าลง mem.md ก่อนหยุด
 - แตก branch ก่อนแก้ทุกครั้ง commit เป็น checkpoint ตามตรรกะของงาน
+
+### Repository State — 2026-09-15
+- Refactor checkpoint `1b84a39` is merged and pushed to `main`.
+- The checkpoint serializes card flushes, prevents duplicate subscriptions, restores failed item moves, exposes load retry, treats failed lock acquisition as read-only, and hardens cron and Discord request validation.
+- `npm run build` passes. The full test run has 42 passing tests and 3 pre-existing Discord message-format expectation failures.
+- `PROJECT_CONTEXT.md` records the deliberate client-side PIN, permissive Firestore rules, and deferred last-write-wins concurrency policy.
