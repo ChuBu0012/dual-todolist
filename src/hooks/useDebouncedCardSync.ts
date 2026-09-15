@@ -22,6 +22,7 @@ export function useDebouncedCardSync(initialCard: CardItem | null) {
   const isDirtyRef = useRef(false);
   const localCardRef = useRef(localCard);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const flushInFlightRef = useRef<Promise<void> | null>(null);
   
   // Track if this is a new card that has been created in Firestore yet
   const createdIdRef = useRef<string | null>(initialCard ? initialCard.id : null);
@@ -32,57 +33,67 @@ export function useDebouncedCardSync(initialCard: CardItem | null) {
   }, [localCard]);
 
   const flush = useCallback(async () => {
+    if (flushInFlightRef.current) return flushInFlightRef.current;
     if (!isDirtyRef.current) return;
-    
-    const cardData = localCardRef.current;
-    
-    // Don't save empty ghost cards, and delete existing ones if emptied
-    const hasTitle = (cardData.title || '').trim().length > 0;
-    const hasItems = cardData.items && cardData.items.some(i => i.text.trim().length > 0);
-    
-    if (!hasTitle && !hasItems) {
-      isDirtyRef.current = false;
-      if (createdIdRef.current) {
-        setSyncState('SAVING');
-        try {
-          await deleteCard(createdIdRef.current);
-          createdIdRef.current = null; // Mark as deleted
-          setSyncState('SAVED');
-        } catch (err) {
-          console.error('Failed to delete empty card:', err);
-          setSyncState('ERROR');
-          isDirtyRef.current = true;
+
+    const flushOperation = (async () => {
+      const cardData = localCardRef.current;
+
+      // Don't save empty ghost cards, and delete existing ones if emptied
+      const hasTitle = (cardData.title || '').trim().length > 0;
+      const hasItems = cardData.items && cardData.items.some(i => i.text.trim().length > 0);
+
+      if (!hasTitle && !hasItems) {
+        isDirtyRef.current = false;
+        if (createdIdRef.current) {
+          setSyncState('SAVING');
+          try {
+            await deleteCard(createdIdRef.current);
+            createdIdRef.current = null;
+            setSyncState('SAVED');
+          } catch (err) {
+            console.error('Failed to delete empty card:', err);
+            setSyncState('ERROR');
+            isDirtyRef.current = true;
+          }
         }
+        return;
       }
-      return;
-    }
 
-    setSyncState('SAVING');
-    isDirtyRef.current = false; // Mark clean immediately to prevent double flush
-    
-    const effectiveTitle = hasTitle ? cardData.title!.trim() : formatThaiDate(new Date());
+      setSyncState('SAVING');
+      isDirtyRef.current = false;
 
+      const effectiveTitle = hasTitle ? cardData.title!.trim() : formatThaiDate(new Date());
+
+      try {
+        if (!createdIdRef.current) {
+          const newId = await createCard({
+            ...(cardData as CreateCardInput),
+            title: effectiveTitle,
+            assignee: cardData.assignee || defaultAssignee,
+          });
+          createdIdRef.current = newId;
+        } else {
+          await updateCard(createdIdRef.current, {
+            ...(cardData as UpdateCardInput),
+            title: effectiveTitle,
+          });
+        }
+        setSyncState('SAVED');
+      } catch (err) {
+        console.error('Failed to sync card:', err);
+        setSyncState('ERROR');
+        isDirtyRef.current = true;
+      }
+    })();
+
+    flushInFlightRef.current = flushOperation;
     try {
-      if (!createdIdRef.current) {
-        // Create
-        const newId = await createCard({
-          ...(cardData as CreateCardInput),
-          title: effectiveTitle,
-          assignee: cardData.assignee || defaultAssignee,
-        });
-        createdIdRef.current = newId;
-      } else {
-        // Update
-        await updateCard(createdIdRef.current, {
-          ...(cardData as UpdateCardInput),
-          title: effectiveTitle,
-        });
+      await flushOperation;
+    } finally {
+      if (flushInFlightRef.current === flushOperation) {
+        flushInFlightRef.current = null;
       }
-      setSyncState('SAVED');
-    } catch (err) {
-      console.error('Failed to sync card:', err);
-      setSyncState('ERROR');
-      isDirtyRef.current = true; // Revert to dirty so it tries again
     }
   }, [createCard, updateCard, deleteCard, defaultAssignee]);
 

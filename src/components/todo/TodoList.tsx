@@ -22,6 +22,8 @@ import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortab
 export function TodoList() {
   const cards = useTodoStore((s) => s.cards);
   const isLoading = useTodoStore((s) => s.isLoading);
+  const loadError = useTodoStore((s) => s.error);
+  const initialize = useTodoStore((s) => s.initialize);
   const reorderCards = useTodoStore((s) => s.reorderCards);
   
   const [selectedCard, setSelectedCard] = useState<{ card: CardItem | null, isReadOnly?: boolean } | undefined>(undefined);
@@ -74,6 +76,8 @@ export function TodoList() {
         });
       } catch (e) {
         console.error('Failed to acquire lock', e);
+        setSelectedCard({ card, isReadOnly: true });
+        return;
       }
       setSelectedCard({ card, isReadOnly: false });
     }
@@ -167,6 +171,18 @@ export function TodoList() {
 
   return (
     <div className="pb-[96px] max-w-[840px] mx-auto w-full box-border">
+      {loadError && (
+        <div className="mb-4 p-3 border-2 border-[var(--error-border)] bg-[var(--error-bg)] text-[var(--error-text)] flex items-center justify-between gap-3">
+          <span className="mono text-[0.8rem]">Could not load the latest tasks.</span>
+          <button
+            type="button"
+            onClick={() => initialize()}
+            className="shrink-0 border-2 border-[var(--error-border)] px-3 py-1 font-bold mono text-[0.75rem]"
+          >
+            RETRY
+          </button>
+        </div>
+      )}
       {/* Quick Add Bar */}
       <div className="mb-6 sticky top-0 z-20 bg-[var(--bg-color)] py-2">
         <input

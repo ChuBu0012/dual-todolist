@@ -37,6 +37,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
   const [movingItemIds, setMovingItemIds] = useState<string[]>([]);
   const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
+  const [moveError, setMoveError] = useState<string | null>(null);
   const currentUser = useAuthStore((s) => s.currentUser);
   const pendingNotifications = useTodoStore(s => s.pendingNotifications);
   const allCards = useTodoStore(s => s.cards);
@@ -177,15 +178,17 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
 
   const handleMoveItems = async (targetCardId: string) => {
     if (movingItemIds.length === 0 || isReadOnly) return;
+    setMoveError(null);
+    const originalItems = localCard.items || [];
     try {
       const targetCard = allCards.find(c => c.id === targetCardId);
       if (!targetCard) return;
 
-      const itemsToMove = (localCard.items || []).filter(it => movingItemIds.includes(it.id));
+      const itemsToMove = originalItems.filter(it => movingItemIds.includes(it.id));
       if (itemsToMove.length === 0) return;
 
       // 1. Remove from current card
-      const newItems = (localCard.items || []).filter(it => !movingItemIds.includes(it.id));
+      const newItems = originalItems.filter(it => !movingItemIds.includes(it.id));
       updateField({ items: newItems }); // optimistic
 
       // 2. Add to target card
@@ -196,6 +199,8 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
       setIsMoveSheetOpen(false);
     } catch (e) {
       console.error('Move failed', e);
+      updateField({ items: originalItems });
+      setMoveError('Could not move the selected items. Your changes were restored.');
     }
   };
 
@@ -383,6 +388,11 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
             <h3 className="mono font-bold mb-4 uppercase tracking-widest text-[0.8rem] text-[var(--border-color)]">
               Move to...
             </h3>
+            {moveError && (
+              <div className="mb-3 p-2 border-2 border-[var(--error-border)] bg-[var(--error-bg)] text-[var(--error-text)] mono text-[0.75rem]">
+                {moveError}
+              </div>
+            )}
             <div className="flex-1 overflow-y-auto flex flex-col gap-2">
               {allCards.filter(c => c.id !== localCard.id).map(c => {
                 const isToday = c.title.trim().toLowerCase() === formatThaiDate(new Date()).toLowerCase();

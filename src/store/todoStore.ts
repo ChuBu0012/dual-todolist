@@ -8,6 +8,7 @@ export type SyncState = 'IDLE' | 'SAVING' | 'SAVED' | 'ERROR';
 
 let savedTimer: ReturnType<typeof setTimeout> | null = null;
 const pendingDiscordTimeouts = new Map<string, NodeJS.Timeout>();
+let activeCardsUnsubscribe: (() => void) | null = null;
 
 interface TodoState {
   cards: CardItem[];
@@ -51,19 +52,23 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   },
 
   initialize: () => {
-    
+    activeCardsUnsubscribe?.();
     set({ isLoading: true, error: null });
     const unsubscribeCards = firestoreService.subscribeCards(
       (cards) => {
-        
         set({ cards, isLoading: false });
       },
       (error) => {
-        
         set({ error: error.message, isLoading: false });
       }
     );
-    return () => { unsubscribeCards(); };
+    activeCardsUnsubscribe = unsubscribeCards;
+    return () => {
+      if (activeCardsUnsubscribe === unsubscribeCards) {
+        activeCardsUnsubscribe = null;
+        unsubscribeCards();
+      }
+    };
   },
 
   createCard: async (input) => {

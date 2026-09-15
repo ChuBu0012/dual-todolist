@@ -20,6 +20,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   
   if (!signature || !timestamp) return res.status(401).json({ error: 'Missing signature' });
 
+  const timestampSeconds = Number(timestamp);
+  if (!Number.isFinite(timestampSeconds) || Math.abs(Date.now() / 1000 - timestampSeconds) > 300) {
+    return res.status(401).json({ error: 'Expired request' });
+  }
+
   const publicKey = process.env.DISCORD_PUBLIC_KEY;
   if (!publicKey) return res.status(500).json({ error: 'Server configuration error' });
 
@@ -68,7 +73,10 @@ async function processTodoCommand(payload: any) {
     const itemsOpt = data.options?.find((o: any) => o.name === 'items');
     const assignOpt = data.options?.find((o: any) => o.name === 'assign');
     const rawItemsString = itemsOpt?.value || '';
-    const assign = (assignOpt?.value as TodoAssignee) || defaultAssignee;
+    const requestedAssignee = assignOpt?.value;
+    const assign: TodoAssignee = ['most', 'fern', 'both'].includes(requestedAssignee)
+      ? requestedAssignee
+      : defaultAssignee;
 
     let cardSearch = formatThaiDate(new Date());
 
@@ -88,7 +96,7 @@ async function processTodoCommand(payload: any) {
       .map((i: string) => i.trim())
       .filter((i: string) => i.length > 0);
 
-    if (itemNames.length === 0) {
+    if (itemNames.length === 0 || itemNames.length > 50 || itemNames.some((item: string) => item.length > 200)) {
       await sendFollowUp(appId!, token, '❌ ไม่พบชื่อรายการที่ต้องการเพิ่ม');
       return;
     }
