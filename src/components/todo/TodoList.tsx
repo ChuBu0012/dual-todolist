@@ -212,7 +212,7 @@ export function TodoList() {
             <PinIcon isPinned size={14} /> Pinned
           </h2>
           <SortableContext items={pinnedCards.map(c => c.id)} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 items-start">
+            <div className="columns-[280px] gap-3 w-full">
               {pinnedCards.map((card) => (
                 <TodoCard
                   key={card.id}
@@ -235,7 +235,7 @@ export function TodoList() {
             </h2>
           )}
           <SortableContext items={otherCards.map(c => c.id)} strategy={rectSortingStrategy}>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3 items-start">
+            <div className="columns-[280px] gap-3 w-full">
               {otherCards.map((card) => (
                 <TodoCard
                   key={card.id}
