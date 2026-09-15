@@ -95,7 +95,8 @@ async function processTodoCommand(payload: any) {
 
     const cards = await firestoreService.getAllCards();
     let targetCard = cards.find(c => 
-      c.title.toLowerCase().includes(cardSearch.toLowerCase())
+      c.title.toLowerCase().includes(cardSearch.toLowerCase()) &&
+      (c.assignee === assign || c.assignee === 'both')
     );
 
     const newItems = itemNames.map((text: string) => ({

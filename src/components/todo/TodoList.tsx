@@ -88,7 +88,10 @@ export function TodoList() {
       setIsQuickAdding(true);
       
       const todayTitle = formatThaiDate(new Date());
-      const targetCard = cards.find(c => c.title.toLowerCase() === todayTitle.toLowerCase());
+      const targetCard = cards.find(c => 
+        c.title.toLowerCase() === todayTitle.toLowerCase() && 
+        (c.assignee === currentUser || c.assignee === 'both')
+      );
       const newItem = {
         id: Math.random().toString(36).substring(2, 9),
         text: text,

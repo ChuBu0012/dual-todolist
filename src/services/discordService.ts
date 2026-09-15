@@ -172,10 +172,8 @@ export const discordService = {
     const todayThai = formatThaiDate(new Date());
 
     const content = [
-      `SYSTEM CHECK: 22:00`,
-      `DATE: ${todayThai}`,
-      '',
-      `LOG YOUR PENDING TASKS.`
+      `🔔 **กริ๊งๆ! ได้เวลาสรุปงานของวันนี้แล้วจ้า (${todayThai})** 🌙`,
+      `> ไหนวันนี้มีใครทำอะไรเสร็จไปแล้วบ้าง? หรือมีอะไรค้างอยู่ มาเช็คลิสต์กันหน่อยเร๊ววว 🏃‍♂️💨`
     ].join('\n');
 
     await this.sendMessage({ content });
@@ -185,32 +183,14 @@ export const discordService = {
    * 22:30 Check-in Reminder (Cute version)
    */
   async sendNightlyReminder() {
-    const todayThai = formatThaiDate(new Date());
-
     const content = [
-      `SYSTEM CHECK: 22:30`,
-      `DATE: ${todayThai}`,
-      '',
-      `FINAL REVIEW BEFORE TOMORROW.`
+      `⏰ **ดึกแล้วน้าา (22:30) มีใครลืมอัปเดตงานไหมเอ่ย?**`,
+      `> ถ้าง่วงแล้วก็ไปนอนพักผ่อนได้เลยนะ พรุ่งนี้ค่อยลุยกันใหม่! 😴💤`
     ].join('\n');
 
     await this.sendMessage({ content });
   },
 
-  /**
-   * 3. Daily Summary Report
-   * Matches format requested:
-   * Dual Todo Summary · 12 Sep 2026
-   * Total items: 12
-   * Completed: 8
-   * Pending: 4
-   * Completion rate: 67%
-   *
-   * Most completed: 5
-   * Fern completed: 3
-   * รายการค้าง จัดกลุ่มตามการ์ด
-   * (Split into multiple messages if too long)
-   */
   async sendDailySummaryFormatted(params: {
     date?: Date;
     totalItems: number;
@@ -223,41 +203,48 @@ export const discordService = {
     const date = params.date || new Date();
     const summaryDateStr = formatSummaryDate(date); // e.g. "12 Sep 2026"
 
-
     const completionRate =
       params.totalItems > 0 ? Math.round((params.completedCount / params.totalItems) * 100) : 0;
 
+    let emoji = '🔥';
+    if (completionRate === 100) emoji = '🎉💯';
+    else if (completionRate >= 80) emoji = '🌟';
+    else if (completionRate <= 30) emoji = '🐢';
+
     const headerLines: string[] = [
-      `DAILY SUMMARY: ${summaryDateStr}`,
-      `TOTAL: ${params.totalItems}`,
-      `COMPLETED: ${params.completedCount}`,
-      `PENDING: ${params.pendingCount}`,
-      `RATE: ${completionRate}%`,
+      `**📊 สรุปภาพรวมประจำวัน! (${summaryDateStr})**`,
+      `> วันนี้เคลียร์ไปได้ **${params.completedCount}/${params.totalItems}** งาน (${completionRate}%) ${emoji}`,
       '',
-      `MOST DONE: ${params.mostCompletedCount}`,
-      `FERN DONE: ${params.fernCompletedCount}`,
+      `**🏆 MVP ประจำวัน:**`,
+      `👨🏻‍💻 พี่ Most ซัดไป: **${params.mostCompletedCount}** งาน`,
+      `👩🏻‍💻 น้อง Fern เก็บไป: **${params.fernCompletedCount}** งาน`,
       '',
     ];
 
     if (params.pendingByCard.length === 0) {
-      headerLines.push('STATUS: NO PENDING TASKS');
-      await this.sendMessage({ content: headerLines.join('\n') });
-      return;
+      headerLines.push('**✨ เยี่ยมมาก! ไม่มีงานค้างเลย เก่งสุดๆ ปรบมือออ! 👏**');
+    } else {
+      headerLines.push('**⚠️ งานที่ยังค้างอยู่ (สู้เขานะ!):**');
     }
-
-    headerLines.push('PENDING TASKS:');
 
     const pendingLines: string[] = [];
     params.pendingByCard.forEach((card) => {
-      pendingLines.push(`${card.cardTitle.toUpperCase()}`);
+      pendingLines.push(`**📅 ${card.cardTitle.toUpperCase()}**`);
       card.items.forEach((item) => {
-        const assigneeTag = item.assignee === 'both' ? 'Both' : item.assignee === 'most' ? 'Most' : 'Fern';
-        pendingLines.push(`- ${item.text} | ${assigneeTag.toUpperCase()}`);
+        const assigneeTag = item.assignee === 'both' ? 'Both 🧑‍🤝‍🧑' : item.assignee === 'most' ? 'Most 👨🏻‍💻' : 'Fern 👩🏻‍💻';
+        pendingLines.push(`- [ ] ${item.text} \`[${assigneeTag}]\``);
       });
+      pendingLines.push('');
     });
 
-    const fullText = `${headerLines.join('\n')}\n${pendingLines.join('\n')}`;
+    const footerLines: string[] = [
+      '',
+      `💡 *แพลนงานพรุ่งนี้รึยัง? ลองพิมพ์ \`/next\` ตามด้วยชื่อเป้าหมายดูสิ!*`,
+      `> *เช่น \`/next items: ตื่นเช้า, ออกกำลังกาย\` เตรียมตัวดีมีชัยไปกว่าครึ่งน้า 😉✨*`
+    ];
 
-    await this.sendMessage({ content: fullText });
+    const fullText = `${headerLines.join('\n')}\n${pendingLines.join('\n')}${footerLines.join('\n')}`;
+
+    await this.sendMessage({ content: fullText.trim() });
   },
 };
