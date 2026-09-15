@@ -224,21 +224,12 @@ export const discordService = {
       '',
     ];
 
-    if (params.pendingByCard.length === 0) {
-      headerLines.push('**✨ เยี่ยมมาก! ไม่มีงานค้างเลย เก่งสุดๆ ปรบมือออ! 👏**');
+    if (params.pendingCount === 0) {
+      headerLines.push('**✨ เยี่ยมมาก! วันนี้เคลียร์หมดไม่มีงานค้างเลย เก่งสุดๆ ปรบมือออ! 👏**');
     } else {
-      headerLines.push('**⚠️ งานที่ยังค้างอยู่ (สู้เขานะ!):**');
+      headerLines.push(`**⚠️ อ๊ะ! ยังมีงานค้างอยู่อีก ${params.pendingCount} งานนะ!**`);
+      headerLines.push('> พรุ่งนี้เอาใหม่ ลุยให้ครบทุก Task ไปเลยนะ สู้ๆ! 💪🔥');
     }
-
-    const pendingLines: string[] = [];
-    params.pendingByCard.forEach((card) => {
-      pendingLines.push(`**📅 ${card.cardTitle.toUpperCase()}**`);
-      card.items.forEach((item) => {
-        const assigneeTag = item.assignee === 'both' ? 'Both 🧑‍🤝‍🧑' : item.assignee === 'most' ? 'Most 👨🏻‍💻' : 'Fern 👩🏻‍💻';
-        pendingLines.push(`- [ ] ${item.text} \`[${assigneeTag}]\``);
-      });
-      pendingLines.push('');
-    });
 
     const footerLines: string[] = [
       '',
@@ -246,7 +237,7 @@ export const discordService = {
       `> *เช่น \`/next items: ตื่นเช้า, ออกกำลังกาย\` เตรียมตัวดีมีชัยไปกว่าครึ่งน้า 😉✨*`
     ];
 
-    const fullText = `${headerLines.join('\n')}\n${pendingLines.join('\n')}${footerLines.join('\n')}`;
+    const fullText = `${headerLines.join('\n')}\n${footerLines.join('\n')}`;
 
     await this.sendMessage({ content: fullText.trim() });
   },
