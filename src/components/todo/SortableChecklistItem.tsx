@@ -14,9 +14,12 @@ interface Props {
   onLongPress?: () => void;
   onFocus?: () => void;
   autoFocus?: boolean;
+  selectionMode?: boolean;
+  isSelected?: boolean;
+  onSelectToggle?: () => void;
 }
 
-export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, onLongPress, onFocus, autoFocus }: Props) {
+export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, onLongPress, onFocus, autoFocus, selectionMode, isSelected, onSelectToggle }: Props) {
   const {
     attributes,
     listeners,
@@ -83,12 +86,18 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-[12px] relative overflow-hidden bg-[var(--card-bg)] ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`}
+      className={`flex items-center gap-[12px] relative overflow-hidden bg-[var(--card-bg)] transition-all ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'} ${isSelected ? 'outline outline-2 outline-[var(--border-color)] outline-offset-[-2px]' : ''}`}
       onPointerDown={startLongPress}
       onPointerUp={cancelLongPress}
       onPointerCancel={cancelLongPress}
       onPointerMove={handlePointerMove}
     >
+      {selectionMode && (
+        <div 
+          onClick={onSelectToggle}
+          className={`absolute inset-0 z-20 cursor-pointer ${isSelected ? 'bg-[var(--border-color)] opacity-20' : 'bg-transparent hover:bg-[rgba(0,0,0,0.05)]'}`}
+        />
+      )}
       {isPending && (
         <div
           className="absolute inset-0 pointer-events-none z-0 bg-[rgba(0,0,0,0.05)] border-b-2 border-[var(--border-color)]"

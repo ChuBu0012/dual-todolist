@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 
-import type { CardItem, TodoAssignee, ChecklistItem } from '../../types/todo';
+import type { CardItem, TodoAssignee } from '../../types/todo';
 import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
 import { firestoreService } from '../../services/firestoreService';
@@ -35,7 +35,8 @@ const discordTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
 export function CardModal({ card, onClose, isReadOnly }: Props) {
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
-  const [movingItem, setMovingItem] = useState<ChecklistItem | null>(null);
+  const [movingItemIds, setMovingItemIds] = useState<string[]>([]);
+  const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
   const currentUser = useAuthStore((s) => s.currentUser);
   const pendingNotifications = useTodoStore(s => s.pendingNotifications);
   const allCards = useTodoStore(s => s.cards);
@@ -174,22 +175,25 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
     }
   };
 
-  const handleMoveItem = async (targetCardId: string) => {
-    if (!movingItem || isReadOnly) return;
+  const handleMoveItems = async (targetCardId: string) => {
+    if (movingItemIds.length === 0 || isReadOnly) return;
     try {
       const targetCard = allCards.find(c => c.id === targetCardId);
       if (!targetCard) return;
 
+      const itemsToMove = (localCard.items || []).filter(it => movingItemIds.includes(it.id));
+      if (itemsToMove.length === 0) return;
+
       // 1. Remove from current card
-      const newItems = (localCard.items || []).filter(it => it.id !== movingItem.id);
+      const newItems = (localCard.items || []).filter(it => !movingItemIds.includes(it.id));
       updateField({ items: newItems }); // optimistic
 
       // 2. Add to target card
-      const targetItems = [...(targetCard.items || []), movingItem];
-      // Note: We need to import firestoreService if not already imported? It is imported!
+      const targetItems = [...(targetCard.items || []), ...itemsToMove];
       await firestoreService.updateCard(targetCard.id, { items: targetItems });
 
-      setMovingItem(null);
+      setMovingItemIds([]);
+      setIsMoveSheetOpen(false);
     } catch (e) {
       console.error('Move failed', e);
     }
@@ -303,7 +307,20 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                     onChangeText={handleItemChange}
                     onRemove={handleRemoveItem}
                     onEnter={() => handleAddItem(item.id)}
-                    onLongPress={() => setMovingItem(item)}
+                    onLongPress={() => {
+                      if (!movingItemIds.includes(item.id)) {
+                        setMovingItemIds([...movingItemIds, item.id]);
+                      }
+                    }}
+                    selectionMode={movingItemIds.length > 0}
+                    isSelected={movingItemIds.includes(item.id)}
+                    onSelectToggle={() => {
+                      if (movingItemIds.includes(item.id)) {
+                        setMovingItemIds(movingItemIds.filter(id => id !== item.id));
+                      } else {
+                        setMovingItemIds([...movingItemIds, item.id]);
+                      }
+                    }}
                     onFocus={() => setFocusedItemId(item.id)}
                     autoFocus={(!card && index === 0 && !focusedItemId) || focusedItemId === item.id}
                   />
@@ -312,14 +329,36 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
             </SortableContext>
           </DndContext>
 
-          <button
-            type="button"
-            onClick={() => handleAddItem()}
-            disabled={isReadOnly}
-            className={`bg-none border-none font-work-sans text-[1rem] items-center gap-2 py-2 text-[#555] ${isReadOnly ? 'hidden' : 'flex cursor-pointer'}`}
-          >
-            <span className="text-[1.25rem]">+</span> ITEM
-          </button>
+          {movingItemIds.length > 0 ? (
+            <div className="flex items-center justify-between p-3 border-2 border-[var(--border-color)] bg-[var(--border-color)] text-[var(--card-bg)] mt-4">
+              <span className="font-archivo-black uppercase">
+                {movingItemIds.length} Selected
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setMovingItemIds([])}
+                  className="px-3 py-1 bg-transparent border border-[var(--card-bg)] text-[var(--card-bg)] font-bold mono text-[0.8rem]"
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={() => setIsMoveSheetOpen(true)}
+                  className="px-3 py-1 bg-[var(--card-bg)] text-[var(--border-color)] border-none font-bold mono text-[0.8rem]"
+                >
+                  MOVE
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleAddItem()}
+              disabled={isReadOnly}
+              className={`bg-none border-none font-work-sans text-[1rem] items-center gap-2 py-2 text-[#555] ${isReadOnly ? 'hidden' : 'flex cursor-pointer'}`}
+            >
+              <span className="text-[1.25rem]">+</span> ITEM
+            </button>
+          )}
         </div>
 
         {/* Error message banner */}
@@ -332,9 +371,9 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
       </div>
 
       {/* Move Item Bottom Sheet */}
-      {movingItem && (
+      {isMoveSheetOpen && (
         <div 
-          onClick={() => setMovingItem(null)}
+          onClick={() => setIsMoveSheetOpen(false)}
           className="fixed inset-0 bg-[var(--overlay-bg)] backdrop-blur-sm z-[60] flex items-end justify-center pointer-events-auto"
         >
           <div 
@@ -345,21 +384,24 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
               Move to...
             </h3>
             <div className="flex-1 overflow-y-auto flex flex-col gap-2">
-              {allCards.filter(c => c.id !== localCard.id).map(c => (
-                <button
-                  key={c.id}
-                  onClick={() => handleMoveItem(c.id)}
-                  className="p-3 border-2 border-[var(--border-color)] text-left hover:bg-[rgba(0,0,0,0.05)] bg-[var(--bg-color)] truncate font-archivo-black text-[var(--border-color)]"
-                >
-                  {c.title || 'Untitled'}
-                </button>
-              ))}
+              {allCards.filter(c => c.id !== localCard.id).map(c => {
+                const isToday = c.title.trim().toLowerCase() === formatThaiDate(new Date()).toLowerCase();
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => handleMoveItems(c.id)}
+                    className="p-3 border-2 border-[var(--border-color)] text-left hover:bg-[rgba(0,0,0,0.05)] bg-[var(--bg-color)] truncate font-archivo-black text-[var(--border-color)]"
+                  >
+                    {isToday ? 'TODAY' : (c.title || 'Untitled')}
+                  </button>
+                );
+              })}
               {allCards.filter(c => c.id !== localCard.id).length === 0 && (
                 <div className="text-center text-[#888] py-4 mono text-[0.8rem]">NO OTHER CARDS</div>
               )}
             </div>
             <button
-              onClick={() => setMovingItem(null)}
+              onClick={() => setIsMoveSheetOpen(false)}
               className="mt-4 p-3 border-2 border-[var(--border-color)] bg-[var(--border-color)] text-[var(--card-bg)] font-bold mono uppercase tracking-widest"
             >
               Cancel
