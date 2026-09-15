@@ -191,6 +191,9 @@ export const discordService = {
     await this.sendMessage({ content });
   },
 
+  /**
+   * 3. Daily Summary Report
+   */
   async sendDailySummaryFormatted(params: {
     date?: Date;
     totalItems: number;
