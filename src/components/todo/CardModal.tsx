@@ -386,13 +386,18 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
             <div className="flex-1 overflow-y-auto flex flex-col gap-2">
               {allCards.filter(c => c.id !== localCard.id).map(c => {
                 const isToday = c.title.trim().toLowerCase() === formatThaiDate(new Date()).toLowerCase();
+                const assigneeIcon = c.assignee === 'most' ? 'M' : c.assignee === 'fern' ? 'F' : 'FM';
+                const baseName = isToday ? 'TODAY' : (c.title || 'Untitled');
                 return (
                   <button
                     key={c.id}
                     onClick={() => handleMoveItems(c.id)}
-                    className="p-3 border-2 border-[var(--border-color)] text-left hover:bg-[rgba(0,0,0,0.05)] bg-[var(--bg-color)] truncate font-archivo-black text-[var(--border-color)]"
+                    className="p-3 border-2 border-[var(--border-color)] text-left hover:bg-[rgba(0,0,0,0.05)] bg-[var(--bg-color)] truncate font-archivo-black text-[var(--border-color)] flex justify-between items-center"
                   >
-                    {isToday ? 'TODAY' : (c.title || 'Untitled')}
+                    <span>{baseName}</span>
+                    <span className="text-[0.7rem] bg-[var(--border-color)] text-[var(--card-bg)] px-2 py-0.5 rounded-sm ml-2">
+                      {assigneeIcon}
+                    </span>
                   </button>
                 );
               })}
