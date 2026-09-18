@@ -31,7 +31,7 @@ describe('Discord Interactions Webhook', () => {
       method: 'POST',
       headers: {
         'x-signature-ed25519': 'fake-sig',
-        'x-signature-timestamp': '1234567890',
+        'x-signature-timestamp': Math.floor(Date.now() / 1000).toString(),
       },
       // Simulate async iterator for getRawBody
       [Symbol.asyncIterator]: async function* () {

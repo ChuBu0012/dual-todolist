@@ -98,8 +98,8 @@ describe('discordService', () => {
       const call = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
 
-      expect(body.content).toContain('SYSTEM CHECK: 22:30');
-      expect(body.content).toContain('FINAL REVIEW BEFORE TOMORROW.');
+      expect(body.content).toContain('ดึกแล้วน้าา (22:30)');
+      expect(body.content).toContain('พรุ่งนี้ค่อยลุยกันใหม่!');
     });
   });
 
@@ -131,19 +131,12 @@ describe('discordService', () => {
       const call = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
 
-      expect(body.content).toContain('DAILY SUMMARY: 12 Sep 2026');
-      expect(body.content).toContain('TOTAL: 12');
-      expect(body.content).toContain('COMPLETED: 8');
-      expect(body.content).toContain('PENDING: 4');
-      expect(body.content).toContain('RATE: 67%');
-      expect(body.content).toContain('MOST DONE: 5');
-      expect(body.content).toContain('FERN DONE: 3');
-      expect(body.content).toContain('PENDING TASKS:');
-      expect(body.content).toContain('URGENT WORK');
-      expect(body.content).toContain('- Finish report | MOST');
-      expect(body.content).toContain('- Review slides | BOTH');
-      expect(body.content).toContain('HOUSE CHORES');
-      expect(body.content).toContain('- Clean room | FERN');
+      expect(body.content).toContain('สรุปภาพรวมประจำวัน! (12 Sep 2026)');
+      expect(body.content).toContain('8/12');
+      expect(body.content).toContain('67%');
+      expect(body.content).toContain('พี่ Most ซัดไป: **5** งาน');
+      expect(body.content).toContain('น้อง Fern เก็บไป: **3** งาน');
+      expect(body.content).toContain('อ๊ะ! ยังมีงานค้างอยู่อีก 4 งานนะ!');
     });
 
     it('should handle zero pending items with a praise message', async () => {
@@ -161,7 +154,7 @@ describe('discordService', () => {
       const call = vi.mocked(global.fetch).mock.calls[0];
       const body = JSON.parse(call[1]?.body as string);
 
-      expect(body.content).toContain('STATUS: NO PENDING TASKS');
+      expect(body.content).toContain('เยี่ยมมาก! วันนี้เคลียร์หมดไม่มีงานค้างเลย');
     });
   });
 
