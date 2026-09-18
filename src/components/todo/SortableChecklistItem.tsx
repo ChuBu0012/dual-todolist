@@ -17,9 +17,10 @@ interface Props {
   selectionMode?: boolean;
   isSelected?: boolean;
   onSelectToggle?: () => void;
+  onPasteItems?: (texts: string[]) => void;
 }
 
-export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, onLongPress, onFocus, autoFocus, selectionMode, isSelected, onSelectToggle }: Props) {
+export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, onChangeText, onRemove, onEnter, onLongPress, onFocus, autoFocus, selectionMode, isSelected, onSelectToggle, onPasteItems }: Props) {
   const {
     attributes,
     listeners,
@@ -153,6 +154,20 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
           } else if (e.key === 'Backspace' && item.text === '') {
             e.preventDefault();
             onRemove(item.id);
+          }
+        }}
+        onPaste={(e) => {
+          if (!onPasteItems) return;
+          const paste = e.clipboardData.getData('text');
+          if (!paste) return;
+          const itemsText = paste
+            .split(/[\n,]+| \- /)
+            .map(s => s.replace(/^(?:\d+\.|\-|•)\s*/, '').trim())
+            .filter(Boolean);
+          
+          if (itemsText.length > 1) {
+            e.preventDefault();
+            onPasteItems(itemsText);
           }
         }}
         placeholder="ITEM..."

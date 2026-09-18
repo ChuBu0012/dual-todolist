@@ -123,6 +123,53 @@ export function TodoList() {
     }
   };
 
+  const handleQuickAddPaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const paste = e.clipboardData.getData('text');
+    if (!paste) return;
+
+    // Split by newline, comma, or " - "
+    const itemsText = paste
+      .split(/[\n,]+| \- /)
+      .map(s => s.replace(/^(?:\d+\.|\-|•)\s*/, '').trim())
+      .filter(Boolean);
+
+    if (itemsText.length > 0) {
+      e.preventDefault();
+      setIsQuickAdding(true);
+
+      const todayTitle = formatThaiDate(new Date());
+      const targetCard = cards.find(c => 
+        c.title.toLowerCase() === todayTitle.toLowerCase() && 
+        (c.assignee === currentUser || c.assignee === 'both')
+      );
+
+      const newItems = itemsText.map(text => ({
+        id: Math.random().toString(36).substring(2, 9),
+        text,
+        isDone: false,
+      }));
+
+      try {
+        if (targetCard) {
+          const updatedItems = [...(targetCard.items || []), ...newItems];
+          await useTodoStore.getState().updateCard(targetCard.id, { items: updatedItems });
+        } else {
+          await useTodoStore.getState().createCard({
+            title: todayTitle,
+            assignee: (currentUser as any) || 'both',
+            items: newItems
+          });
+        }
+        setQuickAddText('');
+      } catch (error) {
+        console.error('Quick add paste failed', error);
+        alert('Failed to add tasks from paste. Please try again.');
+      } finally {
+        setIsQuickAdding(false);
+      }
+    }
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     console.log('DRAG_END', { active: active?.id, over: over?.id });
@@ -190,6 +237,7 @@ export function TodoList() {
           value={quickAddText}
           onChange={e => setQuickAddText(e.target.value)}
           onKeyDown={handleQuickAdd}
+          onPaste={handleQuickAddPaste}
           disabled={isQuickAdding}
           placeholder={isQuickAdding ? "ADDING..." : "QUICK ADD TO TODAY... (Press Enter)"}
           className={`w-full p-4 border-[3px] border-[var(--border-color)] bg-[var(--card-bg)] font-archivo-black text-[1rem] outline-none placeholder:text-[#888] focus:shadow-[4px_4px_0_0_var(--border-color)] transition-shadow ${isQuickAdding ? 'opacity-50 cursor-not-allowed' : ''}`}

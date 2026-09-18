@@ -208,6 +208,52 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
                       setEditingItemId(null);
                     }
                   }}
+                  onPaste={async (e) => {
+                    const paste = e.clipboardData.getData('text');
+                    if (!paste) return;
+                    const itemsText = paste
+                      .split(/[\n,]+| \- /)
+                      .map(s => s.replace(/^(?:\d+\.|\-|•)\s*/, '').trim())
+                      .filter(Boolean);
+                      
+                    if (itemsText.length > 1) {
+                      e.preventDefault();
+                      ignoreBlurRef.current = true;
+                      
+                      const currentItemIndex = (card.items || []).findIndex(i => i.id === item.id);
+                      if (currentItemIndex === -1) {
+                         ignoreBlurRef.current = false;
+                         return;
+                      }
+
+                      let updatedItems = [...(card.items || [])];
+                      
+                      const newItems = itemsText.map(text => ({
+                        id: Math.random().toString(36).substr(2, 9),
+                        text,
+                        isDone: false
+                      }));
+
+                      if (updatedItems[currentItemIndex].text.trim() === '') {
+                        updatedItems[currentItemIndex] = { ...updatedItems[currentItemIndex], text: newItems[0].text };
+                        updatedItems.splice(currentItemIndex + 1, 0, ...newItems.slice(1));
+                      } else {
+                        updatedItems.splice(currentItemIndex + 1, 0, ...newItems);
+                      }
+                      
+                      const lastNewId = newItems[newItems.length - 1].id;
+                      setEditingText(newItems[newItems.length - 1].text);
+                      setEditingItemId(lastNewId);
+                      
+                      try {
+                        await updateCard(card.id, { items: updatedItems });
+                      } catch (err) {
+                        console.error('Failed to create items from paste:', err);
+                      } finally {
+                        setTimeout(() => { ignoreBlurRef.current = false; }, 100);
+                      }
+                    }
+                  }}
                   className="font-work-sans text-[0.9rem] leading-[1.3] flex-1 border-none border-b-2 border-[var(--border-color)] bg-[var(--card-bg)] outline-none py-[2px] px-1 box-border"
                 />
               ) : (

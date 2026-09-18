@@ -100,6 +100,32 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
     setFocusedItemId(newId);
   };
 
+  const handlePasteItems = (afterId: string, texts: string[]) => {
+    if (isReadOnly || texts.length === 0) return;
+    const newItems = texts.map(text => ({
+      id: generateId(),
+      text,
+      isDone: false
+    }));
+    
+    let updatedItems = [...(localCard.items || [])];
+    const idx = updatedItems.findIndex(i => i.id === afterId);
+    
+    if (idx !== -1) {
+      if (updatedItems[idx].text.trim() === '') {
+        updatedItems[idx] = { ...updatedItems[idx], text: newItems[0].text };
+        updatedItems.splice(idx + 1, 0, ...newItems.slice(1));
+      } else {
+        updatedItems.splice(idx + 1, 0, ...newItems);
+      }
+    } else {
+      updatedItems = [...updatedItems, ...newItems];
+    }
+    
+    updateField({ items: updatedItems });
+    setFocusedItemId(newItems[newItems.length - 1].id);
+  };
+
   const handleItemChange = (id: string, text: string) => {
     if (isReadOnly) return;
     const newItems = (localCard.items || []).map((it) => (it.id === id ? { ...it, text } : it));
@@ -312,6 +338,7 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
                     onChangeText={handleItemChange}
                     onRemove={handleRemoveItem}
                     onEnter={() => handleAddItem(item.id)}
+                    onPasteItems={(texts) => handlePasteItems(item.id, texts)}
                     onLongPress={() => {
                       if (!movingItemIds.includes(item.id)) {
                         setMovingItemIds([...movingItemIds, item.id]);
