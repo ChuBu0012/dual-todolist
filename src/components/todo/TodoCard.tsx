@@ -228,6 +228,12 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
 
                       let updatedItems = [...(card.items || [])];
                       
+                      // Store state for undo
+                      useTodoStore.getState().setUndoPasteState({
+                        cardId: card.id,
+                        previousItems: [...updatedItems]
+                      });
+                      
                       const newItems = itemsText.map(text => ({
                         id: Math.random().toString(36).substr(2, 9),
                         text,

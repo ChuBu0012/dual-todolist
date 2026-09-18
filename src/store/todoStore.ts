@@ -27,6 +27,11 @@ interface TodoState {
 
   // Checklist Item Actions
   toggleChecklistItem: (cardId: string, itemId: string, isDone: boolean) => Promise<void>;
+
+  // Undo Paste Action
+  undoPasteState: { cardId: string, previousItems: CardItem['items'] } | null;
+  setUndoPasteState: (state: { cardId: string, previousItems: CardItem['items'] } | null) => void;
+  undoPaste: () => Promise<void>;
 }
 
 export const useTodoStore = create<TodoState>((set, get) => ({
@@ -35,6 +40,22 @@ export const useTodoStore = create<TodoState>((set, get) => ({
   syncState: 'IDLE',
   error: null,
   pendingNotifications: [],
+  undoPasteState: null,
+
+  setUndoPasteState: (state) => {
+    set({ undoPasteState: state });
+  },
+
+  undoPaste: async () => {
+    const state = get().undoPasteState;
+    if (!state) return;
+    try {
+      await get().updateCard(state.cardId, { items: state.previousItems });
+      set({ undoPasteState: null });
+    } catch (e) {
+      console.error('Failed to undo paste:', e);
+    }
+  },
 
   setSyncState: (syncState: SyncState) => {
     if (savedTimer) {

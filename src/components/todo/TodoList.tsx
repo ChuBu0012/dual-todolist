@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTodoStore } from '../../store/todoStore';
 import { useAuthStore } from '../../store/authStore';
 import { TodoCard } from './TodoCard';
@@ -59,6 +59,22 @@ export function TodoList() {
     useSensor(MouseSensor, sensorOptions),
     useSensor(TouchSensor, sensorOptions)
   );
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Cmd+Z (Mac) or Ctrl+Z (Windows)
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+        const hasUndoState = useTodoStore.getState().undoPasteState !== null;
+        if (hasUndoState) {
+          e.preventDefault();
+          useTodoStore.getState().undoPaste();
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleCardClick = async (card: CardItem) => {
     // Check if locked by another user (and lock is less than 15 mins old)
@@ -151,9 +167,20 @@ export function TodoList() {
 
       try {
         if (targetCard) {
-          const updatedItems = [...(targetCard.items || []), ...newItems];
+          const originalItems = [...(targetCard.items || [])];
+          const updatedItems = [...originalItems, ...newItems];
+          
+          useTodoStore.getState().setUndoPasteState({
+            cardId: targetCard.id,
+            previousItems: originalItems
+          });
+          
           await useTodoStore.getState().updateCard(targetCard.id, { items: updatedItems });
         } else {
+          // If we are creating a new card, we technically don't have a previous items state,
+          // but we can still undo by deleting the card if we really wanted to. 
+          // For now, we skip undo for complete card creation to keep it simple, 
+          // or we just rely on normal deletion.
           await useTodoStore.getState().createCard({
             title: todayTitle,
             assignee: (currentUser as any) || 'both',
