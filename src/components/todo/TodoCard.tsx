@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { CardItem, ChecklistItem } from '../../types/todo';
 import { useTodoStore } from '../../store/todoStore';
 import { AssigneeBadge } from './AssigneeBadge';
@@ -20,6 +20,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
+  const ignoreBlurRef = useRef(false);
 
   const {
     attributes,
@@ -41,6 +42,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   };
 
   const handleSaveItemText = async (itemId: string) => {
+    if (ignoreBlurRef.current) return;
     setEditingItemId(null);
     const trimmed = editingText.trim();
     const currentItem = card.items?.find(i => i.id === itemId);
@@ -60,7 +62,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
   const isToday = card.title === formatThaiDate();
   
   // Base classes
-  let cardClasses = `break-inside-avoid mb-3 animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-colors duration-150 cursor-pointer hover:bg-[var(--ghost-bg)] ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
+  let cardClasses = `group break-inside-avoid mb-3 animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-colors duration-150 cursor-pointer hover:bg-[var(--ghost-bg)] ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
 
   // Shared Date styling (3D shadow + dashed border)
   if (isSharedDate) {
@@ -105,7 +107,7 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
         
         <div className="flex gap-2 items-center shrink-0">
           <AssigneeBadge assignee={card.assignee} size="small" />
-          {card.isPinned && (
+          {card.isPinned ? (
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -115,6 +117,17 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
               title="Unpin task"
             >
               <PinIcon isPinned size={16} />
+            </button>
+          ) : (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                useTodoStore.getState().updateCard(card.id, { isPinned: true });
+              }}
+              className="inline-flex items-center bg-none border-none cursor-pointer p-0 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+              title="Pin task"
+            >
+              <PinIcon isPinned={false} size={16} />
             </button>
           )}
         </div>
@@ -160,9 +173,37 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
                   onClick={(e) => e.stopPropagation()}
                   onChange={(e) => setEditingText(e.target.value)}
                   onBlur={() => handleSaveItemText(item.id)}
-                  onKeyDown={(e) => {
+                  onKeyDown={async (e) => {
                     if (e.key === 'Enter') {
-                      e.currentTarget.blur();
+                      e.preventDefault();
+                      ignoreBlurRef.current = true;
+                      
+                      const currentText = e.currentTarget.value.trim();
+                      const currentItemIndex = (card.items || []).findIndex(i => i.id === item.id);
+                      if (currentItemIndex === -1) {
+                        ignoreBlurRef.current = false;
+                        return;
+                      }
+
+                      let updatedItems = [...(card.items || [])];
+                      if (updatedItems[currentItemIndex].text !== currentText) {
+                        updatedItems[currentItemIndex] = { ...updatedItems[currentItemIndex], text: currentText };
+                      }
+
+                      const newId = Math.random().toString(36).substr(2, 9);
+                      const newItem = { id: newId, text: '', isDone: false };
+                      updatedItems.splice(currentItemIndex + 1, 0, newItem);
+                      
+                      setEditingText('');
+                      setEditingItemId(newId);
+                      
+                      try {
+                        await updateCard(card.id, { items: updatedItems });
+                      } catch (err) {
+                        console.error('Failed to create new item:', err);
+                      } finally {
+                        setTimeout(() => { ignoreBlurRef.current = false; }, 100);
+                      }
                     } else if (e.key === 'Escape') {
                       setEditingItemId(null);
                     }
