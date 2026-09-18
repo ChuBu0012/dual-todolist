@@ -3,6 +3,8 @@ import type { CardItem, ChecklistItem } from '../../types/todo';
 import { useTodoStore } from '../../store/todoStore';
 import { AssigneeBadge } from './AssigneeBadge';
 import { PinIcon } from './PinIcon';
+import { SyncStatusIcon } from './SyncStatusIcon';
+import { BellIcon } from './BellIcon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { formatThaiDate } from '../../utils/dateFormat';
@@ -273,6 +275,11 @@ export function TodoCard({ card, onClick, isSharedDate }: Props) {
                   title="Click to edit"
                 >
                   {item.text}
+                  {/!\d{1,2}[:.]\d{2}/.test(item.text) && (
+                    <span className="inline-block ml-1.5 text-[#ff4444]" title="Reminder Set">
+                      <BellIcon size={14} />
+                    </span>
+                  )}
                 </span>
               )}
             </div>
