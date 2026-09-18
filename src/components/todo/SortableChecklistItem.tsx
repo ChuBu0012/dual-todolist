@@ -2,7 +2,6 @@ import { useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { ChecklistItem } from '../../types/todo';
-import { BellIcon } from './BellIcon';
 
 interface Props {
   item: ChecklistItem;
@@ -175,13 +174,7 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
         readOnly={isReadOnly}
         onFocus={onFocus}
         className={`flex-1 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
-        className={`flex-1 min-w-0 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
       />
-      {/!\d{1,2}[:.]\d{2}/.test(item.text) && (
-        <span className="shrink-0 flex items-center justify-center text-[#ff4444]" title="Reminder Set">
-          <BellIcon size={16} />
-        </span>
-      )}
     </div>
   );
 }
