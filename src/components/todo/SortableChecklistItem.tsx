@@ -108,11 +108,6 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
           <div 
             className="animate-undo-shrink h-full bg-[rgba(0,0,0,0.1)]"
           />
-      {item.text.match(/!(\d{1,2})[.:](\d{2})/) && (
-        <span className="shrink-0 ml-2" title="Scheduled Reminder">
-          <AlarmClock size={16} strokeWidth={2.5} className="text-[var(--border-color)] opacity-70" />
-        </span>
-      )}
         </div>
       )}
       <span
@@ -142,17 +137,7 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
             readOnly
             disabled={isReadOnly}
           />
-      {item.text.match(/!(\d{1,2})[.:](\d{2})/) && (
-        <span className="shrink-0 ml-2" title="Scheduled Reminder">
-          <AlarmClock size={16} strokeWidth={2.5} className="text-[var(--border-color)] opacity-70" />
-        </span>
-      )}
         </div>
-      {item.text.match(/!(\d{1,2})[.:](\d{2})/) && (
-        <span className="shrink-0 ml-2" title="Scheduled Reminder">
-          <AlarmClock size={16} strokeWidth={2.5} className="text-[var(--border-color)] opacity-70" />
-        </span>
-      )}
       </div>
       
       <input
