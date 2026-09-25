@@ -4,7 +4,6 @@ import { useAuthStore } from '../../store/authStore';
 import { TodoCard } from './TodoCard';
 import { CardModal } from './CardModal';
 import { PinIcon } from './PinIcon';
-import { formatThaiDate } from '../../utils/dateFormat';
 import type { CardItem } from '../../types/todo';
 import {
   DndContext,
@@ -15,6 +14,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
+import { formatThaiDate } from '../../utils/dateFormat';
 import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 
 
@@ -26,11 +26,22 @@ export function TodoList() {
   const initialize = useTodoStore((s) => s.initialize);
   const reorderCards = useTodoStore((s) => s.reorderCards);
   
-  const [selectedCard, setSelectedCard] = useState<{ card: CardItem | null, isReadOnly?: boolean } | undefined>(undefined);
+  const [selectedCard, setSelectedCard] = useState<{ card: CardItem | null, isReadOnly?: boolean, autoFocusEmpty?: boolean } | undefined>(undefined);
   const currentUser = useAuthStore((s) => s.currentUser);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const pinnedCards = useMemo(() => cards.filter(c => c.isPinned), [cards]);
-  const otherCards = useMemo(() => cards.filter(c => !c.isPinned), [cards]);
+  const filteredCards = useMemo(() => {
+    if (!searchQuery.trim()) return cards;
+    const q = searchQuery.toLowerCase();
+    return cards.filter(card => {
+      if (card.title && card.title.toLowerCase().includes(q)) return true;
+      if (card.items && card.items.some(it => it.text.toLowerCase().includes(q))) return true;
+      return false;
+    });
+  }, [cards, searchQuery]);
+
+  const pinnedCards = useMemo(() => filteredCards.filter(c => c.isPinned), [filteredCards]);
+  const otherCards = useMemo(() => filteredCards.filter(c => !c.isPinned), [filteredCards]);
 
   const sharedDates = useMemo(() => {
     const dates = new Set<string>();
@@ -70,6 +81,29 @@ export function TodoList() {
           useTodoStore.getState().undoPaste();
         }
       }
+      
+      // Check for Enter key to quick-add task for today
+      if (e.key === 'Enter' && !e.isComposing && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        // Prevent default only if we are actually handling it
+        // Check if there is already a modal open
+        if (document.querySelector('.backdrop-blur-sm')) return;
+
+        e.preventDefault();
+        
+        const todayStr = formatThaiDate();
+        const cards = useTodoStore.getState().cards;
+        const todayCard = cards.find(c => c.title === todayStr);
+        const currentUser = useAuthStore.getState().currentUser;
+        
+        if (todayCard) {
+          const lockAge = todayCard.lockedAt ? Date.now() - new Date(todayCard.lockedAt).getTime() : 0;
+          const isLockedByOther = todayCard.lockedBy && todayCard.lockedBy !== currentUser && lockAge < 15 * 60000;
+          
+          setSelectedCard({ card: todayCard, isReadOnly: !!isLockedByOther, autoFocusEmpty: !isLockedByOther });
+        } else {
+          setSelectedCard({ card: null, isReadOnly: false, autoFocusEmpty: true });
+        }
+      }
     };
     
     window.addEventListener('keydown', handleKeyDown);
@@ -96,104 +130,6 @@ export function TodoList() {
         return;
       }
       setSelectedCard({ card, isReadOnly: false });
-    }
-  };
-
-  const [quickAddText, setQuickAddText] = useState('');
-  const [isQuickAdding, setIsQuickAdding] = useState(false);
-
-  const handleQuickAdd = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && quickAddText.trim() && !isQuickAdding) {
-      const text = quickAddText.trim();
-      setIsQuickAdding(true);
-      
-      const todayTitle = formatThaiDate(new Date());
-      const targetCard = cards.find(c => 
-        c.title.toLowerCase() === todayTitle.toLowerCase() && 
-        (c.assignee === currentUser || c.assignee === 'both')
-      );
-      const newItem = {
-        id: Math.random().toString(36).substring(2, 9),
-        text: text,
-        isDone: false,
-      };
-
-      try {
-        if (targetCard) {
-          const updatedItems = [...(targetCard.items || []), newItem];
-          await useTodoStore.getState().updateCard(targetCard.id, { items: updatedItems });
-        } else {
-          await useTodoStore.getState().createCard({
-            title: todayTitle,
-            assignee: (currentUser as any) || 'both',
-            items: [newItem]
-          });
-        }
-        setQuickAddText(''); // clear on success
-      } catch (error) {
-        console.error('Quick add failed', error);
-        alert('Failed to add task. Please try again.');
-      } finally {
-        setIsQuickAdding(false);
-      }
-    }
-  };
-
-  const handleQuickAddPaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const paste = e.clipboardData.getData('text');
-    if (!paste) return;
-
-    // Split by newline, comma, or " - "
-    const itemsText = paste
-      .split(/[\n,]+| \- /)
-      .map(s => s.replace(/^(?:\d+\.|\-|•)\s*/, '').trim())
-      .filter(Boolean);
-
-    if (itemsText.length > 0) {
-      e.preventDefault();
-      setIsQuickAdding(true);
-
-      const todayTitle = formatThaiDate(new Date());
-      const targetCard = cards.find(c => 
-        c.title.toLowerCase() === todayTitle.toLowerCase() && 
-        (c.assignee === currentUser || c.assignee === 'both')
-      );
-
-      const newItems = itemsText.map(text => ({
-        id: Math.random().toString(36).substring(2, 9),
-        text,
-        isDone: false,
-      }));
-
-      try {
-        if (targetCard) {
-          const originalItems = [...(targetCard.items || [])];
-          const updatedItems = [...originalItems, ...newItems];
-          
-          useTodoStore.getState().setUndoPasteState({
-            cardId: targetCard.id,
-            previousItems: originalItems
-          });
-          
-          await useTodoStore.getState().updateCard(targetCard.id, { items: updatedItems });
-        } else {
-          // If we are creating a new card, we technically don't have a previous items state,
-          // but we can still undo by deleting the card if we really wanted to. 
-          // For now, we skip undo for complete card creation to keep it simple, 
-          // or we just rely on normal deletion.
-          await useTodoStore.getState().createCard({
-            title: todayTitle,
-            assignee: (currentUser as any) || 'both',
-            items: newItems
-          });
-        }
-        setQuickAddText('');
-      } catch (error) {
-        console.error('Quick add paste failed', error);
-        alert('Failed to add tasks from paste. Please try again.');
-      } finally {
-        setIsQuickAdding(false);
-      }
     }
   };
 
@@ -244,10 +180,38 @@ export function TodoList() {
   }
 
   return (
-    <div className="pb-[96px] max-w-[840px] mx-auto w-full box-border">
+    <div className="pb-24 max-w-210 mx-auto w-full box-border">
+      {/* Search Bar */}
+      <div className="mb-4">
+        <div className="relative flex items-center w-full">
+          <svg className="absolute left-3 text-[#999]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search tasks or cards..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[var(--card-bg)] border-2 border-[var(--border-color)] rounded py-2 pl-10 pr-4 font-work-sans text-[0.95rem] focus:outline-none focus:border-[var(--text-color)] transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 text-[#999] hover:text-[var(--text-color)] bg-none border-none p-0 cursor-pointer flex items-center justify-center"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+
       {loadError && (
         <div className="mb-4 p-3 border-2 border-[var(--error-border)] bg-[var(--error-bg)] text-[var(--error-text)] flex items-center justify-between gap-3">
-          <span className="mono text-[0.8rem]">Could not load the latest tasks.</span>
+          <span className="mono text-[0.8rem]">Could not load the latest tasks: {loadError}</span>
           <button
             type="button"
             onClick={() => initialize()}
@@ -257,19 +221,6 @@ export function TodoList() {
           </button>
         </div>
       )}
-      {/* Quick Add Bar */}
-      <div className="mb-6 sticky top-0 z-20 bg-[var(--bg-color)] py-2">
-        <input
-          type="text"
-          value={quickAddText}
-          onChange={e => setQuickAddText(e.target.value)}
-          onKeyDown={handleQuickAdd}
-          onPaste={handleQuickAddPaste}
-          disabled={isQuickAdding}
-          placeholder={isQuickAdding ? "ADDING..." : "QUICK ADD TO TODAY... (Press Enter)"}
-          className={`w-full p-4 border-[3px] border-[var(--border-color)] bg-[var(--card-bg)] font-archivo-black text-[1rem] outline-none placeholder:text-[#888] focus:shadow-[4px_4px_0_0_var(--border-color)] transition-shadow ${isQuickAdding ? 'opacity-50 cursor-not-allowed' : ''}`}
-        />
-      </div>
 
       <DndContext 
         sensors={sensors}
@@ -294,6 +245,7 @@ export function TodoList() {
                   card={card}
                   onClick={() => handleCardClick(card)}
                   isSharedDate={sharedDates.has(card.title.trim())}
+                  searchQuery={searchQuery}
                 />
               ))}
             </div>
@@ -317,6 +269,7 @@ export function TodoList() {
                   card={card}
                   onClick={() => handleCardClick(card)}
                   isSharedDate={sharedDates.has(card.title.trim())}
+                  searchQuery={searchQuery}
                 />
               ))}
             </div>
@@ -345,6 +298,7 @@ export function TodoList() {
         <CardModal
           card={selectedCard?.card}
           isReadOnly={selectedCard?.isReadOnly}
+          autoFocusEmpty={selectedCard?.autoFocusEmpty}
           onClose={async () => {
             // Release lock if we had one
             if (selectedCard?.card?.id && !selectedCard.isReadOnly) {

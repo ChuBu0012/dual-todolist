@@ -27,13 +27,14 @@ interface Props {
   card?: CardItem | null;
   onClose: () => void;
   isReadOnly?: boolean;
+  autoFocusEmpty?: boolean;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 const discordTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
-export function CardModal({ card, onClose, isReadOnly }: Props) {
+export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) {
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
   const [movingItemIds, setMovingItemIds] = useState<string[]>([]);
   const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
@@ -60,6 +61,15 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSortItems = () => {
+    if (isReadOnly || !localCard.items) return;
+    const sortedItems = [...localCard.items].sort((a, b) => {
+      if (a.isDone === b.isDone) return 0;
+      return a.isDone ? 1 : -1;
+    });
+    updateField({ items: sortedItems });
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -99,6 +109,21 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
     updateField({ items: newItems });
     setFocusedItemId(newId);
   };
+
+  useEffect(() => {
+    if (autoFocusEmpty && !isReadOnly) {
+      if (localCard.items && localCard.items.length > 0) {
+        const lastItem = localCard.items[localCard.items.length - 1];
+        if (lastItem.text.trim() === '') {
+          setFocusedItemId(lastItem.id);
+        } else {
+          handleAddItem();
+        }
+      } else {
+        handleAddItem();
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePasteItems = (afterId: string, texts: string[]) => {
     if (isReadOnly || texts.length === 0) return;
@@ -266,6 +291,20 @@ export function CardModal({ card, onClose, isReadOnly }: Props) {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Sort Toggle Button */}
+            <button
+              type="button"
+              onClick={handleSortItems}
+              disabled={isReadOnly}
+              className="inline-flex items-center bg-none border-none cursor-pointer p-1 text-[#666] hover:text-black hover:bg-[rgba(0,0,0,0.05)] rounded disabled:opacity-50"
+              title="Sort tasks (pending first)"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 6h16" />
+                <path d="M4 12h10" />
+                <path d="M4 18h4" />
+              </svg>
+            </button>
             {/* Pin Toggle Button */}
             <button
               type="button"

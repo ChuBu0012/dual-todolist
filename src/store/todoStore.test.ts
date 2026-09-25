@@ -63,6 +63,27 @@ describe('TodoStore (Cards)', () => {
     });
   });
 
+  describe('updateCard', () => {
+    it('should ignore "No document to update" error and not set global error state', async () => {
+      vi.mocked(firestoreService.updateCard).mockRejectedValueOnce(new Error('No document to update: projects/...'));
+      const { updateCard } = useTodoStore.getState();
+      
+      // Should not throw
+      await updateCard('card-1', { title: 'Test' });
+      
+      // Should not set global error
+      expect(useTodoStore.getState().error).toBeNull();
+    });
+
+    it('should set error on failure for other errors', async () => {
+      vi.mocked(firestoreService.updateCard).mockRejectedValueOnce(new Error('Network error'));
+      const { updateCard } = useTodoStore.getState();
+      
+      await expect(updateCard('card-1', { title: 'Test' })).rejects.toThrow('Network error');
+      expect(useTodoStore.getState().error).toBe('Network error');
+    });
+  });
+
   describe('toggleChecklistItem', () => {
     it('should mark item complete locally and update firestore', async () => {
       useTodoStore.setState({

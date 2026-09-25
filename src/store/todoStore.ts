@@ -119,6 +119,11 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to update card';
       
+      if (message.includes('No document to update')) {
+        console.warn('Ignored update on deleted document');
+        return;
+      }
+
       get().setSyncState('ERROR');
       set({ error: message });
       throw error;
