@@ -1,6 +1,8 @@
 import { useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { AlarmClock } from 'lucide-react';
+
 import type { ChecklistItem } from '../../types/todo';
 
 interface Props {
@@ -106,6 +108,11 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
           <div 
             className="animate-undo-shrink h-full bg-[rgba(0,0,0,0.1)]"
           />
+      {item.text.match(/!(\d{1,2})[.:](\d{2})/) && (
+        <span className="shrink-0 ml-2" title="Scheduled Reminder">
+          <AlarmClock size={16} strokeWidth={2.5} className="text-[var(--border-color)] opacity-70" />
+        </span>
+      )}
         </div>
       )}
       <span
@@ -135,7 +142,17 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
             readOnly
             disabled={isReadOnly}
           />
+      {item.text.match(/!(\d{1,2})[.:](\d{2})/) && (
+        <span className="shrink-0 ml-2" title="Scheduled Reminder">
+          <AlarmClock size={16} strokeWidth={2.5} className="text-[var(--border-color)] opacity-70" />
+        </span>
+      )}
         </div>
+      {item.text.match(/!(\d{1,2})[.:](\d{2})/) && (
+        <span className="shrink-0 ml-2" title="Scheduled Reminder">
+          <AlarmClock size={16} strokeWidth={2.5} className="text-[var(--border-color)] opacity-70" />
+        </span>
+      )}
       </div>
       
       <input
@@ -175,6 +192,11 @@ export function SortableChecklistItem({ item, isReadOnly, isPending, onToggle, o
         onFocus={onFocus}
         className={`flex-1 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
       />
+      {item.text.match(/!(\d{1,2})[.:](\d{2})/) && (
+        <span className="shrink-0 ml-2" title="Scheduled Reminder">
+          <AlarmClock size={16} strokeWidth={2.5} className="text-[var(--border-color)] opacity-70" />
+        </span>
+      )}
     </div>
   );
 }
