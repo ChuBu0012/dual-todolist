@@ -114,4 +114,40 @@ describe('api/reminders/check', () => {
       ],
     });
   });
+
+  it('should skip reminders for archived cards', async () => {
+    const now = new Date();
+    const bangkokNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+    const timeStr = `${String(bangkokNow.getHours()).padStart(2, '0')}:${String(bangkokNow.getMinutes()).padStart(2, '0')}`;
+
+    const archivedCard = {
+      id: 'card-archived',
+      title: 'Old Tasks',
+      isArchived: true,
+      assignee: 'most',
+      items: [
+        {
+          id: 'item-archived-1',
+          text: `!${timeStr} archived task`,
+          isDone: false,
+        },
+      ],
+    };
+
+    vi.mocked(firestore.getDocs).mockResolvedValueOnce({
+      size: 1,
+      docs: [
+        {
+          id: 'card-archived',
+          data: () => archivedCard,
+        },
+      ],
+    } as any);
+
+    await handler(req as VercelRequest, res as VercelResponse);
+
+    expect(statusMock).toHaveBeenCalledWith(200);
+    expect(discordService.sendTaskReminder).not.toHaveBeenCalled();
+    expect(firestoreService.updateCard).not.toHaveBeenCalled();
+  });
 });

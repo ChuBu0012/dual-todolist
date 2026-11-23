@@ -28,10 +28,12 @@ vi.mock('@dnd-kit/core', () => ({
   useSensors: vi.fn().mockReturnValue([]),
 }));
 
+const mockUpdateField = vi.fn();
+
 vi.mock('../../hooks/useDebouncedCardSync', () => ({
   useDebouncedCardSync: (initial: any) => ({
-    localCard: initial || { title: '', items: [], assignee: 'both', isPinned: false },
-    updateField: vi.fn(),
+    localCard: initial || { title: '', items: [], assignee: 'both', isPinned: false, isArchived: false },
+    updateField: mockUpdateField,
     syncState: 'SAVED',
     flush: vi.fn(),
   }),
@@ -130,5 +132,38 @@ describe('CardModal', () => {
 
     expect(screen.queryByText('DELETE CARD?')).not.toBeInTheDocument();
     expect(deleteCardMock).not.toHaveBeenCalled();
+  });
+
+  it('should toggle archive state when clicking archive button', () => {
+    render(<CardModal card={mockCard} onClose={vi.fn()} />);
+
+    const archiveBtn = screen.getByTitle('Archive card');
+    fireEvent.click(archiveBtn);
+
+    expect(mockUpdateField).toHaveBeenCalledWith({
+      isArchived: true,
+      archivedAt: expect.any(String),
+      isPinned: false,
+    });
+  });
+
+  it('should show ARCHIVED badge and unarchive title when card is archived', () => {
+    const archivedCard: CardItem = {
+      ...mockCard,
+      isArchived: true,
+      archivedAt: '2026-11-23T12:00:00.000Z',
+    };
+
+    render(<CardModal card={archivedCard} onClose={vi.fn()} />);
+
+    expect(screen.getByText('ARCHIVED')).toBeInTheDocument();
+    const unarchiveBtn = screen.getByTitle('Unarchive card');
+    fireEvent.click(unarchiveBtn);
+
+    expect(mockUpdateField).toHaveBeenCalledWith({
+      isArchived: false,
+      archivedAt: null,
+      isPinned: false,
+    });
   });
 });

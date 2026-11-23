@@ -29,6 +29,10 @@ export interface CardItem {
   // Concurrency Lock
   lockedBy?: string | null;
   lockedAt?: string | null;
+
+  // Archive State
+  isArchived?: boolean;
+  archivedAt?: string | null;
 }
 
 /**

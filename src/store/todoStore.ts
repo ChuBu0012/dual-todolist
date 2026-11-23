@@ -23,6 +23,8 @@ interface TodoState {
   createCard: (input: CreateCardInput) => Promise<string>;
   updateCard: (id: string, input: UpdateCardInput) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
+  archiveCard: (id: string) => Promise<void>;
+  unarchiveCard: (id: string) => Promise<void>;
   reorderCards: (orderedIds: string[]) => Promise<void>;
 
   // Checklist Item Actions
@@ -144,6 +146,21 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       set({ error: message });
       throw error;
     }
+  },
+
+  archiveCard: async (id) => {
+    await get().updateCard(id, {
+      isArchived: true,
+      archivedAt: new Date().toISOString(),
+      isPinned: false,
+    });
+  },
+
+  unarchiveCard: async (id) => {
+    await get().updateCard(id, {
+      isArchived: false,
+      archivedAt: null,
+    });
   },
 
   reorderCards: async (orderedIds) => {

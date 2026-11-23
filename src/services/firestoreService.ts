@@ -21,6 +21,7 @@ const SUMMARIES_COLLECTION = 'dailySummaries';
 export interface CreateCardInput {
   title: string;
   isPinned?: boolean;
+  isArchived?: boolean;
   assignee: TodoAssignee;
   items?: ChecklistItem[];
 }
@@ -49,6 +50,7 @@ export const firestoreService = {
       const cardData: Omit<CardItem, 'id'> = {
         title: (input.title || '').trim() || formatThaiDate(new Date()),
         isPinned: input.isPinned ?? false,
+        isArchived: input.isArchived ?? false,
         assignee: input.assignee,
         order: topOrder,
         items: input.items || [],

@@ -34,6 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     for (const docSnap of snapshot.docs) {
       const card = { id: docSnap.id, ...docSnap.data() } as CardItem;
+      if (card.isArchived) continue;
       if (!card.items || card.items.length === 0) continue;
 
       let cardModified = false;

@@ -88,3 +88,93 @@ describe('TodoList Keyboard Shortcuts', () => {
     });
   });
 });
+
+describe('TodoList Tags & Archive Filtering', () => {
+  const mockCards: any[] = [
+    {
+      id: 'card-1',
+      title: 'Dev Task #work',
+      assignee: 'most',
+      isPinned: false,
+      isArchived: false,
+      order: 0,
+      items: [{ id: 'item-1', text: 'Build feature', isDone: false }],
+      createdAt: '',
+      updatedAt: '',
+    },
+    {
+      id: 'card-2',
+      title: 'Groceries #home',
+      assignee: 'fern',
+      isPinned: false,
+      isArchived: false,
+      order: 1,
+      items: [{ id: 'item-2', text: 'Buy milk', isDone: false }],
+      createdAt: '',
+      updatedAt: '',
+    },
+    {
+      id: 'card-3',
+      title: 'Old sprint #work',
+      assignee: 'most',
+      isPinned: false,
+      isArchived: true,
+      archivedAt: '2026-11-20T00:00:00.000Z',
+      order: 2,
+      items: [{ id: 'item-3', text: 'Retro', isDone: true }],
+      createdAt: '',
+      updatedAt: '',
+    },
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(useAuthStore).mockReturnValue('most');
+    vi.mocked(useTodoStore).mockImplementation((selector: any) => {
+      const fnStr = selector.toString();
+      if (fnStr.includes('cards')) return mockCards;
+      if (fnStr.includes('isLoading')) return false;
+      if (fnStr.includes('error')) return null;
+      if (fnStr.includes('initialize')) return vi.fn();
+      if (fnStr.includes('reorderCards')) return vi.fn();
+      if (fnStr.includes('pendingNotifications')) return [];
+      return undefined;
+    });
+
+    useTodoStore.getState = vi.fn().mockReturnValue({
+      cards: mockCards,
+      undoPasteState: null,
+      undoPaste: vi.fn(),
+      updateCard: vi.fn(),
+      createCard: vi.fn(),
+      deleteCard: vi.fn(),
+    });
+  });
+
+  it('should render tag filter chips from active cards', () => {
+    const { getByText } = render(<TodoList />);
+    expect(getByText('ALL (2)')).toBeInTheDocument();
+    expect(getByText('#work (1)')).toBeInTheDocument();
+    expect(getByText('#home (1)')).toBeInTheDocument();
+  });
+
+  it('should filter cards when clicking a tag chip', () => {
+    const { getByText, queryByText } = render(<TodoList />);
+    const workChip = getByText('#work (1)');
+    fireEvent.click(workChip);
+
+    expect(getByText('Dev Task #work')).toBeInTheDocument();
+    expect(queryByText('Groceries #home')).not.toBeInTheDocument();
+  });
+
+  it('should render collapsible archived section and expand on click', () => {
+    const { getByText, queryByText } = render(<TodoList />);
+    expect(getByText(/ARCHIVED CARDS \(1\)/)).toBeInTheDocument();
+    expect(queryByText('Old sprint #work')).not.toBeInTheDocument();
+
+    const archiveBtn = getByText(/ARCHIVED CARDS \(1\)/);
+    fireEvent.click(archiveBtn);
+
+    expect(getByText('Old sprint #work')).toBeInTheDocument();
+  });
+});

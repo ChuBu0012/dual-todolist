@@ -16,6 +16,7 @@ import {
 import type { DragEndEvent } from '@dnd-kit/core';
 import { formatThaiDate } from '../../utils/dateFormat';
 import { SortableContext, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { getAllTagsWithCounts, cardMatchesTag } from '../../utils/tagUtils';
 
 
 
@@ -29,19 +30,48 @@ export function TodoList() {
   const [selectedCard, setSelectedCard] = useState<{ card: CardItem | null, isReadOnly?: boolean, autoFocusEmpty?: boolean } | undefined>(undefined);
   const currentUser = useAuthStore((s) => s.currentUser);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [isArchivedOpen, setIsArchivedOpen] = useState(false);
 
-  const filteredCards = useMemo(() => {
-    if (!searchQuery.trim()) return cards;
-    const q = searchQuery.toLowerCase();
-    return cards.filter(card => {
-      if (card.title && card.title.toLowerCase().includes(q)) return true;
-      if (card.items && card.items.some(it => it.text.toLowerCase().includes(q))) return true;
-      return false;
-    });
-  }, [cards, searchQuery]);
+  const activeCards = useMemo(() => cards.filter(c => !c.isArchived), [cards]);
+  const archivedCards = useMemo(() => cards.filter(c => c.isArchived), [cards]);
 
-  const pinnedCards = useMemo(() => filteredCards.filter(c => c.isPinned), [filteredCards]);
-  const otherCards = useMemo(() => filteredCards.filter(c => !c.isPinned), [filteredCards]);
+  const availableTags = useMemo(() => getAllTagsWithCounts(activeCards), [activeCards]);
+
+  const filteredActiveCards = useMemo(() => {
+    let result = activeCards;
+    if (selectedTag) {
+      result = result.filter(c => cardMatchesTag(c, selectedTag));
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(card => {
+        if (card.title && card.title.toLowerCase().includes(q)) return true;
+        if (card.items && card.items.some(it => it.text.toLowerCase().includes(q))) return true;
+        return false;
+      });
+    }
+    return result;
+  }, [activeCards, selectedTag, searchQuery]);
+
+  const pinnedCards = useMemo(() => filteredActiveCards.filter(c => c.isPinned), [filteredActiveCards]);
+  const otherCards = useMemo(() => filteredActiveCards.filter(c => !c.isPinned), [filteredActiveCards]);
+
+  const filteredArchivedCards = useMemo(() => {
+    let result = archivedCards;
+    if (selectedTag) {
+      result = result.filter(c => cardMatchesTag(c, selectedTag));
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(card => {
+        if (card.title && card.title.toLowerCase().includes(q)) return true;
+        if (card.items && card.items.some(it => it.text.toLowerCase().includes(q))) return true;
+        return false;
+      });
+    }
+    return result;
+  }, [archivedCards, selectedTag, searchQuery]);
 
   const sharedDates = useMemo(() => {
     const dates = new Set<string>();
@@ -208,6 +238,40 @@ export function TodoList() {
         </div>
       </div>
 
+      {/* Tag Filter Chips Bar */}
+      {availableTags.length > 0 && (
+        <div className="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            type="button"
+            onClick={() => setSelectedTag(null)}
+            className={`px-2.5 py-1 text-[0.75rem] font-mono font-bold border-2 transition-all cursor-pointer shrink-0 uppercase ${
+              !selectedTag
+                ? 'bg-[var(--border-color)] text-[var(--card-bg)] border-[var(--border-color)]'
+                : 'bg-[var(--card-bg)] text-[var(--border-color)] border-[var(--border-color)] hover:bg-[rgba(0,0,0,0.05)]'
+            }`}
+          >
+            ALL ({activeCards.length})
+          </button>
+          {availableTags.map(({ tag, count }) => {
+            const isSelected = selectedTag === tag;
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => setSelectedTag(isSelected ? null : tag)}
+                className={`px-2.5 py-1 text-[0.75rem] font-mono font-bold border-2 transition-all cursor-pointer shrink-0 ${
+                  isSelected
+                    ? 'bg-[var(--border-color)] text-[var(--card-bg)] border-[var(--border-color)]'
+                    : 'bg-[var(--card-bg)] text-[var(--border-color)] border-[var(--border-color)] hover:bg-[rgba(0,0,0,0.05)]'
+                }`}
+              >
+                {tag} ({count})
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {loadError && (
         <div className="mb-4 p-3 border-2 border-[var(--error-border)] bg-[var(--error-bg)] text-[var(--error-text)] flex items-center justify-between gap-3">
           <span className="mono text-[0.8rem]">Could not load the latest tasks: {loadError}</span>
@@ -276,10 +340,76 @@ export function TodoList() {
         </div>
       )}
 
-      {cards.length === 0 && (
+      {activeCards.length === 0 && archivedCards.length === 0 && (
         <div className="text-center py-15 px-5 text-[#666] font-work-sans">
           <div className="text-[3rem] mb-4">📝</div>
           No tasks found. Click the + button to create one.
+        </div>
+      )}
+
+      {activeCards.length === 0 && archivedCards.length > 0 && !searchQuery && !selectedTag && (
+        <div className="text-center py-10 px-5 text-[#666] font-work-sans">
+          <div className="text-[2.5rem] mb-2">📦</div>
+          All tasks are archived. View them below or click + to create a new task.
+        </div>
+      )}
+
+      {activeCards.length > 0 && filteredActiveCards.length === 0 && (searchQuery || selectedTag) && (
+        <div className="text-center py-10 px-5 text-[#666] font-mono text-[0.85rem]">
+          No active tasks match your filter.
+        </div>
+      )}
+
+      {/* ARCHIVED SECTION */}
+      {archivedCards.length > 0 && (
+        <div className="mt-12 pt-6 border-t-2 border-dashed border-[var(--border-color)] opacity-90">
+          <button
+            type="button"
+            onClick={() => setIsArchivedOpen(prev => !prev)}
+            className="w-full flex items-center justify-between py-2 px-3 bg-[var(--card-bg)] border-2 border-[var(--border-color)] cursor-pointer text-left font-mono font-bold text-[0.85rem] tracking-[0.05em] uppercase hover:bg-[rgba(0,0,0,0.03)] transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`transition-transform duration-200 ${isArchivedOpen ? 'rotate-90' : ''}`}
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+              ARCHIVED CARDS ({filteredArchivedCards.length})
+            </span>
+            <span className="text-[0.75rem] opacity-70">
+              {isArchivedOpen ? 'HIDE' : 'SHOW'}
+            </span>
+          </button>
+
+          {isArchivedOpen && (
+            <div className="mt-4">
+              {filteredArchivedCards.length === 0 ? (
+                <div className="text-center py-6 text-[0.85rem] font-mono text-[#777]">
+                  No archived cards match your filter
+                </div>
+              ) : (
+                <div className="columns-[280px] gap-3 w-full opacity-80 hover:opacity-100 transition-opacity">
+                  {filteredArchivedCards.map((card) => (
+                    <TodoCard
+                      key={card.id}
+                      card={card}
+                      onClick={() => handleCardClick(card)}
+                      isSharedDate={sharedDates.has(card.title.trim())}
+                      searchQuery={searchQuery}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

@@ -222,6 +222,11 @@ export function TodoCard({ card, onClick, isSharedDate, searchQuery }: Props) {
               <path d="M4 18h4" />
             </svg>
           </button>
+          {card.isArchived && (
+            <span className="mono text-[0.65rem] font-bold text-[#666] bg-[rgba(0,0,0,0.06)] px-1.5 py-0.5 border border-[var(--border-color)]">
+              ARCHIVED
+            </span>
+          )}
           <AssigneeBadge assignee={card.assignee} size="small" />
           {card.isPinned ? (
             <button 
@@ -253,7 +258,7 @@ export function TodoCard({ card, onClick, isSharedDate, searchQuery }: Props) {
       {card.items && card.items.length > 0 && (
         <div className="flex flex-col gap-1">
           {card.items.map((item) => {
-            const isPending = pendingNotifications.includes(item.id);
+            const isPending = pendingNotifications?.includes(item.id) ?? false;
             return (
               <div
                 key={item.id}
