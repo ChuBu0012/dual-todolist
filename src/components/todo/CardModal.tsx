@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 
 import type { CardItem, TodoAssignee } from '../../types/todo';
@@ -38,11 +38,67 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
   const [movingItemIds, setMovingItemIds] = useState<string[]>([]);
   const [isMoveSheetOpen, setIsMoveSheetOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
   const currentUser = useAuthStore((s) => s.currentUser);
   const pendingNotifications = useTodoStore(s => s.pendingNotifications);
   const allCards = useTodoStore(s => s.cards);
+  const deleteCard = useTodoStore(s => s.deleteCard);
   const { localCard, updateField, syncState, flush } = useDebouncedCardSync(card || null);
+
+  const closeLongPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isCloseLongPressTriggered = useRef(false);
+
+  const startCloseLongPress = (e: React.PointerEvent) => {
+    if (isReadOnly || !card?.id) return;
+    isCloseLongPressTriggered.current = false;
+    closeStartPos.current = { x: e.clientX, y: e.clientY };
+
+    closeLongPressTimer.current = setTimeout(() => {
+      isCloseLongPressTriggered.current = true;
+      setIsDeleteModalOpen(true);
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }, 500);
+  };
+
+  const cancelCloseLongPress = () => {
+    if (closeLongPressTimer.current) {
+      clearTimeout(closeLongPressTimer.current);
+      closeLongPressTimer.current = null;
+    }
+    closeStartPos.current = null;
+  };
+
+  const handleClosePointerMove = (e: React.PointerEvent) => {
+    if (!closeStartPos.current || !closeLongPressTimer.current) return;
+    const dx = e.clientX - closeStartPos.current.x;
+    const dy = e.clientY - closeStartPos.current.y;
+    if (Math.hypot(dx, dy) > 10) {
+      cancelCloseLongPress();
+    }
+  };
+
+  const handleCloseClick = () => {
+    if (isCloseLongPressTriggered.current) {
+      isCloseLongPressTriggered.current = false;
+      return;
+    }
+    handleClose();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!card?.id) return;
+    try {
+      await deleteCard(card.id);
+      setIsDeleteModalOpen(false);
+      onClose();
+    } catch (e) {
+      console.error('Failed to delete card:', e);
+    }
+  };
 
   const handleClose = () => {
     flush();
@@ -330,9 +386,13 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
             {/* Close Button */}
             <button
               type="button"
-              onClick={handleClose}
-              className="w-[40px] h-[40px] bg-[var(--card-bg)] border-2 border-[var(--border-color)] cursor-pointer mono font-bold text-[1.1rem] flex items-center justify-center"
-              title="Close modal"
+              onClick={handleCloseClick}
+              onPointerDown={startCloseLongPress}
+              onPointerUp={cancelCloseLongPress}
+              onPointerCancel={cancelCloseLongPress}
+              onPointerMove={handleClosePointerMove}
+              className="w-[40px] h-[40px] bg-[var(--card-bg)] border-2 border-[var(--border-color)] cursor-pointer mono font-bold text-[1.1rem] flex items-center justify-center select-none active:scale-95 transition-transform"
+              title="Click to close, hold to delete"
             >
               ✕
             </button>
@@ -484,6 +544,41 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div
+          onClick={() => setIsDeleteModalOpen(false)}
+          className="fixed inset-0 bg-[var(--overlay-bg)] backdrop-blur-sm z-[70] flex items-center justify-center p-4 pointer-events-auto animate-fade-in"
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-[360px] bg-[var(--card-bg)] border-[3px] border-[var(--border-color)] p-5 animate-fade-up flex flex-col"
+          >
+            <h3 className="font-archivo-black text-[1.25rem] mb-2 uppercase text-[var(--border-color)]">
+              DELETE CARD?
+            </h3>
+            <p className="font-work-sans text-[0.9rem] mb-6 text-[var(--border-color)] opacity-80">
+              This card and all its items will be permanently removed.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 bg-transparent border-2 border-[var(--border-color)] font-mono font-bold text-[0.85rem] cursor-pointer text-[var(--border-color)] hover:bg-[rgba(0,0,0,0.05)]"
+              >
+                CANCEL
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 bg-[var(--error-border)] text-white border-2 border-[var(--error-border)] font-mono font-bold text-[0.85rem] cursor-pointer hover:opacity-90"
+              >
+                DELETE
+              </button>
+            </div>
           </div>
         </div>
       )}
