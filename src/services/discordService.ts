@@ -1,5 +1,5 @@
 import type { DiscordWebhookPayload } from '../types/discord.js';
-import type { CompletedTaskLog } from '../types/todo.js';
+import type { CompletedTaskLog, TodoAssignee } from '../types/todo.js';
 import { formatThaiDate, formatSummaryDate } from '../utils/dateFormat.js';
 
 const BOT_USERNAME = 'pipin';
@@ -52,6 +52,23 @@ export const discordService = {
     const embed = {
       description: `✅ **DONE:** ${by.toUpperCase()} - ${itemText} / ${cardTitle || 'UNTITLED'}`,
       color: 5763719 // Discord Green
+    };
+    await this.sendMessage({ embeds: [embed] });
+  },
+
+  async sendTaskReminder(
+    cardTitle: string,
+    itemText: string,
+    assignee: TodoAssignee,
+    type: 'soon' | 'due'
+  ) {
+    const who = assignee === 'both' ? 'BOTH' : assignee.toUpperCase();
+    const isSoon = type === 'soon';
+    const embed = {
+      description: isSoon
+        ? `⏰ **SOON (15m):** ${who} - ${itemText} / ${cardTitle || 'UNTITLED'}`
+        : `🚨 **DUE NOW:** ${who} - ${itemText} / ${cardTitle || 'UNTITLED'}`,
+      color: isSoon ? 16753920 : 15548997, // Orange for soon, Red for due
     };
     await this.sendMessage({ embeds: [embed] });
   },

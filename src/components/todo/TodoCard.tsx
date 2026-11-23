@@ -334,8 +334,8 @@ export function TodoCard({ card, onClick, isSharedDate, searchQuery }: Props) {
                     const paste = e.clipboardData.getData('text');
                     if (!paste) return;
                     const itemsText = paste
-                      .split(/[\n,]+| \- /)
-                      .map(s => s.replace(/^(?:\d+\.|\-|•)\s*/, '').trim())
+                      .split(/[\n,]+| - /)
+                      .map(s => s.replace(/^(?:\d+\.|-|•)\s*/, '').trim())
                       .filter(Boolean);
                       
                     if (itemsText.length > 1) {

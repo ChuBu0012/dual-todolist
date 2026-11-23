@@ -23,7 +23,7 @@ export default function App() {
             }
             if (item.completedBy === 'most') stats[dateStr].mostCount++;
             if (item.completedBy === 'fern') stats[dateStr].fernCount++;
-          } catch (e) {
+          } catch {
             // invalid date, ignore
           }
         }

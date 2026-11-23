@@ -44,12 +44,14 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
   const allCards = useTodoStore(s => s.cards);
   const { localCard, updateField, syncState, flush } = useDebouncedCardSync(card || null);
 
-
-
+  const handleClose = () => {
+    flush();
+    onClose();
+  };
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { distance: 5 } })
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
   );
 
   useEffect(() => {
@@ -255,11 +257,6 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
     }
   };
 
-  const handleClose = () => {
-    flush();
-    onClose();
-  };
-
   return (
     <>
       {/* Backdrop */}
@@ -343,7 +340,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto flex-1 pb-4">
+        <div className="overflow-y-auto flex-1 pb-4 touch-pan-y overscroll-contain">
           {/* Title input */}
           <input
             className={`rb-input text-[1.25rem] font-archivo-black border-none border-b-2 border-[var(--border-color)] py-2 mb-6 w-full box-border ${isReadOnly ? 'opacity-70' : 'opacity-100'}`}

@@ -41,22 +41,31 @@ export function SortableChecklistItem({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id })
 
-  const inputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const startPos = useRef<{ x: number; y: number } | null>(null)
 
   useEffect(() => {
-    if (autoFocus && inputRef.current) {
-      inputRef.current.focus()
+    if (autoFocus && textareaRef.current) {
+      textareaRef.current.focus()
       // Move cursor to the end of the text
-      const length = inputRef.current.value.length
-      inputRef.current.setSelectionRange(length, length)
+      const length = textareaRef.current.value.length
+      textareaRef.current.setSelectionRange(length, length)
+      textareaRef.current.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
     }
   }, [autoFocus, item.id])
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = `${Math.max(28, textareaRef.current.scrollHeight)}px`
+    }
+  }, [item.text])
+
   const startLongPress = (e: React.PointerEvent) => {
     if (isReadOnly || !onLongPress) return
-    if ((e.target as HTMLElement).tagName.toLowerCase() === 'input') return
+    const tag = (e.target as HTMLElement).tagName.toLowerCase()
+    if (tag === 'input' || tag === 'textarea') return
 
     startPos.current = { x: e.clientX, y: e.clientY }
     longPressTimer.current = setTimeout(() => {
@@ -98,7 +107,7 @@ export function SortableChecklistItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-[12px] relative overflow-hidden bg-[var(--card-bg)] transition-all ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'} ${isSelected ? 'outline outline-2 outline-[var(--border-color)] outline-offset-[-2px]' : ''}`}
+      className={`flex items-center gap-[12px] relative bg-[var(--card-bg)] transition-all touch-pan-y ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'} ${isSelected ? 'outline outline-2 outline-[var(--border-color)] outline-offset-[-2px]' : ''}`}
       onPointerDown={startLongPress}
       onPointerUp={cancelLongPress}
       onPointerCancel={cancelLongPress}
@@ -148,25 +157,25 @@ export function SortableChecklistItem({
             type="checkbox"
             className={`rb-checkbox w-[20px] h-[20px] shrink-0 z-1 ${isReadOnly ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             checked={item.isDone}
-            readOnly
+            onChange={() => !isReadOnly && onToggle(item.id)}
             disabled={isReadOnly}
           />
         </div>
       </div>
 
-      <input
-        ref={inputRef}
-        type="text"
+      <textarea
+        ref={textareaRef}
+        rows={1}
         value={item.text}
         onChange={e => onChangeText(item.id, e.target.value)}
         onKeyDown={e => {
-          if (e.key === 'Enter' && onEnter) {
+          if (e.key === 'Enter') {
             e.preventDefault()
             if (item.text.trim() === '') {
               e.currentTarget.blur()
               return
             }
-            onEnter()
+            onEnter?.()
           } else if (e.key === 'Backspace' && item.text === '') {
             e.preventDefault()
             onRemove(item.id)
@@ -177,8 +186,8 @@ export function SortableChecklistItem({
           const paste = e.clipboardData.getData('text')
           if (!paste) return
           const itemsText = paste
-            .split(/[\n,]+| \- /)
-            .map(s => s.replace(/^(?:\d+\.|\-|•)\s*/, '').trim())
+            .split(/[\n,]+| - /)
+            .map(s => s.replace(/^(?:\d+\.|-|•)\s*/, '').trim())
             .filter(Boolean)
 
           if (itemsText.length > 1) {
@@ -189,7 +198,7 @@ export function SortableChecklistItem({
         placeholder="ITEM..."
         readOnly={isReadOnly}
         onFocus={onFocus}
-        className={`flex-1 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
+        className={`flex-1 min-w-0 resize-none overflow-hidden py-1 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] leading-normal outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
       />
       {item.text.match(/!!?(\d{1,2})[.:](\d{2})/) && (
         <span className="shrink-0 ml-2" title="Scheduled Reminder">

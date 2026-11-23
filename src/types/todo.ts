@@ -6,8 +6,9 @@ export interface ChecklistItem {
   isDone: boolean;
   completedAt?: string | null;
   completedBy?: 'most' | 'fern' | null;
-  notified_30?: boolean;
-  notified_10?: boolean;
+  reminded_time?: string;
+  reminded_soon?: boolean;
+  reminded_due?: boolean;
 }
 
 /**

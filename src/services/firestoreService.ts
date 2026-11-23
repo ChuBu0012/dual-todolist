@@ -87,11 +87,7 @@ export const firestoreService = {
         .filter(([, value]) => value !== undefined)
     );
 
-    try {
-      await updateDoc(docRef, updateData);
-    } catch (error) {
-      throw error;
-    }
+    await updateDoc(docRef, updateData);
   },
 
   /**
@@ -103,11 +99,7 @@ export const firestoreService = {
       const docRef = doc(db, TODOS_COLLECTION, id);
       batch.update(docRef, { order: index, updatedAt: new Date().toISOString() });
     });
-    try {
-      await batch.commit();
-    } catch (error) {
-      throw error;
-    }
+    await batch.commit();
   },
 
   /**
@@ -115,11 +107,7 @@ export const firestoreService = {
    */
   async deleteCard(id: string): Promise<void> {
     const docRef = doc(db, TODOS_COLLECTION, id);
-    try {
-      await deleteDoc(docRef);
-    } catch (error) {
-      throw error;
-    }
+    await deleteDoc(docRef);
   },
 
   /**
