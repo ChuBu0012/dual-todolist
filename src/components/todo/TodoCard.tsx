@@ -140,7 +140,7 @@ export function TodoCard({ card, onClick, isSharedDate, searchQuery }: Props) {
   const isToday = card.title === formatThaiDate();
   
   // Base classes
-  let cardClasses = `group break-inside-avoid mb-3 animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-colors duration-150 cursor-pointer hover:bg-[var(--ghost-bg)] ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
+  let cardClasses = `todo-card group break-inside-avoid mb-3 animate-fade-in border-[3px] border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3 relative box-border transition-colors duration-150 cursor-pointer hover:bg-[var(--ghost-bg)] ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'}`;
 
   // Shared Date styling (3D shadow + dashed border)
   if (isSharedDate) {

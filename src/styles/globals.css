@@ -13,34 +13,49 @@
    =================================== */
 
 :root {
-  --bg-color: #ffffff;
-  --fg-color: #000000;
-  --border-color: #000000;
-  --error-bg: #fee2e2;
-  --error-border: #ef4444;
-  --error-text: #b91c1c;
-  --ghost-bg: rgba(0,0,0,0.05);
-  --ghost-fill: rgba(0,0,0,0.1);
+  --bg-color: #f1f5f5;
+  --fg-color: #26363c;
+  --border-color: #d3dfe0;
+  --text-color: var(--fg-color);
+  --accent-color: #3f858d;
+  --accent-contrast: #ffffff;
+  --muted-color: #71858a;
+  --error-bg: #fbefef;
+  --error-border: #ce777d;
+  --error-text: #9c3e48;
+  --ghost-bg: rgba(63, 133, 141, 0.06);
+  --ghost-fill: rgba(63, 133, 141, 0.11);
   --card-bg: #ffffff;
-  --overlay-bg: rgba(255, 255, 255, 0.9);
+  --overlay-bg: rgba(241, 245, 245, 0.92);
 }
 
 [data-theme="dark"] {
-  --bg-color: #121212;
-  --fg-color: #ffffff;
-  --border-color: #ffffff;
-  --error-bg: #450a0a;
-  --error-border: #ef4444;
-  --error-text: #fca5a5;
-  --ghost-bg: rgba(255,255,255,0.05);
-  --ghost-fill: rgba(255,255,255,0.1);
-  --card-bg: #1e1e1e;
-  --overlay-bg: rgba(18, 18, 18, 0.9);
+  color-scheme: dark;
+  --bg-color: #1b2b34;
+  --fg-color: #d3dde1;
+  --border-color: #354a54;
+  --text-color: var(--fg-color);
+  --accent-color: #8fc4cb;
+  --accent-contrast: #183039;
+  --muted-color: #94a8b0;
+  --error-bg: #402d33;
+  --error-border: #c67883;
+  --error-text: #f0c4c8;
+  --ghost-bg: rgba(143, 196, 203, 0.07);
+  --ghost-fill: rgba(143, 196, 203, 0.12);
+  --card-bg: #22353d;
+  --overlay-bg: rgba(18, 30, 36, 0.84);
 }
 
-*, *::before, *::after {
+[data-theme="light"] *,
+[data-theme="light"] *::before,
+[data-theme="light"] *::after {
   border-radius: 0 !important;
   box-shadow: none !important;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
 }
 
 html, body, #root {
@@ -53,8 +68,77 @@ html, body, #root {
   font-family: 'Work Sans', sans-serif;
   font-size: 16px;
   line-height: 1.6;
+  transition: background-color 180ms ease, color 180ms ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+}
+
+[data-theme="dark"] ::selection {
+  color: var(--accent-contrast);
+  background: var(--accent-color);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--muted-color);
+  opacity: 0.8;
+}
+
+[data-theme="dark"] .todo-card {
+  border-width: 1px !important;
+  border-color: var(--border-color) !important;
+  border-radius: 8px !important;
+  background-color: var(--card-bg);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme="light"] .todo-card {
+  border-width: 1px !important;
+  border-color: var(--border-color) !important;
+  border-radius: 8px !important;
+  background-color: var(--card-bg);
+  box-shadow: 0 2px 10px rgba(38, 54, 60, 0.07) !important;
+}
+
+[data-theme="dark"] .todo-card:hover {
+  background-color: #293e47;
+}
+
+[data-theme="light"] .todo-card:hover {
+  background-color: #f9fbfb;
+}
+
+[data-theme="dark"] .rb-checkbox {
+  border-color: #718992;
+  border-radius: 4px;
+  background-color: var(--card-bg);
+}
+
+[data-theme="light"] .rb-checkbox {
+  border-color: #9aabad;
+  border-radius: 4px;
+  background-color: var(--card-bg);
+}
+
+[data-theme="dark"] .rb-checkbox:checked {
+  border-color: var(--accent-color);
+  background-color: var(--accent-color);
+}
+
+[data-theme="light"] .rb-checkbox:checked {
+  border-color: var(--accent-color);
+  background-color: var(--accent-color);
+}
+
+[data-theme="light"] input:not(.rb-checkbox),
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  border-radius: 6px !important;
 }
 
 /* Typography */

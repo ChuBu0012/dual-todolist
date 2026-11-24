@@ -246,8 +246,8 @@ export function TodoList() {
             onClick={() => setSelectedTag(null)}
             className={`px-2.5 py-1 text-[0.75rem] font-mono font-bold border-2 transition-all cursor-pointer shrink-0 uppercase ${
               !selectedTag
-                ? 'bg-[var(--border-color)] text-[var(--card-bg)] border-[var(--border-color)]'
-                : 'bg-[var(--card-bg)] text-[var(--border-color)] border-[var(--border-color)] hover:bg-[rgba(0,0,0,0.05)]'
+                ? 'bg-[var(--accent-color)] text-[var(--accent-contrast)] border-[var(--accent-color)]'
+                : 'bg-[var(--card-bg)] text-[var(--fg-color)] border-[var(--border-color)] hover:bg-[var(--ghost-bg)]'
             }`}
           >
             ALL ({activeCards.length})
@@ -261,8 +261,8 @@ export function TodoList() {
                 onClick={() => setSelectedTag(isSelected ? null : tag)}
                 className={`px-2.5 py-1 text-[0.75rem] font-mono font-bold border-2 transition-all cursor-pointer shrink-0 ${
                   isSelected
-                    ? 'bg-[var(--border-color)] text-[var(--card-bg)] border-[var(--border-color)]'
-                    : 'bg-[var(--card-bg)] text-[var(--border-color)] border-[var(--border-color)] hover:bg-[rgba(0,0,0,0.05)]'
+                    ? 'bg-[var(--accent-color)] text-[var(--accent-contrast)] border-[var(--accent-color)]'
+                    : 'bg-[var(--card-bg)] text-[var(--fg-color)] border-[var(--border-color)] hover:bg-[var(--ghost-bg)]'
                 }`}
               >
                 {tag} ({count})
@@ -416,7 +416,7 @@ export function TodoList() {
       {/* Floating Action Button */}
       <button
         onClick={() => setSelectedCard({ card: null, isReadOnly: false })} // null means create new
-        className="fixed bottom-6 right-6 w-14 h-14 !rounded-full bg-[var(--border-color)] text-[var(--card-bg)] border-none text-[2rem] flex items-center justify-center cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-30"
+        className="fixed bottom-6 right-6 w-14 h-14 !rounded-full bg-[var(--accent-color)] text-[var(--accent-contrast)] border-none text-[2rem] flex items-center justify-center cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-30 transition-transform hover:scale-105 active:scale-95"
         title="Add new task"
       >
         +
