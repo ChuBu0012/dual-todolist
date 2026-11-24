@@ -27,3 +27,7 @@ dist-ssr
 *.sw?
 
 FEATURE_PLAN.md
+
+# Generated local artifacts
+dashboard.html
+public/dashboard.html

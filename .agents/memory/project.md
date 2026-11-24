@@ -30,3 +30,5 @@ Built with React, TypeScript, Tailwind CSS, Vite, Firestore (Google Cloud), and 
 - [Decision 2026-11-24] Write-first reminder execution in `api/reminders/check.ts` to prevent duplicate notification bursts.
 - [Decision 2026-11-24] Rollback optimistic state and clear Discord timer on Firestore write failure in `todoStore.ts`.
 - [Decision 2026-11-24] Use `getBangkokTomorrow()` in `dateFormat.ts` for `/next` Discord command to guarantee exact Bangkok calendar offset.
+- [Decision 2026-11-24] 500ms long-press on navbar logo navigates to `/dashboard.html` with haptics.
+- [Decision 2026-11-24] Created `dual-todo-insights` skill and generator script `scripts/export-insights.mjs` for on-demand analytics.

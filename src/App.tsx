@@ -37,7 +37,10 @@ export default function App() {
   if (!isAuthenticated) return <LoginScreen />;
 
   return (
-    <MainLayout onLogoClick={() => setView(v => v === 'todo' ? 'stats' : 'todo')}>
+    <MainLayout
+      onLogoClick={() => setView(v => v === 'todo' ? 'stats' : 'todo')}
+      onLogoLongPress={() => { window.location.href = '/dashboard.html'; }}
+    >
       {view === 'stats'
         ? <StatsView dailyStats={dailyStats} onBack={() => setView('todo')} />
         : null

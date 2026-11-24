@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, useRef, type ReactNode, type PointerEvent } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useTodoStore } from '../../store/todoStore';
 import { TodoList } from '../todo/TodoList';
@@ -7,7 +7,13 @@ import { AssigneeBadge } from "../todo/AssigneeBadge";
 import { SyncStatusIcon } from '../todo/SyncStatusIcon';
 import { Sun, Moon } from 'lucide-react';
 
-export function MainLayout({ onLogoClick, children }: { onLogoClick?: () => void; children?: ReactNode }) {
+interface MainLayoutProps {
+  onLogoClick?: () => void;
+  onLogoLongPress?: () => void;
+  children?: ReactNode;
+}
+
+export function MainLayout({ onLogoClick, onLogoLongPress, children }: MainLayoutProps) {
   const currentUser = useAuthStore((s) => s.currentUser);
   const logout = useAuthStore((s) => s.logout);
   const initialize = useTodoStore((s) => s.initialize);
@@ -16,6 +22,56 @@ export function MainLayout({ onLogoClick, children }: { onLogoClick?: () => void
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark';
   });
+
+  const logoLongPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const logoStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isLogoLongPressTriggered = useRef(false);
+
+  const startLogoLongPress = (e: PointerEvent<HTMLHeadingElement>) => {
+    isLogoLongPressTriggered.current = false;
+    logoStartPos.current = { x: e.clientX, y: e.clientY };
+
+    logoLongPressTimer.current = setTimeout(() => {
+      isLogoLongPressTriggered.current = true;
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      if (onLogoLongPress) {
+        onLogoLongPress();
+      } else {
+        window.location.href = '/dashboard.html';
+      }
+    }, 500);
+  };
+
+  const cancelLogoLongPress = () => {
+    if (logoLongPressTimer.current) {
+      clearTimeout(logoLongPressTimer.current);
+      logoLongPressTimer.current = null;
+    }
+    logoStartPos.current = null;
+  };
+
+  const handleLogoPointerMove = (e: PointerEvent<HTMLHeadingElement>) => {
+    if (!logoStartPos.current || !logoLongPressTimer.current) return;
+    const dx = e.clientX - logoStartPos.current.x;
+    const dy = e.clientY - logoStartPos.current.y;
+    if (Math.hypot(dx, dy) > 10) {
+      cancelLogoLongPress();
+    }
+  };
+
+  const handleLogoPointerUp = () => {
+    cancelLogoLongPress();
+  };
+
+  const handleLogoClick = () => {
+    if (isLogoLongPressTriggered.current) {
+      isLogoLongPressTriggered.current = false;
+      return;
+    }
+    onLogoClick?.();
+  };
 
   useEffect(() => {
     if (isDark) {
@@ -39,9 +95,13 @@ export function MainLayout({ onLogoClick, children }: { onLogoClick?: () => void
         <div className="flex items-center gap-2.5">
           <h1
             style={{ fontFamily: '"Archivo Black", sans-serif', fontSize: '1.25rem', margin: 0, letterSpacing: '-0.01em' }}
-            className={`flex items-center gap-2 ${onLogoClick ? 'cursor-pointer select-none active:scale-95 transition-transform' : ''}`}
-            onClick={onLogoClick}
-            title={onLogoClick ? 'View Activity Log' : undefined}
+            className={`flex items-center gap-2 cursor-pointer select-none active:scale-95 transition-transform`}
+            onPointerDown={startLogoLongPress}
+            onPointerMove={handleLogoPointerMove}
+            onPointerUp={handleLogoPointerUp}
+            onPointerCancel={cancelLogoLongPress}
+            onClick={handleLogoClick}
+            title="Click: Activity Log | Hold 500ms: Analytics Dashboard"
           >
             DUAL TODO
           </h1>
