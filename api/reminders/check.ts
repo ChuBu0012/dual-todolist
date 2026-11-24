@@ -4,7 +4,7 @@ import db from '../../src/config/firebase.js';
 import { firestoreService } from '../../src/services/firestoreService.js';
 import { discordService } from '../../src/services/discordService.js';
 import { evaluateReminder } from '../../src/utils/reminderUtils.js';
-import type { CardItem } from '../../src/types/todo.js';
+import type { CardItem, TodoAssignee } from '../../src/types/todo.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Allow POST (and GET for healthcheck/curl convenience if authorized)
@@ -39,6 +39,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       let cardModified = false;
       const updatedItems = [...card.items];
+      const remindersToDispatch: Array<{
+        title: string;
+        text: string;
+        assignee: TodoAssignee;
+        action: 'soon' | 'due';
+      }> = [];
 
       for (let i = 0; i < updatedItems.length; i++) {
         const item = updatedItems[i];
@@ -46,14 +52,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const evalResult = evaluateReminder(item, now);
         if (evalResult.action) {
-          await discordService.sendTaskReminder(
-            card.title,
-            item.text,
-            card.assignee || 'both',
-            evalResult.action
-          );
-
-          remindersSent++;
           cardModified = true;
 
           updatedItems[i] = {
@@ -62,11 +60,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             reminded_soon: evalResult.action === 'soon' ? true : item.reminded_soon,
             reminded_due: evalResult.action === 'due' ? true : item.reminded_due,
           };
+
+          remindersToDispatch.push({
+            title: card.title,
+            text: item.text,
+            assignee: card.assignee || 'both',
+            action: evalResult.action,
+          });
         }
       }
 
       if (cardModified) {
+        // Write status to Firestore first to avoid duplicate sends if update fails
         await firestoreService.updateCard(card.id, { items: updatedItems });
+
+        // Dispatch Discord notifications only after Firestore update succeeds
+        for (const reminder of remindersToDispatch) {
+          try {
+            await discordService.sendTaskReminder(
+              reminder.title,
+              reminder.text,
+              reminder.assignee,
+              reminder.action
+            );
+            remindersSent++;
+          } catch (discordError) {
+            console.error('Failed to send Discord reminder:', discordError);
+          }
+        }
       }
     }
 

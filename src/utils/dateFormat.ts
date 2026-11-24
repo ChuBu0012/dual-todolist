@@ -34,6 +34,16 @@ export function getBangkokDateString(date: Date = new Date()): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+/**
+ * Returns tomorrow's date relative to current time in Asia/Bangkok timezone (UTC+7).
+ * Avoids runtime timezone offsets causing date shifts across UTC/Bangkok midnight.
+ */
+export function getBangkokTomorrow(date: Date = new Date()): Date {
+  const bangkokDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+  bangkokDate.setDate(bangkokDate.getDate() + 1);
+  return bangkokDate;
+}
+
 /** Returns last 30 dates as YYYY-MM-DD strings, oldest first */
 export function getLast30Days(): string[] {
   const days: string[] = [];

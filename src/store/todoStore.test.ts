@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useTodoStore } from './todoStore';
 import { firestoreService } from '../services/firestoreService';
+import { discordService } from '../services/discordService';
 import { useAuthStore } from './authStore';
 
 // Mock dependencies
@@ -145,6 +146,44 @@ describe('TodoStore (Cards)', () => {
       expect(updatedCard.items[0].completedBy).toBe(null);
       
       expect(firestoreService.updateCard).toHaveBeenCalled();
+    });
+
+    it('should rollback local state, cancel discord timer, and set error when firestore update fails', async () => {
+      vi.useFakeTimers();
+      const sendCompletedSpy = vi.spyOn(discordService, 'sendTaskCompleted').mockResolvedValue();
+
+      useTodoStore.setState({
+        cards: [
+          {
+            id: 'card-1',
+            title: 'Test Card',
+            assignee: 'most',
+            isPinned: false,
+            order: 0,
+            items: [{ id: 'item-1', text: 'Task 1', isDone: false }],
+            createdAt: '2023-01-01T00:00:00.000Z',
+            updatedAt: '2023-01-01T00:00:00.000Z',
+          },
+        ],
+      });
+
+      vi.mocked(firestoreService.updateCard).mockRejectedValueOnce(new Error('Write failed'));
+
+      const { toggleChecklistItem } = useTodoStore.getState();
+      await toggleChecklistItem('card-1', 'item-1', true);
+
+      // Verify rollback occurred
+      const card = useTodoStore.getState().cards[0];
+      expect(card.items[0].isDone).toBe(false);
+      expect(useTodoStore.getState().error).toBe('Write failed');
+      expect(useTodoStore.getState().syncState).toBe('ERROR');
+      expect(useTodoStore.getState().pendingNotifications).not.toContain('item-1');
+
+      // Fast forward past the 1500ms debounce
+      vi.advanceTimersByTime(2000);
+      expect(sendCompletedSpy).not.toHaveBeenCalled();
+
+      vi.useRealTimers();
     });
   });
 

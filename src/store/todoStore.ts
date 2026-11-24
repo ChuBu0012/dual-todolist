@@ -216,6 +216,7 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       return;
     }
 
+    const previousItems = card.items;
     const updatedItems = [...card.items];
     const itemToUpdate = updatedItems[itemIndex];
     
@@ -273,8 +274,23 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to toggle item';
       
+      // Cancel pending Discord notification timer if running
+      if (pendingDiscordTimeouts.has(itemId)) {
+        clearTimeout(pendingDiscordTimeouts.get(itemId));
+        pendingDiscordTimeouts.delete(itemId);
+      }
+
+      // Rollback optimistic state
+      const nowPending = new Set(get().pendingNotifications);
+      nowPending.delete(itemId);
+
+      set({
+        cards: get().cards.map(c => c.id === cardId ? { ...c, items: previousItems } : c),
+        pendingNotifications: Array.from(nowPending),
+        error: message,
+      });
+
       get().setSyncState('ERROR');
-      set({ error: message });
     }
   },
 }));

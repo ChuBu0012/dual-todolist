@@ -115,6 +115,43 @@ describe('api/reminders/check', () => {
     });
   });
 
+  it('should not send reminder if firestore update fails', async () => {
+    const now = new Date();
+    const bangkokNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+    const timeStr = `${String(bangkokNow.getHours()).padStart(2, '0')}:${String(bangkokNow.getMinutes()).padStart(2, '0')}`;
+
+    const mockCard = {
+      id: 'card-fail',
+      title: 'Work Tasks',
+      assignee: 'most',
+      items: [
+        {
+          id: 'item-fail',
+          text: `!${timeStr} important call`,
+          isDone: false,
+        },
+      ],
+    };
+
+    vi.mocked(firestore.getDocs).mockResolvedValueOnce({
+      size: 1,
+      docs: [
+        {
+          id: 'card-fail',
+          data: () => mockCard,
+        },
+      ],
+    } as any);
+
+    vi.mocked(firestoreService.updateCard).mockRejectedValueOnce(new Error('Firestore error'));
+
+    await handler(req as VercelRequest, res as VercelResponse);
+
+    expect(firestoreService.updateCard).toHaveBeenCalled();
+    expect(discordService.sendTaskReminder).not.toHaveBeenCalled();
+    expect(statusMock).toHaveBeenCalledWith(500);
+  });
+
   it('should skip reminders for archived cards', async () => {
     const now = new Date();
     const bangkokNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));

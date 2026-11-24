@@ -95,4 +95,31 @@ describe('Discord Interactions Webhook', () => {
     // Title should be today's date formatted
     expect(createCall.title).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
   });
+
+  it('should respond with DEFERRED (type 5) and create card with tomorrow\'s date for /next command', async () => {
+    vi.spyOn(nacl.sign.detached, 'verify').mockReturnValue(true);
+    vi.mocked(firestoreService.getAllCards).mockResolvedValue([]);
+    
+    const { req, res } = createMockReqRes({ 
+      type: 2, 
+      token: 'fake-token-next',
+      data: {
+        name: 'next',
+        options: [{ name: 'items', value: 'Plan task for tomorrow' }]
+      }
+    });
+
+    await handler(req, res);
+    
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ type: 5 });
+    
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    expect(firestoreService.createCard).toHaveBeenCalled();
+    const createCall = vi.mocked(firestoreService.createCard).mock.calls[0][0];
+    expect(createCall.items?.length).toBe(1);
+    expect(createCall.items?.[0].text).toBe('Plan task for tomorrow');
+    expect(createCall.title).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
+  });
 });

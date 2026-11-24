@@ -3,7 +3,7 @@ import nacl from 'tweetnacl';
 import { randomUUID } from 'crypto';
 import { waitUntil } from '@vercel/functions';
 import { firestoreService } from '../../src/services/firestoreService.js';
-import { formatThaiDate } from '../../src/utils/dateFormat.js';
+import { formatThaiDate, getBangkokTomorrow } from '../../src/utils/dateFormat.js';
 import type { TodoAssignee } from '../../src/types/todo.js';
 
 export const config = {
@@ -86,9 +86,7 @@ async function processTodoCommand(payload: any) {
     } else if (commandName === 'daily') {
       cardSearch = formatThaiDate(new Date());
     } else if (commandName === 'next') {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      cardSearch = formatThaiDate(tomorrow);
+      cardSearch = formatThaiDate(getBangkokTomorrow());
     }
 
     const itemNames = rawItemsString
