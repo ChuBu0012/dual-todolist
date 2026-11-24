@@ -166,7 +166,7 @@ export function TodoCard({ card, onClick, isSharedDate, searchQuery }: Props) {
             {...attributes}
             {...listeners}
             onClick={(e) => e.stopPropagation()}
-            className={`p-1 -m-1 flex items-center justify-center text-[#999] touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+            className={`p-1 -m-1 flex items-center justify-center text-[var(--muted-color)] touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="9" cy="5" r="1" />
@@ -204,7 +204,7 @@ export function TodoCard({ card, onClick, isSharedDate, searchQuery }: Props) {
                   setIsSelectMode(false);
                   setSelectedItems(new Set());
                 }}
-                className="inline-flex items-center text-[#666] hover:text-black cursor-pointer p-0 text-xs font-bold font-work-sans"
+                className="inline-flex items-center text-[var(--muted-color)] hover:text-[var(--fg-color)] cursor-pointer p-0 text-xs font-bold font-work-sans"
               >
                 CANCEL
               </button>
@@ -213,7 +213,7 @@ export function TodoCard({ card, onClick, isSharedDate, searchQuery }: Props) {
 
           <button
             onClick={handleSortItems}
-            className="inline-flex items-center text-[#666] hover:text-black cursor-pointer p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="inline-flex items-center text-[var(--muted-color)] hover:text-[var(--fg-color)] cursor-pointer p-0 opacity-0 group-hover:opacity-100 transition-opacity"
             title="Sort tasks (pending first)"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -223,7 +223,7 @@ export function TodoCard({ card, onClick, isSharedDate, searchQuery }: Props) {
             </svg>
           </button>
           {card.isArchived && (
-            <span className="mono text-[0.65rem] font-bold text-[#666] bg-[rgba(0,0,0,0.06)] px-1.5 py-0.5 border border-[var(--border-color)]">
+            <span className="mono text-[0.65rem] font-bold text-[var(--muted-color)] bg-[var(--ghost-fill)] px-1.5 py-0.5 border border-[var(--border-color)]">
               ARCHIVED
             </span>
           )}

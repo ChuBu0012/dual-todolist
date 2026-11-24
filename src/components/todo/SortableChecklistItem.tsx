@@ -107,7 +107,7 @@ export function SortableChecklistItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-[12px] relative bg-[var(--card-bg)] transition-all touch-pan-y ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'} ${isSelected ? 'outline outline-2 outline-[var(--border-color)] outline-offset-[-2px]' : ''}`}
+      className={`flex w-full min-w-0 max-w-full box-border items-center gap-[12px] pr-3 relative bg-[var(--card-bg)] transition-all touch-pan-y ${isDragging ? 'opacity-50 z-10' : 'opacity-100 z-1'} ${isSelected ? 'outline outline-2 outline-[var(--border-color)] outline-offset-[-2px]' : ''}`}
       onPointerDown={startLongPress}
       onPointerUp={cancelLongPress}
       onPointerCancel={cancelLongPress}
@@ -127,7 +127,7 @@ export function SortableChecklistItem({
       <span
         {...(isReadOnly ? {} : attributes)}
         {...(isReadOnly ? {} : listeners)}
-        className={`text-[var(--border-color)] z-1 p-[4px] touch-none ${isReadOnly ? 'cursor-default opacity-50' : 'cursor-grab opacity-100'}`}
+        className={`text-[var(--icon-color)] z-1 p-[4px] touch-none ${isReadOnly ? 'cursor-default opacity-75' : 'cursor-grab opacity-100'}`}
       >
         <svg
           width="16"
@@ -148,7 +148,7 @@ export function SortableChecklistItem({
         </svg>
       </span>
 
-      <div className="relative group">
+      <div className="relative group min-w-0 shrink-0">
         <div
           onClick={() => !isReadOnly && onToggle(item.id)}
           className={`flex items-center justify-center p-2 shrink-0 z-1 transition-colors rounded-sm ${isReadOnly ? 'cursor-default' : 'cursor-pointer hover:bg-[rgba(0,0,0,0.05)]'}`}
@@ -198,14 +198,14 @@ export function SortableChecklistItem({
         placeholder="ITEM..."
         readOnly={isReadOnly}
         onFocus={onFocus}
-        className={`flex-1 min-w-0 resize-none overflow-hidden py-1 border-none border-b border-dashed border-[#ccc] font-work-sans text-[1rem] leading-normal outline-none bg-transparent text-[var(--border-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-50' : 'opacity-100'}`}
+        className={`checklist-item-input flex-1 w-0 min-w-0 max-w-full box-border resize-none overflow-hidden py-1 border-none font-work-sans text-[1rem] leading-normal outline-none bg-transparent text-[var(--fg-color)] ${item.isDone ? 'line-through' : 'no-underline'} ${item.isDone || isReadOnly ? 'opacity-60' : 'opacity-100'}`}
       />
       {item.text.match(/!!?(\d{1,2})[.:](\d{2})/) && (
         <span className="shrink-0 ml-2" title="Scheduled Reminder">
           <AlarmClock
             size={16}
             strokeWidth={2.5}
-            className="text-[var(--border-color)] opacity-70"
+            className="text-[var(--icon-color)] opacity-90"
           />
         </span>
       )}

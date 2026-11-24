@@ -213,7 +213,7 @@ export function TodoList() {
       {/* Search Bar */}
       <div className="mb-4">
         <div className="relative flex items-center w-full">
-          <svg className="absolute left-3 text-[#999]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="absolute left-3 text-[var(--muted-color)]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
@@ -227,7 +227,7 @@ export function TodoList() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 text-[#999] hover:text-[var(--text-color)] bg-none border-none p-0 cursor-pointer flex items-center justify-center"
+              className="absolute right-3 text-[var(--muted-color)] hover:text-[var(--icon-color)] bg-none border-none p-0 cursor-pointer flex items-center justify-center"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -341,21 +341,21 @@ export function TodoList() {
       )}
 
       {activeCards.length === 0 && archivedCards.length === 0 && (
-        <div className="text-center py-15 px-5 text-[#666] font-work-sans">
+        <div className="text-center py-15 px-5 text-[var(--muted-color)] font-work-sans">
           <div className="text-[3rem] mb-4">📝</div>
           No tasks found. Click the + button to create one.
         </div>
       )}
 
       {activeCards.length === 0 && archivedCards.length > 0 && !searchQuery && !selectedTag && (
-        <div className="text-center py-10 px-5 text-[#666] font-work-sans">
+        <div className="text-center py-10 px-5 text-[var(--muted-color)] font-work-sans">
           <div className="text-[2.5rem] mb-2">📦</div>
           All tasks are archived. View them below or click + to create a new task.
         </div>
       )}
 
       {activeCards.length > 0 && filteredActiveCards.length === 0 && (searchQuery || selectedTag) && (
-        <div className="text-center py-10 px-5 text-[#666] font-mono text-[0.85rem]">
+        <div className="text-center py-10 px-5 text-[var(--muted-color)] font-mono text-[0.85rem]">
           No active tasks match your filter.
         </div>
       )}

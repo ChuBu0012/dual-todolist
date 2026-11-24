@@ -347,7 +347,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
               </span>
             )}
             {localCard.isArchived && (
-              <span className="mono text-[0.75rem] font-bold text-[#666] bg-[rgba(0,0,0,0.06)] px-2 py-0.5 border border-[var(--border-color)]">
+              <span className="mono text-[0.75rem] font-bold text-[var(--muted-color)] bg-[var(--ghost-fill)] px-2 py-0.5 border border-[var(--border-color)]">
                 ARCHIVED
               </span>
             )}
@@ -364,7 +364,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
               type="button"
               onClick={handleSortItems}
               disabled={isReadOnly}
-              className="inline-flex items-center bg-none border-none cursor-pointer p-1 text-[#666] hover:text-black hover:bg-[rgba(0,0,0,0.05)] rounded disabled:opacity-50"
+              className="inline-flex items-center bg-none border-none cursor-pointer p-1 text-[var(--muted-color)] hover:text-[var(--icon-color)] hover:bg-[var(--ghost-bg)] rounded disabled:opacity-50"
               title="Sort tasks (pending first)"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -378,7 +378,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
               type="button"
               onClick={() => updateField({ isPinned: !localCard.isPinned })}
               disabled={isReadOnly}
-              className={`w-[40px] h-[40px] border-2 border-[var(--border-color)] flex items-center justify-center transition-colors ${localCard.isPinned ? 'bg-[var(--border-color)] text-[var(--card-bg)] hover:bg-[var(--card-bg)] hover:text-[var(--border-color)]' : 'bg-[var(--card-bg)] text-[var(--border-color)] hover:bg-[var(--border-color)] hover:text-[var(--card-bg)]'} ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
+              className={`w-[40px] h-[40px] border-2 border-[var(--strong-color)] flex items-center justify-center transition-colors ${localCard.isPinned ? 'bg-[var(--strong-color)] text-[var(--strong-contrast)] hover:bg-[var(--card-bg)] hover:text-[var(--strong-color)]' : 'bg-[var(--card-bg)] text-[var(--strong-color)] hover:bg-[var(--strong-color)] hover:text-[var(--strong-contrast)]'} ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
               title={localCard.isPinned ? 'Unpin task' : 'Pin task'}
             >
               <PinIcon isPinned={localCard.isPinned} size={18} />
@@ -389,7 +389,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
               type="button"
               onClick={handleToggleArchive}
               disabled={isReadOnly}
-              className={`w-[40px] h-[40px] border-2 border-[var(--border-color)] flex items-center justify-center transition-colors ${localCard.isArchived ? 'bg-[var(--border-color)] text-[var(--card-bg)] hover:bg-[var(--card-bg)] hover:text-[var(--border-color)]' : 'bg-[var(--card-bg)] text-[var(--border-color)] hover:bg-[var(--border-color)] hover:text-[var(--card-bg)]'} ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
+              className={`w-[40px] h-[40px] border-2 border-[var(--strong-color)] flex items-center justify-center transition-colors ${localCard.isArchived ? 'bg-[var(--strong-color)] text-[var(--strong-contrast)] hover:bg-[var(--card-bg)] hover:text-[var(--strong-color)]' : 'bg-[var(--card-bg)] text-[var(--strong-color)] hover:bg-[var(--strong-color)] hover:text-[var(--strong-contrast)]'} ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
               title={localCard.isArchived ? 'Unarchive card' : 'Archive card'}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -407,7 +407,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
               className={`h-[40px] px-[10px] bg-[var(--card-bg)] border-2 border-[var(--border-color)] flex items-center gap-2 ${isReadOnly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer opacity-100'}`}
               title="Click to switch assignee: Most -> Fern -> Both"
             >
-              <span className="mono text-[0.7rem] font-bold text-[#555]">
+              <span className="mono text-[0.7rem] font-bold text-[var(--muted-color)]">
                 FOR:
               </span>
               <AssigneeBadge assignee={localCard.assignee || 'both'} size="medium" />
@@ -430,7 +430,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto flex-1 pb-4 touch-pan-y overscroll-contain">
+        <div className="overflow-y-auto flex-1 min-w-0 w-full pb-4 touch-pan-y overscroll-contain">
           {/* Title input */}
           <input
             className={`rb-input text-[1.25rem] font-archivo-black border-none border-b-2 border-[var(--border-color)] py-2 mb-6 w-full box-border ${isReadOnly ? 'opacity-70' : 'opacity-100'}`}
@@ -453,7 +453,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
               items={(localCard.items || []).map(i => i.id)}
               strategy={verticalListSortingStrategy}
             >
-              <div className="flex flex-col gap-2 mb-4">
+              <div className="flex w-full min-w-0 flex-col gap-2 mb-4">
                 {(localCard.items || []).map((item, index) => (
                   <SortableChecklistItem
                     key={item.id}
@@ -488,7 +488,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
           </DndContext>
 
           {movingItemIds.length > 0 ? (
-            <div className="flex items-center justify-between p-3 border-2 border-[var(--border-color)] bg-[var(--border-color)] text-[var(--card-bg)] mt-4">
+            <div className="flex items-center justify-between p-3 border-2 border-[var(--strong-color)] bg-[var(--strong-color)] text-[var(--strong-contrast)] mt-4">
               <span className="font-archivo-black uppercase">
                 {movingItemIds.length} Selected
               </span>
@@ -501,7 +501,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
                 </button>
                 <button
                   onClick={() => setIsMoveSheetOpen(true)}
-                  className="px-3 py-1 bg-[var(--card-bg)] text-[var(--border-color)] border-none font-bold mono text-[0.8rem]"
+                  className="px-3 py-1 bg-[var(--card-bg)] text-[var(--strong-color)] border-none font-bold mono text-[0.8rem]"
                 >
                   MOVE
                 </button>
@@ -512,7 +512,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
               type="button"
               onClick={() => handleAddItem()}
               disabled={isReadOnly}
-              className={`bg-none border-none font-work-sans text-[1rem] items-center gap-2 py-2 text-[#555] ${isReadOnly ? 'hidden' : 'flex cursor-pointer'}`}
+              className={`bg-none border-none font-work-sans text-[1rem] items-center gap-2 py-2 text-[var(--muted-color)] ${isReadOnly ? 'hidden' : 'flex cursor-pointer'}`}
             >
               <span className="text-[1.25rem]">+</span> ITEM
             </button>
@@ -538,7 +538,7 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
             onClick={e => e.stopPropagation()}
             className="w-full max-w-[480px] bg-[var(--card-bg)] border-t-[3px] border-[var(--border-color)] p-4 animate-fade-up flex flex-col max-h-[80vh]"
           >
-            <h3 className="mono font-bold mb-4 uppercase tracking-widest text-[0.8rem] text-[var(--border-color)]">
+            <h3 className="mono font-bold mb-4 uppercase tracking-widest text-[0.8rem] text-[var(--fg-color)]">
               Move to...
             </h3>
             {moveError && (
@@ -555,22 +555,22 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
                   <button
                     key={c.id}
                     onClick={() => handleMoveItems(c.id)}
-                    className="p-3 border-2 border-[var(--border-color)] text-left hover:bg-[rgba(0,0,0,0.05)] bg-[var(--bg-color)] truncate font-archivo-black text-[var(--border-color)] flex justify-between items-center"
+                    className="p-3 border-2 border-[var(--border-color)] text-left hover:bg-[var(--ghost-bg)] bg-[var(--bg-color)] truncate font-archivo-black text-[var(--fg-color)] flex justify-between items-center"
                   >
                     <span>{baseName}</span>
-                    <span className="text-[0.7rem] bg-[var(--border-color)] text-[var(--card-bg)] px-2 py-0.5 rounded-sm ml-2">
+                    <span className="text-[0.7rem] bg-[var(--strong-color)] text-[var(--strong-contrast)] px-2 py-0.5 rounded-sm ml-2">
                       {assigneeIcon}
                     </span>
                   </button>
                 );
               })}
               {allCards.filter(c => c.id !== localCard.id).length === 0 && (
-                <div className="text-center text-[#888] py-4 mono text-[0.8rem]">NO OTHER CARDS</div>
+                <div className="text-center text-[var(--muted-color)] py-4 mono text-[0.8rem]">NO OTHER CARDS</div>
               )}
             </div>
             <button
               onClick={() => setIsMoveSheetOpen(false)}
-              className="mt-4 p-3 border-2 border-[var(--border-color)] bg-[var(--border-color)] text-[var(--card-bg)] font-bold mono uppercase tracking-widest"
+              className="mt-4 p-3 border-2 border-[var(--strong-color)] bg-[var(--strong-color)] text-[var(--strong-contrast)] font-bold mono uppercase tracking-widest"
             >
               Cancel
             </button>
@@ -587,17 +587,17 @@ export function CardModal({ card, onClose, isReadOnly, autoFocusEmpty }: Props) 
             onClick={e => e.stopPropagation()}
             className="w-full max-w-[360px] bg-[var(--card-bg)] border-[3px] border-[var(--border-color)] p-5 animate-fade-up flex flex-col"
           >
-            <h3 className="font-archivo-black text-[1.25rem] mb-2 uppercase text-[var(--border-color)]">
+            <h3 className="font-archivo-black text-[1.25rem] mb-2 uppercase text-[var(--fg-color)]">
               DELETE CARD?
             </h3>
-            <p className="font-work-sans text-[0.9rem] mb-6 text-[var(--border-color)] opacity-80">
+            <p className="font-work-sans text-[0.9rem] mb-6 text-[var(--fg-color)] opacity-80">
               This card and all its items will be permanently removed.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 bg-transparent border-2 border-[var(--border-color)] font-mono font-bold text-[0.85rem] cursor-pointer text-[var(--border-color)] hover:bg-[rgba(0,0,0,0.05)]"
+                className="px-4 py-2 bg-transparent border-2 border-[var(--border-color)] font-mono font-bold text-[0.85rem] cursor-pointer text-[var(--fg-color)] hover:bg-[var(--ghost-bg)]"
               >
                 CANCEL
               </button>

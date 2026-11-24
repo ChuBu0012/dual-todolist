@@ -82,7 +82,7 @@ export function SyncStatusIcon({ state }: Props) {
     <span
       key="idle-icon"
       title="Saved"
-      className="inline-flex items-center justify-center text-[var(--fg-color)] opacity-50"
+      className="sync-status-idle inline-flex items-center justify-center text-[var(--icon-color)] opacity-50"
       aria-label="Saved"
     >
       <svg

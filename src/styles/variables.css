@@ -95,13 +95,13 @@
 .rb-btn-ghost {
   background: transparent;
   border: none;
-  color: var(--color-black);
+  color: var(--icon-color);
   text-decoration: underline;
   font-family: var(--font-body);
   cursor: pointer;
   padding: 4px 8px;
 }
-.rb-btn-ghost:hover { color: #0000ff; }
+.rb-btn-ghost:hover { color: var(--accent-color); }
 
 /* Input */
 .rb-input {

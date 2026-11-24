@@ -13,20 +13,23 @@
    =================================== */
 
 :root {
-  --bg-color: #f1f5f5;
-  --fg-color: #26363c;
-  --border-color: #d3dfe0;
+  --bg-color: #ffffff;
+  --fg-color: #171717;
+  --border-color: #d5d5d5;
   --text-color: var(--fg-color);
-  --accent-color: #3f858d;
+  --icon-color: #252525;
+  --strong-color: #1b1b1b;
+  --strong-contrast: #ffffff;
+  --accent-color: #202020;
   --accent-contrast: #ffffff;
-  --muted-color: #71858a;
+  --muted-color: #5f5f5f;
   --error-bg: #fbefef;
   --error-border: #ce777d;
   --error-text: #9c3e48;
-  --ghost-bg: rgba(63, 133, 141, 0.06);
-  --ghost-fill: rgba(63, 133, 141, 0.11);
+  --ghost-bg: rgba(0, 0, 0, 0.04);
+  --ghost-fill: rgba(0, 0, 0, 0.08);
   --card-bg: #ffffff;
-  --overlay-bg: rgba(241, 245, 245, 0.92);
+  --overlay-bg: rgba(255, 255, 255, 0.92);
 }
 
 [data-theme="dark"] {
@@ -35,6 +38,9 @@
   --fg-color: #d3dde1;
   --border-color: #354a54;
   --text-color: var(--fg-color);
+  --icon-color: #d3dde1;
+  --strong-color: #8fc4cb;
+  --strong-contrast: #183039;
   --accent-color: #8fc4cb;
   --accent-contrast: #183039;
   --muted-color: #94a8b0;
@@ -76,6 +82,12 @@ html, body, #root {
 :focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 3px;
+}
+
+.checklist-item-input:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  background-color: var(--ghost-bg);
 }
 
 [data-theme="dark"] ::selection {
@@ -139,6 +151,14 @@ html, body, #root {
 [data-theme="light"] textarea,
 [data-theme="light"] select {
   border-radius: 6px !important;
+}
+
+[data-theme="light"] .sync-status-idle {
+  opacity: 0.8;
+}
+
+[data-theme="dark"] .sync-status-idle {
+  opacity: 0.85;
 }
 
 /* Typography */

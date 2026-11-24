@@ -52,7 +52,7 @@ export function MainLayout({ onLogoClick, children }: { onLogoClick?: () => void
           {/* Dark Mode Toggle */}
           <button
             onClick={() => setIsDark(prev => !prev)}
-            className="bg-none border-none cursor-pointer flex items-center justify-center text-[var(--border-color)] p-1"
+            className="bg-none border-none cursor-pointer flex items-center justify-center text-[var(--icon-color)] p-1"
             title="Toggle Dark Mode"
           >
             {isDark ? <Sun size={20} strokeWidth={2.5} /> : <Moon size={20} strokeWidth={2.5} />}
